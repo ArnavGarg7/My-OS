@@ -1,0 +1,6 @@
+# Auto-HTTPS reverse proxy (04 §1/§11). HTTPS is required for Web Push.
+# {$MYOS_DOMAIN} defaults to localhost for local testing.
+{$MYOS_DOMAIN:localhost} {
+	encode zstd gzip
+	reverse_proxy web:3000
+}

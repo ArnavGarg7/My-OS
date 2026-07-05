@@ -1,0 +1,55 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "stream",
+  "globalEnv": ["NODE_ENV"],
+  "globalPassThroughEnv": [
+    "DATABASE_URL",
+    "MYOS_APP_URL",
+    "SESSION_SECRET",
+    "ANTHROPIC_API_KEY",
+    "VOYAGE_API_KEY",
+    "MYOS_VAPID_PUBLIC_KEY",
+    "MYOS_VAPID_PRIVATE_KEY",
+    "MYOS_VAPID_SUBJECT"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
+    "lint": {},
+    "test": {
+      "dependsOn": ["^build"]
+    },
+    "test:e2e": {
+      "cache": false
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
+    "generate": {
+      "cache": false
+    },
+    "migrate": {
+      "cache": false
+    },
+    "studio": {
+      "cache": false,
+      "persistent": true
+    },
+    "check": {
+      "cache": false
+    },
+    "seed": {
+      "cache": false
+    }
+  }
+}

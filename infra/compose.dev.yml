@@ -1,0 +1,26 @@
+# Local development: Postgres only. The web + worker run on the host via
+# `pnpm dev` (08_Developer_Guidelines.md §7).
+#   docker compose -f infra/compose.dev.yml up -d
+name: myos-dev
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-myos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-myos}
+      POSTGRES_DB: ${POSTGRES_DB:-myos}
+    volumes:
+      - pgdata-dev:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-myos}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata-dev:

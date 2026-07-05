@@ -1,0 +1,95 @@
+/**
+ * My OS design tokens — 03_Design_Requirements_Document.md §2.
+ * Dark is the reference theme; light is the derived mapping.
+ * Components must consume these variables (never hardcode hex) — 03 §2 / 08 §3.
+ */
+
+:root,
+:root[data-theme="dark"] {
+  /* Surfaces */
+  --bg-base: #0a0a0c;
+  --bg-surface: #111113;
+  --bg-elevated: #18181c;
+  --bg-overlay: #1f1f24;
+  --bg-inset: #0d0d10;
+
+  /* Borders */
+  --border-subtle: #26262b;
+  --border-strong: #3a3a42;
+
+  /* Text */
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #6e6e78;
+  --text-disabled: #4a4a52;
+
+  /* Accent */
+  --accent: #6e7bff;
+  --accent-hover: #8089ff;
+  --accent-muted: rgba(110, 123, 255, 0.14);
+
+  /* Semantics */
+  --success: #3ecf6e;
+  --warning: #f5b83d;
+  --danger: #f4564a;
+  --info: #4cc3e8;
+
+  /* Priority scale (P0..P3) */
+  --priority-0: #f4564a;
+  --priority-1: #f5a83d;
+  --priority-2: #6e7bff;
+  --priority-3: #6e6e78;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 300ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Typography */
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+:root[data-theme="light"] {
+  --bg-base: #fafafb;
+  --bg-surface: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-overlay: #ffffff;
+  --bg-inset: #f2f2f4;
+
+  --border-subtle: #e4e4e9;
+  --border-strong: #c9c9d2;
+
+  --text-primary: #17171c;
+  --text-secondary: #565660;
+  --text-tertiary: #8a8a94;
+  --text-disabled: #b4b4bc;
+
+  --accent: #5561f0;
+  --accent-hover: #4450e0;
+  --accent-muted: rgba(85, 97, 240, 0.12);
+
+  --success: #23a655;
+  --warning: #d99413;
+  --danger: #dc3d31;
+  --info: #2196c2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur-base: 1ms;
+    --dur-slow: 1ms;
+  }
+}
