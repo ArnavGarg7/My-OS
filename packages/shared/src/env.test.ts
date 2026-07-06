@@ -12,7 +12,10 @@ describe("isClerkConfigured", () => {
       isClerkConfigured({ CLERK_SECRET_KEY: undefined, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk" }),
     ).toBe(false);
     expect(
-      isClerkConfigured({ CLERK_SECRET_KEY: undefined, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: undefined }),
+      isClerkConfigured({
+        CLERK_SECRET_KEY: undefined,
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: undefined,
+      }),
     ).toBe(false);
   });
 });
@@ -34,9 +37,9 @@ describe("parseServerEnv — Clerk", () => {
 
   it("throws when only one Clerk key is set", () => {
     expect(() => parseServerEnv({ ...base, CLERK_SECRET_KEY: "sk_test" })).toThrow(/Clerk/);
-    expect(() =>
-      parseServerEnv({ ...base, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test" }),
-    ).toThrow(/Clerk/);
+    expect(() => parseServerEnv({ ...base, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test" })).toThrow(
+      /Clerk/,
+    );
   });
 
   it("defaults the sign-in / sign-up URLs", () => {

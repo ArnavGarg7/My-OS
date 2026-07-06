@@ -9,8 +9,12 @@ export interface NumberFormatOptions {
 
 /** Format a number, e.g. "1,234" or "1.2K" (compact). */
 export function formatNumber(value: number, options: NumberFormatOptions = {}): string {
-  const { locale = DEFAULT_LOCALE, minimumFractionDigits, maximumFractionDigits, notation } =
-    options;
+  const {
+    locale = DEFAULT_LOCALE,
+    minimumFractionDigits,
+    maximumFractionDigits,
+    notation,
+  } = options;
   return new Intl.NumberFormat(locale, {
     ...(minimumFractionDigits === undefined ? {} : { minimumFractionDigits }),
     ...(maximumFractionDigits === undefined ? {} : { maximumFractionDigits }),
