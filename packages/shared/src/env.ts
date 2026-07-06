@@ -40,14 +40,24 @@ export const serverEnvSchema = z.object({
   // Auth (required once Stage 0 auth lands; optional during bootstrap)
   SESSION_SECRET: z.string().min(32).optional(),
 
+  // Clerk (Sprint 1.5). Optional so the app builds/boots without them; when both
+  // are present, authentication is enforced (see `isClerkConfigured`). Kept behind
+  // the IdentityService abstraction — no app code reads these directly.
+  CLERK_SECRET_KEY: z.string().optional(),
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().optional(),
+  NEXT_PUBLIC_CLERK_SIGN_IN_URL: z.string().default("/sign-in"),
+  NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.string().default("/sign-up"),
+
   // AI providers (optional)
   ANTHROPIC_API_KEY: z.string().optional(),
   VOYAGE_API_KEY: z.string().optional(),
 
-  // Web Push / VAPID (optional until Stage 4)
+  // Web Push / VAPID (optional until Stage 4). The public key is also exposed to
+  // the browser (NEXT_PUBLIC_) so the client can create a push subscription.
   MYOS_VAPID_PUBLIC_KEY: z.string().optional(),
   MYOS_VAPID_PRIVATE_KEY: z.string().optional(),
   MYOS_VAPID_SUBJECT: z.string().optional(),
+  NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY: z.string().optional(),
 
   // Backups (optional)
   MYOS_BACKUP_S3_ENDPOINT: z.string().optional(),
@@ -79,10 +89,36 @@ export function parseServerEnv(
       .join("\n");
     throw new Error(`Invalid environment variables:\n${issues}`);
   }
+  // A half-configured Clerk (one key without the other) is a misconfiguration,
+  // not an intentional "auth disabled" state — fail loudly.
+  const { CLERK_SECRET_KEY: secret, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pub } = parsed.data;
+  if (Boolean(secret) !== Boolean(pub)) {
+    throw new Error(
+      "Invalid environment variables:\n  - Clerk: set BOTH CLERK_SECRET_KEY and " +
+        "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, or neither.",
+    );
+  }
   return parsed.data;
 }
 
 /** Feature flag: is the external AI layer configured? (06_AI_Architecture.md §1) */
 export function isAiEnabled(env: Pick<ServerEnv, "ANTHROPIC_API_KEY">): boolean {
   return Boolean(env.ANTHROPIC_API_KEY);
+}
+
+/**
+ * Feature flag: is Clerk authentication configured? When false, the app runs in
+ * a local single-owner dev mode (never in production — see IdentityService).
+ */
+export function isClerkConfigured(
+  env: Pick<ServerEnv, "CLERK_SECRET_KEY" | "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY">,
+): boolean {
+  return Boolean(env.CLERK_SECRET_KEY) && Boolean(env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+}
+
+/** Feature flag: is Web Push configured (VAPID keys present)? (Sprint 1.7) */
+export function isPushConfigured(
+  env: Pick<ServerEnv, "MYOS_VAPID_PRIVATE_KEY" | "NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY">,
+): boolean {
+  return Boolean(env.MYOS_VAPID_PRIVATE_KEY) && Boolean(env.NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY);
 }

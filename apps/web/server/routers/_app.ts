@@ -1,10 +1,14 @@
 import { router, publicProcedure } from "../trpc";
+import { meRouter } from "./me";
+import { pushRouter } from "./push";
 
 /**
- * Root tRPC router (04 §5). Feature routers (tasks, planner, health, …) are
- * mounted here from Sprint 1.2 onward. Sprint 1.1 exposes a health probe only.
+ * Root tRPC router (04 §5). Feature routers (tasks, planner, health, …) mount
+ * here. Sprint 1.5 adds `me` (identity + personalization).
  */
 export const appRouter = router({
+  me: meRouter,
+  push: pushRouter,
   system: router({
     health: publicProcedure.query(async ({ ctx }) => {
       let db = false;

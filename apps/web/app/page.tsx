@@ -1,27 +1,45 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Button } from "@myos/ui";
 import { APP_NAME, APP_TAGLINE } from "@myos/shared/constants";
+import { clerkEnabled, getCurrentUser } from "@/server/identity";
+
+export const dynamic = "force-dynamic";
 
 /**
- * Sprint 1.1 landing page — foundation only. Displays the product name, tagline,
- * and initialization status. No product UI (that begins in Sprint 1.2+).
+ * Public landing (Sprint 1.5). Authenticated users are sent to onboarding or
+ * their landing page; everyone else sees the entry point. In local dev mode the
+ * owner is always present, so this immediately forwards into the OS.
  */
-export default function Page() {
+export default async function LandingPage() {
+  const identity = await getCurrentUser();
+  if (identity) {
+    redirect(identity.isOnboarded ? identity.preferences.defaultLandingPage : "/onboarding");
+  }
+
   return (
-    <main className="bg-base flex min-h-dvh items-center justify-center px-6">
-      <div className="flex flex-col items-center gap-6 text-center">
-        <span
-          aria-hidden
-          className="bg-elevated text-accent flex size-12 items-center justify-center rounded-[10px] font-mono text-2xl"
-        >
-          ▮
-        </span>
-        <div className="flex flex-col gap-2">
-          <h1 className="text-fg text-[28px] font-semibold leading-8">{APP_NAME}</h1>
-          <p className="text-fg-muted text-[15px]">{APP_TAGLINE}</p>
-        </div>
-        <p className="text-success font-mono text-xs uppercase tracking-[0.18em]">
-          System Initialized.
-        </p>
+    <main className="bg-base text-fg flex min-h-dvh flex-col items-center justify-center gap-8 p-6 text-center">
+      <div className="max-w-lg space-y-3">
+        <p className="text-caption text-fg-subtle uppercase tracking-[0.2em]">{APP_NAME}</p>
+        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+          The Operating System for My Life.
+        </h1>
+        <p className="text-body-l text-fg-muted">{APP_TAGLINE}</p>
       </div>
+      {clerkEnabled() ? (
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Button asChild size="lg">
+            <Link href="/sign-in">Sign in</Link>
+          </Button>
+          <Button asChild size="lg" variant="secondary">
+            <Link href="/sign-up">Create account</Link>
+          </Button>
+        </div>
+      ) : (
+        <Button asChild size="lg">
+          <Link href="/today">Enter My OS</Link>
+        </Button>
+      )}
     </main>
   );
 }

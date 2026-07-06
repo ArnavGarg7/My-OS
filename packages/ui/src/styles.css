@@ -1,0 +1,17 @@
+/**
+ * @myos/ui single stylesheet entry. Apps import this once:
+ *
+ *   @import "tailwindcss";
+ *   @import "@myos/ui/styles.css";
+ *
+ * It contributes the design tokens, the Tailwind theme mapping, the base layer,
+ * and tells Tailwind to scan the UI package's components for class names. The
+ * host app owns only the `@import "tailwindcss"` line — every color, size, type
+ * style, shadow and animation is defined here.
+ */
+@import "./styles/tokens.css";
+@import "./styles/theme.css";
+@import "./styles/base.css";
+
+/* Scan the component library so its utility classes are never purged. */
+@source "./**/*.{ts,tsx}";

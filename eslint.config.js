@@ -20,6 +20,8 @@ export default tseslint.config(
       "**/coverage/**",
       "**/migrations/**",
       "**/next-env.d.ts",
+      "**/scripts/**",
+      "**/public/**",
     ],
   },
   js.configs.recommended,
@@ -66,7 +68,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["apps/web/**/*.{ts,tsx}"],
+    files: ["apps/web/**/*.{ts,tsx}", "packages/ui/**/*.{ts,tsx}"],
     plugins: { "react-hooks": reactHooks },
     rules: {
       ...reactHooks.configs.recommended.rules,

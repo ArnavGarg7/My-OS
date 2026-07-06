@@ -1,12 +1,22 @@
+import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { getDb } from "./db";
+import { getCurrentUser } from "./identity";
+import type { Identity } from "./identity";
 
 /**
- * Per-request tRPC context (04 §5). Auth/session are attached from Stage 0/1;
- * Sprint 1.1 exposes the database handle only.
+ * Per-request tRPC context (04 §5). Exposes the database handle plus a memoized
+ * identity resolver. Identity is resolved lazily (via the IdentityService, which
+ * wraps Clerk) so public procedures pay nothing and protected ones share one
+ * lookup per request.
  */
-export function createContext() {
+export function createContext(_opts?: FetchCreateContextFnOptions) {
   const { db, sql } = getDb();
-  return { db, sql };
+  let identity: Promise<Identity | null> | undefined;
+  return {
+    db,
+    sql,
+    getIdentity: () => (identity ??= getCurrentUser()),
+  };
 }
 
 export type Context = ReturnType<typeof createContext>;

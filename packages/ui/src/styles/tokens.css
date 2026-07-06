@@ -1,0 +1,120 @@
+/**
+ * My OS design tokens — the single source of truth for every visual primitive
+ * (03_Design_Requirements_Document.md §2). Dark is the reference theme; light is
+ * the derived mapping. Nothing outside @myos/ui may define these values.
+ *
+ * These are raw CSS custom properties. styles/theme.css maps them into Tailwind
+ * so utilities (bg-surface, text-fg, rounded-lg, shadow-e2, text-body-m, …) are
+ * generated from them.
+ */
+
+:root,
+:root[data-theme="dark"] {
+  /* ── Surfaces ──────────────────────────────────────────────────────────── */
+  --bg-base: #0a0a0c;
+  --bg-surface: #111113;
+  --bg-elevated: #18181c;
+  --bg-overlay: #1f1f24;
+  --bg-inset: #0d0d10;
+  --bg-scrim: rgba(0, 0, 0, 0.6);
+
+  /* ── Borders ───────────────────────────────────────────────────────────── */
+  --border-subtle: #26262b;
+  --border-strong: #3a3a42;
+
+  /* ── Text ──────────────────────────────────────────────────────────────── */
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #6e6e78;
+  --text-disabled: #4a4a52;
+  --text-on-accent: #ffffff;
+
+  /* ── Accent ────────────────────────────────────────────────────────────── */
+  --accent: #6e7bff;
+  --accent-hover: #8089ff;
+  --accent-active: #5a67f0;
+  --accent-muted: rgba(110, 123, 255, 0.14);
+  --accent-border: rgba(110, 123, 255, 0.4);
+
+  /* ── Semantic — foreground + subtle background ─────────────────────────── */
+  --success: #3ecf6e;
+  --success-subtle: rgba(62, 207, 110, 0.14);
+  --warning: #f5b83d;
+  --warning-subtle: rgba(245, 184, 61, 0.14);
+  --danger: #f4564a;
+  --danger-subtle: rgba(244, 86, 74, 0.14);
+  --info: #4cc3e8;
+  --info-subtle: rgba(76, 195, 232, 0.14);
+  --neutral: #a1a1aa;
+  --neutral-subtle: rgba(161, 161, 170, 0.12);
+
+  /* ── Priority scale (P0..P3) ───────────────────────────────────────────── */
+  --priority-0: #f4564a;
+  --priority-1: #f5a83d;
+  --priority-2: #6e7bff;
+  --priority-3: #6e6e78;
+
+  /* ── Focus ring ────────────────────────────────────────────────────────── */
+  --ring: #6e7bff;
+
+  /* ── Motion durations (theme-independent; zeroed under reduced-motion) ──── */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 300ms;
+
+  /* ── Opacity ───────────────────────────────────────────────────────────── */
+  --opacity-disabled: 0.5;
+
+  /* ── Elevation (dark leans on border + scrim per 03 §2.3) ──────────────── */
+  --shadow-e1: 0 1px 2px 0 rgba(0, 0, 0, 0.28);
+  --shadow-e2: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-e3: 0 12px 40px rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme="light"] {
+  --bg-base: #fafafb;
+  --bg-surface: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-overlay: #ffffff;
+  --bg-inset: #f2f2f4;
+  --bg-scrim: rgba(20, 20, 28, 0.4);
+
+  --border-subtle: #e4e4e9;
+  --border-strong: #c9c9d2;
+
+  --text-primary: #17171c;
+  --text-secondary: #565660;
+  --text-tertiary: #8a8a94;
+  --text-disabled: #b4b4bc;
+  --text-on-accent: #ffffff;
+
+  --accent: #5561f0;
+  --accent-hover: #4450e0;
+  --accent-active: #3b47d6;
+  --accent-muted: rgba(85, 97, 240, 0.12);
+  --accent-border: rgba(85, 97, 240, 0.4);
+
+  --success: #23a655;
+  --success-subtle: rgba(35, 166, 85, 0.12);
+  --warning: #b8790f;
+  --warning-subtle: rgba(184, 121, 15, 0.12);
+  --danger: #dc3d31;
+  --danger-subtle: rgba(220, 61, 49, 0.1);
+  --info: #1f8fb8;
+  --info-subtle: rgba(31, 143, 184, 0.12);
+  --neutral: #565660;
+  --neutral-subtle: rgba(86, 86, 96, 0.1);
+
+  --ring: #5561f0;
+
+  --shadow-e1: 0 1px 2px 0 rgba(20, 20, 40, 0.08);
+  --shadow-e2: 0 4px 16px rgba(20, 20, 40, 0.1);
+  --shadow-e3: 0 12px 40px rgba(20, 20, 40, 0.16);
+}
+
+/* High-contrast friendly: strengthen hairlines when the OS asks for more contrast. */
+@media (prefers-contrast: more) {
+  :root {
+    --border-subtle: var(--border-strong);
+  }
+}
