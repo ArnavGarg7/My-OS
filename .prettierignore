@@ -5,3 +5,7 @@ dist/
 coverage/
 pnpm-lock.yaml
 *.md
+
+# Generated artifacts (not style-gated)
+**/migrations/
+apps/web/public/

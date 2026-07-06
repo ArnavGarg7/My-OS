@@ -20,7 +20,7 @@ describe("web app manifest", () => {
 
   it("declares categories, shortcuts and screenshots", () => {
     expect(m.categories).toContain("productivity");
-    expect((m.shortcuts?.length ?? 0)).toBeGreaterThan(0);
+    expect(m.shortcuts?.length ?? 0).toBeGreaterThan(0);
     expect(m.screenshots?.length).toBe(2);
     expect(m.screenshots?.some((s) => s.form_factor === "wide")).toBe(true);
   });
