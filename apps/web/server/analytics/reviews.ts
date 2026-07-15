@@ -8,15 +8,15 @@ import { buildContext } from "./service";
  * (weekly/monthly/quarterly/yearly) from the analytics context. Reviews are
  * generated on demand — persistence lives in `reports`.
  */
-export async function weeklyReview(db: Database, tz: string): Promise<Review> {
-  return analyticsEngine.review(await buildContext(db, tz), "weekly");
+export async function weeklyReview(db: Database, tz: string, now = new Date()): Promise<Review> {
+  return analyticsEngine.review(await buildContext(db, tz, now), "weekly");
 }
-export async function monthlyReview(db: Database, tz: string): Promise<Review> {
-  return analyticsEngine.review(await buildContext(db, tz), "monthly");
+export async function monthlyReview(db: Database, tz: string, now = new Date()): Promise<Review> {
+  return analyticsEngine.review(await buildContext(db, tz, now), "monthly");
 }
-export async function quarterlyReview(db: Database, tz: string): Promise<Review> {
-  return analyticsEngine.review(await buildContext(db, tz), "quarterly");
+export async function quarterlyReview(db: Database, tz: string, now = new Date()): Promise<Review> {
+  return analyticsEngine.review(await buildContext(db, tz, now), "quarterly");
 }
-export async function yearlyReview(db: Database, tz: string): Promise<Review> {
-  return analyticsEngine.review(await buildContext(db, tz), "yearly");
+export async function yearlyReview(db: Database, tz: string, now = new Date()): Promise<Review> {
+  return analyticsEngine.review(await buildContext(db, tz, now), "yearly");
 }
