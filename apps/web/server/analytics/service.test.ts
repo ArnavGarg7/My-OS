@@ -141,7 +141,7 @@ describe("buildContext", () => {
 
 describe("summary + domain endpoints", () => {
   it("summary bundles scores + metrics", async () => {
-    const s = await service.summary(db, TZ, "weekly");
+    const s = await service.summary(db, TZ, "weekly", NOW);
     expect(s.reportType).toBe("weekly");
     expect(s.scores.overall).toBeGreaterThan(0);
     expect(s.productivity.tasksCompleted).toBe(2);
@@ -149,14 +149,14 @@ describe("summary + domain endpoints", () => {
   });
 
   it("productivity reflects completed tasks + deep work", async () => {
-    const p = await service.productivity(db, TZ, "weekly");
+    const p = await service.productivity(db, TZ, "weekly", NOW);
     expect(p.tasksCompleted).toBe(2);
     expect(p.deepWorkMinutes).toBe(180);
     expect(p.decisionsCompleted).toBe(1);
   });
 
   it("focus reports deep-work blocks", async () => {
-    const f = await service.focus(db, TZ, "weekly");
+    const f = await service.focus(db, TZ, "weekly", NOW);
     expect(f.focusBlocks).toBe(2);
     expect(f.longestBlockMinutes).toBe(120);
   });
@@ -188,7 +188,7 @@ describe("summary + domain endpoints", () => {
     expect((await service.journal(db, TZ)).writingStreak).toBe(5);
   });
   it("timeline totals events", async () => {
-    expect((await service.timeline(db, TZ)).totalEvents).toBeGreaterThan(0);
+    expect((await service.timeline(db, TZ, "weekly", NOW)).totalEvents).toBeGreaterThan(0);
   });
   it("supports a monthly period", async () => {
     expect((await service.summary(db, TZ, "monthly")).reportType).toBe("monthly");
@@ -274,7 +274,7 @@ describe("trends, comparisons, forecasts + stats", () => {
 
 describe("reviews", () => {
   it("builds a weekly review with scores + highlights", async () => {
-    const r = await reviews.weeklyReview(db, TZ);
+    const r = await reviews.weeklyReview(db, TZ, NOW);
     expect(r.reportType).toBe("weekly");
     expect(r.scores.overall).toBeGreaterThan(0);
     expect(r.highlights.topDecision).toBe("Ship");

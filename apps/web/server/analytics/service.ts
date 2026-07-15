@@ -95,52 +95,109 @@ export async function buildContext(
 }
 
 // --- read endpoints (all derive from the context) ---
-export async function summary(db: Database, tz: string, type: ReportType = "weekly") {
-  return analyticsEngine.summary(await buildContext(db, tz), type);
+// `now` is injectable (defaults to the system clock) so the windowed metrics can
+// be pinned to a fixed date in tests; production callers omit it.
+export async function summary(
+  db: Database,
+  tz: string,
+  type: ReportType = "weekly",
+  now = new Date(),
+) {
+  return analyticsEngine.summary(await buildContext(db, tz, now), type);
 }
-export async function productivity(db: Database, tz: string, type: ReportType = "weekly") {
-  return analyticsEngine.productivity(await buildContext(db, tz), type);
+export async function productivity(
+  db: Database,
+  tz: string,
+  type: ReportType = "weekly",
+  now = new Date(),
+) {
+  return analyticsEngine.productivity(await buildContext(db, tz, now), type);
 }
-export async function focus(db: Database, tz: string, type: ReportType = "weekly") {
-  return analyticsEngine.focus(await buildContext(db, tz), type);
+export async function focus(
+  db: Database,
+  tz: string,
+  type: ReportType = "weekly",
+  now = new Date(),
+) {
+  return analyticsEngine.focus(await buildContext(db, tz, now), type);
 }
-export async function planner(db: Database, tz: string) {
-  return analyticsEngine.planner(await buildContext(db, tz));
+export async function planner(db: Database, tz: string, now = new Date()) {
+  return analyticsEngine.planner(await buildContext(db, tz, now));
 }
-export async function calendar(db: Database, tz: string, type: ReportType = "weekly") {
-  return analyticsEngine.calendar(await buildContext(db, tz), type);
+export async function calendar(
+  db: Database,
+  tz: string,
+  type: ReportType = "weekly",
+  now = new Date(),
+) {
+  return analyticsEngine.calendar(await buildContext(db, tz, now), type);
 }
-export async function health(db: Database, tz: string) {
-  return analyticsEngine.health(await buildContext(db, tz));
+export async function health(db: Database, tz: string, now = new Date()) {
+  return analyticsEngine.health(await buildContext(db, tz, now));
 }
-export async function finance(db: Database, tz: string) {
-  return analyticsEngine.finance(await buildContext(db, tz));
+export async function finance(db: Database, tz: string, now = new Date()) {
+  return analyticsEngine.finance(await buildContext(db, tz, now));
 }
-export async function goals(db: Database, tz: string, type: ReportType = "weekly") {
-  return analyticsEngine.goals(await buildContext(db, tz), type);
+export async function goals(
+  db: Database,
+  tz: string,
+  type: ReportType = "weekly",
+  now = new Date(),
+) {
+  return analyticsEngine.goals(await buildContext(db, tz, now), type);
 }
-export async function projects(db: Database, tz: string, type: ReportType = "weekly") {
-  return analyticsEngine.projects(await buildContext(db, tz), type);
+export async function projects(
+  db: Database,
+  tz: string,
+  type: ReportType = "weekly",
+  now = new Date(),
+) {
+  return analyticsEngine.projects(await buildContext(db, tz, now), type);
 }
-export async function journal(db: Database, tz: string, type: ReportType = "weekly") {
-  return analyticsEngine.journal(await buildContext(db, tz), type);
+export async function journal(
+  db: Database,
+  tz: string,
+  type: ReportType = "weekly",
+  now = new Date(),
+) {
+  return analyticsEngine.journal(await buildContext(db, tz, now), type);
 }
-export async function timeline(db: Database, tz: string, type: ReportType = "weekly") {
-  return analyticsEngine.timeline(await buildContext(db, tz), type);
+export async function timeline(
+  db: Database,
+  tz: string,
+  type: ReportType = "weekly",
+  now = new Date(),
+) {
+  return analyticsEngine.timeline(await buildContext(db, tz, now), type);
 }
-export async function trend(db: Database, tz: string, window: TrendWindowKey = "week") {
-  return analyticsEngine.trend(await buildContext(db, tz), window);
+export async function trend(
+  db: Database,
+  tz: string,
+  window: TrendWindowKey = "week",
+  now = new Date(),
+) {
+  return analyticsEngine.trend(await buildContext(db, tz, now), window);
 }
-export async function compare(db: Database, tz: string, period: ComparisonPeriod) {
-  return analyticsEngine.compare(await buildContext(db, tz), period);
+export async function compare(
+  db: Database,
+  tz: string,
+  period: ComparisonPeriod,
+  now = new Date(),
+) {
+  return analyticsEngine.compare(await buildContext(db, tz, now), period);
 }
-export async function forecast(db: Database, tz: string, horizonDays = 7) {
-  return analyticsEngine.forecast(await buildContext(db, tz), horizonDays);
+export async function forecast(db: Database, tz: string, horizonDays = 7, now = new Date()) {
+  return analyticsEngine.forecast(await buildContext(db, tz, now), horizonDays);
 }
-export async function statistics(db: Database, tz: string, type: ReportType = "weekly") {
-  return analyticsEngine.statistics(await buildContext(db, tz), type);
+export async function statistics(
+  db: Database,
+  tz: string,
+  type: ReportType = "weekly",
+  now = new Date(),
+) {
+  return analyticsEngine.statistics(await buildContext(db, tz, now), type);
 }
-export async function counts(db: Database, tz: string) {
-  const s = analyticsEngine.statistics(await buildContext(db, tz), "weekly");
+export async function counts(db: Database, tz: string, now = new Date()) {
+  const s = analyticsEngine.statistics(await buildContext(db, tz, now), "weekly");
   return { totalEvents: s.totalEvents, activeDays: s.activeDays, overallScore: s.overallScore };
 }
