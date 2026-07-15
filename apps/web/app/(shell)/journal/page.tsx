@@ -1,8 +1,7 @@
-import { PagePlaceholder } from "@/components/shell/page-placeholder";
-import { getNavItem } from "@/lib/shell/nav";
+import { JournalPage } from "@/components/journal/JournalPage";
 
 export const metadata = { title: "Journal" };
 
-export default function JournalPage() {
-  return <PagePlaceholder item={getNavItem("/journal")} />;
+export default function Journal() {
+  return <JournalPage />;
 }

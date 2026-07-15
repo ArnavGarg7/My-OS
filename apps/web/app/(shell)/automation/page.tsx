@@ -1,8 +1,7 @@
-import { PagePlaceholder } from "@/components/shell/page-placeholder";
-import { getNavItem } from "@/lib/shell/nav";
+import { AutomationPage } from "@/components/automation/AutomationPage";
 
 export const metadata = { title: "Automation" };
 
-export default function AutomationPage() {
-  return <PagePlaceholder item={getNavItem("/automation")} />;
+export default function Page() {
+  return <AutomationPage />;
 }

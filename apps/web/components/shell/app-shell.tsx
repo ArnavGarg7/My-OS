@@ -13,6 +13,26 @@ import { CommandPalette } from "@/components/command-center/command-palette";
 import { BuiltinCommands } from "@/lib/command-center/commands/builtin";
 import { PlatformBanners } from "@/components/platform/platform-banners";
 import { PlatformCommands } from "@/components/platform/platform-commands";
+import { TodayCommands } from "@/components/today/today-commands";
+import { MorningCommands } from "@/components/morning/morning-commands";
+import { DecisionCommands } from "@/components/decision/decision-commands";
+import { InboxCommands } from "@/components/inbox/InboxCommands";
+import { TaskCommands } from "@/components/task/TaskCommands";
+import { PlannerCommands } from "@/components/planner/PlannerCommands";
+import { CalendarCommands } from "@/components/calendar/CalendarCommands";
+import { ProjectCommands } from "@/components/project/ProjectCommands";
+import { HealthCommands } from "@/components/health/HealthCommands";
+import { JournalCommands } from "@/components/journal/JournalCommands";
+import { FinanceCommands } from "@/components/finance/FinanceCommands";
+import { GoalCommands } from "@/components/goal/GoalCommands";
+import { TimelineCommands } from "@/components/timeline/TimelineCommands";
+import { AnalyticsCommands } from "@/components/analytics/AnalyticsCommands";
+import { StudioCommands } from "@/components/tomorrow/StudioCommands";
+import { FocusCommands } from "@/components/focus/FocusCommands";
+import { NotificationCommands } from "@/components/notification/NotificationCommands";
+import { NotificationBanner } from "@/components/notification/NotificationBanner";
+import { AutomationCommands } from "@/components/automation/AutomationCommands";
+import { OrchestrationCommands } from "@/components/orchestration/OrchestrationCommands";
 
 /**
  * The OS shell. Every future feature renders inside `children`. Composes the
@@ -52,9 +72,29 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
       <StatusBar />
 
-      {/* Command Center: register built-in + platform commands + mount the palette */}
+      {/* Command Center: register built-in + platform + today commands + palette */}
       <BuiltinCommands />
       <PlatformCommands />
+      <TodayCommands />
+      <MorningCommands />
+      <DecisionCommands />
+      <InboxCommands />
+      <TaskCommands />
+      <PlannerCommands />
+      <CalendarCommands />
+      <ProjectCommands />
+      <HealthCommands />
+      <JournalCommands />
+      <FinanceCommands />
+      <GoalCommands />
+      <TimelineCommands />
+      <AnalyticsCommands />
+      <StudioCommands />
+      <FocusCommands />
+      <NotificationCommands />
+      <NotificationBanner />
+      <AutomationCommands />
+      <OrchestrationCommands />
       <CommandPalette />
 
       {/* Overlays */}

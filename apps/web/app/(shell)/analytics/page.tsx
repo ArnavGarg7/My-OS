@@ -1,8 +1,7 @@
-import { PagePlaceholder } from "@/components/shell/page-placeholder";
-import { getNavItem } from "@/lib/shell/nav";
+import { AnalyticsPage } from "@/components/analytics/AnalyticsPage";
 
 export const metadata = { title: "Analytics" };
 
-export default function AnalyticsPage() {
-  return <PagePlaceholder item={getNavItem("/analytics")} />;
+export default function Page() {
+  return <AnalyticsPage />;
 }

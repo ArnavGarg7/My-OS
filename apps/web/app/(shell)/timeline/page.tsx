@@ -1,8 +1,7 @@
-import { PagePlaceholder } from "@/components/shell/page-placeholder";
-import { getNavItem } from "@/lib/shell/nav";
+import { TimelinePage } from "@/components/timeline/TimelinePage";
 
 export const metadata = { title: "Timeline" };
 
-export default function TimelinePage() {
-  return <PagePlaceholder item={getNavItem("/timeline")} />;
+export default function Page() {
+  return <TimelinePage />;
 }

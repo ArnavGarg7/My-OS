@@ -4,6 +4,25 @@ import { useEffect, useState } from "react";
 import { useTheme } from "@myos/ui";
 import { useConnection, useNotifications, usePlatform, useUpdates } from "@/lib/platform";
 import { useBackgroundSync } from "@/lib/platform";
+import { TodayFocusStatus } from "@/components/today/today-focus-status";
+import { MorningFlashStatus } from "@/components/morning/MorningFlashStatus";
+import { DecisionStatusIndicator } from "@/components/decision/DecisionStatusIndicator";
+import { InboxStatusIndicator } from "@/components/inbox/InboxStatusIndicator";
+import { TaskStatusIndicator } from "@/components/task/TaskStatusIndicator";
+import { PlannerStatusIndicator } from "@/components/planner/PlannerStatusIndicator";
+import { CalendarStatusIndicator } from "@/components/calendar/CalendarStatusIndicator";
+import { ProjectStatusBar } from "@/components/project/ProjectStatusBar";
+import { HealthStatusIndicator } from "@/components/health/HealthStatusIndicator";
+import { JournalStatusIndicator } from "@/components/journal/JournalStatusIndicator";
+import { FinanceStatusIndicator } from "@/components/finance/FinanceStatusIndicator";
+import { GoalStatusIndicator } from "@/components/goal/GoalStatusIndicator";
+import { TimelineStatusIndicator } from "@/components/timeline/TimelineStatusIndicator";
+import { AnalyticsStatusIndicator } from "@/components/analytics/AnalyticsStatusIndicator";
+import { StudioStatusIndicator } from "@/components/tomorrow/StudioStatusIndicator";
+import { FocusStatusIndicator } from "@/components/focus/FocusStatusIndicator";
+import { NotificationStatusIndicator } from "@/components/notification/NotificationStatusIndicator";
+import { AutomationStatusIndicator } from "@/components/automation/AutomationStatusIndicator";
+import { OrchestrationStatusIndicator } from "@/components/orchestration/OrchestrationStatusIndicator";
 
 type Tone = "success" | "warning" | "danger" | "muted";
 
@@ -92,6 +111,61 @@ export function StatusBar() {
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4">
+        <MorningFlashStatus />
+        <div className="hidden 2xl:block">
+          <ProjectStatusBar />
+        </div>
+        <div className="hidden 2xl:block">
+          <CalendarStatusIndicator />
+        </div>
+        <div className="hidden 2xl:block">
+          <PlannerStatusIndicator />
+        </div>
+        <div className="hidden xl:block">
+          <TaskStatusIndicator />
+        </div>
+        <div className="hidden lg:block">
+          <InboxStatusIndicator />
+        </div>
+        <div className="hidden md:block">
+          <DecisionStatusIndicator />
+        </div>
+        <div className="hidden 2xl:block">
+          <HealthStatusIndicator />
+        </div>
+        <div className="hidden 2xl:block">
+          <JournalStatusIndicator />
+        </div>
+        <div className="hidden 2xl:block">
+          <FinanceStatusIndicator />
+        </div>
+        <div className="hidden 2xl:block">
+          <GoalStatusIndicator />
+        </div>
+        <div className="hidden 2xl:block">
+          <TimelineStatusIndicator />
+        </div>
+        <div className="hidden 2xl:block">
+          <AnalyticsStatusIndicator />
+        </div>
+        <div className="hidden 2xl:block">
+          <StudioStatusIndicator />
+        </div>
+        <div className="hidden xl:block">
+          <FocusStatusIndicator />
+        </div>
+        <div className="hidden lg:block">
+          <NotificationStatusIndicator />
+        </div>
+        <div className="hidden 2xl:block">
+          <AutomationStatusIndicator />
+        </div>
+        <div className="hidden 2xl:block">
+          <OrchestrationStatusIndicator />
+        </div>
+        <div className="hidden max-w-[200px] 2xl:block">
+          <TodayFocusStatus />
+        </div>
         {updates.updateAvailable ? (
           <StatusItem
             label="Update"

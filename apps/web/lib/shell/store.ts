@@ -21,6 +21,9 @@ interface ShellState {
 
   quickAddOpen: boolean;
   setQuickAddOpen: (open: boolean) => void;
+  /** Preselected capture type when Quick Add opens (Sprint 2.4). */
+  quickAddType: string | null;
+  setQuickAddType: (type: string | null) => void;
 
   mobileNavOpen: boolean;
   setMobileNavOpen: (open: boolean) => void;
@@ -28,6 +31,55 @@ interface ShellState {
   contextPanelOpen: boolean;
   setContextPanelOpen: (open: boolean) => void;
   toggleContextPanel: () => void;
+
+  // Selected inbox item (Sprint 2.4) — drives the context panel viewer.
+  selectedInboxId: string | null;
+  setSelectedInboxId: (id: string | null) => void;
+
+  // Selected task (Sprint 2.5) — drives the task context panel.
+  selectedTaskId: string | null;
+  setSelectedTaskId: (id: string | null) => void;
+
+  // Selected planner block (Sprint 2.6) — drives the planner inspector.
+  selectedBlockId: string | null;
+  setSelectedBlockId: (id: string | null) => void;
+
+  // Selected calendar event (Sprint 2.7) — drives the calendar inspector.
+  selectedEventId: string | null;
+  setSelectedEventId: (id: string | null) => void;
+
+  // Selected project (Sprint 2.8) — drives the project inspector / context panel.
+  selectedProjectId: string | null;
+  setSelectedProjectId: (id: string | null) => void;
+
+  // Selected journal entry (Sprint 2.10) — drives the journal context panel.
+  selectedJournalId: string | null;
+  setSelectedJournalId: (id: string | null) => void;
+
+  // Selected finance account (Sprint 2.11) — drives the finance context panel.
+  selectedAccountId: string | null;
+  setSelectedAccountId: (id: string | null) => void;
+
+  // Selected goal (Sprint 2.12) — drives the goal context panel.
+  selectedGoalId: string | null;
+  setSelectedGoalId: (id: string | null) => void;
+
+  // Selected timeline event (Sprint 2.13) — drives the timeline inspector.
+  selectedTimelineEventId: string | null;
+  setSelectedTimelineEventId: (id: string | null) => void;
+
+  // Selected analytics metric (Sprint 2.14) — drives the analytics context panel.
+  selectedMetric: string | null;
+  setSelectedMetric: (key: string | null) => void;
+
+  // Active Tomorrow Studio step (Sprint 3.1) — drives the studio context panel.
+  tomorrowStep: string;
+  setTomorrowStep: (step: string) => void;
+
+  // Focus Mode fullscreen (Sprint 3.2) — hides shell chrome for deep work.
+  focusFullscreen: boolean;
+  setFocusFullscreen: (on: boolean) => void;
+  toggleFocusFullscreen: () => void;
 }
 
 function clampWidth(width: number): number {
@@ -54,6 +106,8 @@ export const useShellStore = create<ShellState>()(
 
       quickAddOpen: false,
       setQuickAddOpen: (quickAddOpen) => set({ quickAddOpen }),
+      quickAddType: null,
+      setQuickAddType: (quickAddType) => set({ quickAddType }),
 
       mobileNavOpen: false,
       setMobileNavOpen: (mobileNavOpen) => set({ mobileNavOpen }),
@@ -61,6 +115,43 @@ export const useShellStore = create<ShellState>()(
       contextPanelOpen: false,
       setContextPanelOpen: (contextPanelOpen) => set({ contextPanelOpen }),
       toggleContextPanel: () => set((state) => ({ contextPanelOpen: !state.contextPanelOpen })),
+
+      selectedInboxId: null,
+      setSelectedInboxId: (selectedInboxId) => set({ selectedInboxId }),
+
+      selectedTaskId: null,
+      setSelectedTaskId: (selectedTaskId) => set({ selectedTaskId }),
+
+      selectedBlockId: null,
+      setSelectedBlockId: (selectedBlockId) => set({ selectedBlockId }),
+
+      selectedEventId: null,
+      setSelectedEventId: (selectedEventId) => set({ selectedEventId }),
+
+      selectedProjectId: null,
+      setSelectedProjectId: (selectedProjectId) => set({ selectedProjectId }),
+
+      selectedJournalId: null,
+      setSelectedJournalId: (selectedJournalId) => set({ selectedJournalId }),
+
+      selectedAccountId: null,
+      setSelectedAccountId: (selectedAccountId) => set({ selectedAccountId }),
+
+      selectedGoalId: null,
+      setSelectedGoalId: (selectedGoalId) => set({ selectedGoalId }),
+
+      selectedTimelineEventId: null,
+      setSelectedTimelineEventId: (selectedTimelineEventId) => set({ selectedTimelineEventId }),
+
+      selectedMetric: null,
+      setSelectedMetric: (selectedMetric) => set({ selectedMetric }),
+
+      tomorrowStep: "review",
+      setTomorrowStep: (tomorrowStep) => set({ tomorrowStep }),
+
+      focusFullscreen: false,
+      setFocusFullscreen: (focusFullscreen) => set({ focusFullscreen }),
+      toggleFocusFullscreen: () => set((state) => ({ focusFullscreen: !state.focusFullscreen })),
     }),
     {
       name: "myos-sidebar",

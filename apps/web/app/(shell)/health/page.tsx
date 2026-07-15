@@ -1,8 +1,7 @@
-import { PagePlaceholder } from "@/components/shell/page-placeholder";
-import { getNavItem } from "@/lib/shell/nav";
+import { HealthPage } from "@/components/health/HealthPage";
 
 export const metadata = { title: "Health" };
 
-export default function HealthPage() {
-  return <PagePlaceholder item={getNavItem("/health")} />;
+export default function Health() {
+  return <HealthPage />;
 }
