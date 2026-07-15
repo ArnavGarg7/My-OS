@@ -28,6 +28,7 @@ import {
 } from "@/lib/identity/options";
 import type { UserPreferences } from "@/server/identity/types";
 import { PlatformDiagnostics } from "@/components/platform/platform-diagnostics";
+import { InboxPreferences } from "@/components/inbox/InboxPreferences";
 import { LabeledSelect, ToggleRow } from "./form-controls";
 
 /**
@@ -221,6 +222,8 @@ export function PreferencesForm({ preferences }: { preferences: UserPreferences 
               onChange={(v) => set("autoLaunchMorningBriefing", v)}
             />
           </Card>
+
+          <InboxPreferences />
 
           <PlatformDiagnostics />
         </div>

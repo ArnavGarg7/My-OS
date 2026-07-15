@@ -1,8 +1,7 @@
-import { PagePlaceholder } from "@/components/shell/page-placeholder";
-import { getNavItem } from "@/lib/shell/nav";
+import { PlannerPage } from "@/components/planner/PlannerPage";
 
 export const metadata = { title: "Planner" };
 
-export default function PlannerPage() {
-  return <PagePlaceholder item={getNavItem("/planner")} />;
+export default function Planner() {
+  return <PlannerPage />;
 }

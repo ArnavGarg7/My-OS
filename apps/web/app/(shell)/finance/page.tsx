@@ -1,8 +1,7 @@
-import { PagePlaceholder } from "@/components/shell/page-placeholder";
-import { getNavItem } from "@/lib/shell/nav";
+import { FinancePage } from "@/components/finance/FinancePage";
 
 export const metadata = { title: "Finance" };
 
-export default function FinancePage() {
-  return <PagePlaceholder item={getNavItem("/finance")} />;
+export default function Finance() {
+  return <FinancePage />;
 }

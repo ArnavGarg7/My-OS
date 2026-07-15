@@ -1,8 +1,7 @@
-import { PagePlaceholder } from "@/components/shell/page-placeholder";
-import { getNavItem } from "@/lib/shell/nav";
+import { MorningBriefing } from "@/components/morning/MorningBriefing";
 
 export const metadata = { title: "Today" };
 
 export default function TodayPage() {
-  return <PagePlaceholder item={getNavItem("/today")} />;
+  return <MorningBriefing />;
 }

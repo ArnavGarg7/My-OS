@@ -9,6 +9,10 @@ import { AppProvider } from "@/lib/framework";
 import { AuthShellProvider, IdentityBridge } from "@/lib/identity";
 import { CommandCenterProvider } from "@/lib/command-center";
 import { PlatformProvider } from "@/lib/platform";
+import { TimelineProvider } from "@/lib/timeline";
+import { AnalyticsProvider } from "@/lib/analytics";
+import { HealthProviderBridge } from "@/components/health/HealthProviderBridge";
+import { TimelinePersistenceBridge } from "@/components/timeline/TimelinePersistenceBridge";
 
 /**
  * App-wide providers: theming, tooltips, toasts (from @myos/ui) + the client
@@ -33,9 +37,17 @@ export function Providers({ children }: { children: ReactNode }) {
               <QueryClientProvider client={queryClient}>
                 <AppProvider>
                   <PlatformProvider>
-                    <CommandCenterProvider>
-                      <IdentityBridge>{children}</IdentityBridge>
-                    </CommandCenterProvider>
+                    <TimelineProvider>
+                      <TimelinePersistenceBridge>
+                        <AnalyticsProvider>
+                          <HealthProviderBridge>
+                            <CommandCenterProvider>
+                              <IdentityBridge>{children}</IdentityBridge>
+                            </CommandCenterProvider>
+                          </HealthProviderBridge>
+                        </AnalyticsProvider>
+                      </TimelinePersistenceBridge>
+                    </TimelineProvider>
                   </PlatformProvider>
                 </AppProvider>
               </QueryClientProvider>
