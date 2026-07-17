@@ -17,7 +17,9 @@ import {
   Target,
   Trophy,
   Wallet,
+  LayoutDashboard,
   Workflow,
+  Dumbbell,
   Zap,
   type LucideIcon,
 } from "lucide-react";
@@ -38,6 +40,10 @@ export const SOURCE_ICON: Record<TimelineSource, LucideIcon> = {
   inbox: Inbox,
   automation: Activity,
   orchestration: Workflow,
+  knowledge: Brain,
+  life: Dumbbell,
+  resource: Wallet,
+  dashboard: LayoutDashboard,
   ai: Bot,
 };
 
@@ -55,6 +61,10 @@ export const SOURCE_LABEL: Record<TimelineSource, string> = {
   inbox: "Inbox",
   automation: "Automation",
   orchestration: "Orchestration",
+  knowledge: "Knowledge",
+  life: "Life",
+  resource: "Resources",
+  dashboard: "Dashboard",
   ai: "AI",
 };
 
@@ -72,6 +82,10 @@ export const SOURCE_COLOR: Record<TimelineSource, string> = {
   inbox: "var(--fg-subtle)",
   automation: "var(--fg-subtle)",
   orchestration: "var(--accent)",
+  knowledge: "var(--accent)",
+  life: "var(--success)",
+  resource: "var(--accent)",
+  dashboard: "var(--accent)",
   ai: "var(--accent)",
 };
 

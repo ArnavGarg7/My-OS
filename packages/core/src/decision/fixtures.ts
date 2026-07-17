@@ -77,6 +77,10 @@ export function makeContext(
     ...(over.notifications !== undefined ? { notifications: over.notifications } : {}),
     ...(over.automation !== undefined ? { automation: over.automation } : {}),
     ...(over.orchestration !== undefined ? { orchestration: over.orchestration } : {}),
+    ...(over.knowledge !== undefined ? { knowledge: over.knowledge } : {}),
+    ...(over.life !== undefined ? { life: over.life } : {}),
+    ...(over.resources !== undefined ? { resources: over.resources } : {}),
+    ...(over.dashboard !== undefined ? { dashboard: over.dashboard } : {}),
   };
 }
 

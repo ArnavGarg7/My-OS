@@ -61,6 +61,10 @@ export const goals = pgTable("goals", {
   targetDate: date("target_date", { mode: "string" }),
   startedAt: timestamp("started_at", { withTimezone: true }),
   completedAt: timestamp("completed_at", { withTimezone: true }),
+  // Sprint 4.2 (Personal Growth) extensions — hierarchy + vision framing. Nullable.
+  parentGoal: uuid("parent_goal"),
+  visionCategory: text("vision_category"),
+  reviewFrequency: text("review_frequency"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

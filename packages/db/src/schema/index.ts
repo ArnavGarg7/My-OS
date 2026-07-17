@@ -24,3 +24,7 @@ export * from "./focus";
 export * from "./notification";
 export * from "./automation";
 export * from "./orchestration";
+export * from "./knowledge";
+export * from "./life";
+export * from "./resource";
+export * from "./intelligence";

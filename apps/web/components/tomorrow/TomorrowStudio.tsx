@@ -18,6 +18,10 @@ import { TomorrowSummary } from "./TomorrowSummary";
 import { FocusReviewStats } from "@/components/focus/FocusReviewStats";
 import { AutomationSuggestions } from "@/components/automation/AutomationSuggestions";
 import { TomorrowOrchestration } from "./TomorrowOrchestration";
+import { TomorrowKnowledge } from "./TomorrowKnowledge";
+import { TomorrowLife } from "./TomorrowLife";
+import { TomorrowResource } from "./TomorrowResource";
+import { TomorrowPriorities } from "./TomorrowPriorities";
 
 /**
  * Tomorrow Studio (Sprint 3.1). The full-screen, guided evening workflow — the
@@ -84,6 +88,10 @@ export function TomorrowStudio() {
         return (
           <div className="flex flex-col gap-3">
             <TomorrowReadiness readiness={state.readiness} />
+            <TomorrowLife />
+            <TomorrowResource />
+            <TomorrowPriorities />
+            <TomorrowKnowledge />
             <TomorrowOrchestration />
           </div>
         );

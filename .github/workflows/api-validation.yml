@@ -1,0 +1,23 @@
+name: API Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: api-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: Frozen public API surface
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Pure filesystem+regex audit — fails if any frozen public export disappears.
+      - name: API contract audit
+        run: node scripts/api-audit.mjs

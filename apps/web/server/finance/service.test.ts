@@ -62,6 +62,8 @@ function txnRow(over: Partial<TransactionRow> = {}): TransactionRow {
     merchant: "Market",
     description: "",
     projectId: null,
+    investmentAccountId: null,
+    assetId: null,
     occurredAt: D("2026-07-07T12:00:00Z"),
     createdAt: D("2026-07-07T12:00:00Z"),
     ...over,

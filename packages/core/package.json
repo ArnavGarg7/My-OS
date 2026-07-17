@@ -23,7 +23,11 @@
     "./focus": "./src/focus/index.ts",
     "./notification": "./src/notification/index.ts",
     "./automation": "./src/automation/index.ts",
-    "./orchestration": "./src/orchestration/index.ts"
+    "./orchestration": "./src/orchestration/index.ts",
+    "./knowledge": "./src/knowledge/index.ts",
+    "./life": "./src/life/index.ts",
+    "./resource": "./src/resource/index.ts",
+    "./intelligence": "./src/intelligence/index.ts"
   },
   "types": "./src/index.ts",
   "scripts": {

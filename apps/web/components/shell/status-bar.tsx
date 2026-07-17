@@ -23,6 +23,10 @@ import { FocusStatusIndicator } from "@/components/focus/FocusStatusIndicator";
 import { NotificationStatusIndicator } from "@/components/notification/NotificationStatusIndicator";
 import { AutomationStatusIndicator } from "@/components/automation/AutomationStatusIndicator";
 import { OrchestrationStatusIndicator } from "@/components/orchestration/OrchestrationStatusIndicator";
+import { KnowledgeStatusIndicator } from "@/components/knowledge/KnowledgeStatusIndicator";
+import { LifeStatusIndicator } from "@/components/life/StatusIndicator";
+import { ResourceStatusIndicator } from "@/components/resource/StatusIndicator";
+import { IntelligenceStatusCard } from "@/components/intelligence/StatusCard";
 
 type Tone = "success" | "warning" | "danger" | "muted";
 
@@ -162,6 +166,14 @@ export function StatusBar() {
         </div>
         <div className="hidden 2xl:block">
           <OrchestrationStatusIndicator />
+        </div>
+        <div className="hidden xl:block">
+          <KnowledgeStatusIndicator />
+        </div>
+        <div className="hidden xl:block">
+          <LifeStatusIndicator />
+          <IntelligenceStatusCard />
+          <ResourceStatusIndicator />
         </div>
         <div className="hidden max-w-[200px] 2xl:block">
           <TodayFocusStatus />

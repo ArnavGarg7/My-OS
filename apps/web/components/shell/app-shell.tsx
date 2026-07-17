@@ -33,6 +33,10 @@ import { NotificationCommands } from "@/components/notification/NotificationComm
 import { NotificationBanner } from "@/components/notification/NotificationBanner";
 import { AutomationCommands } from "@/components/automation/AutomationCommands";
 import { OrchestrationCommands } from "@/components/orchestration/OrchestrationCommands";
+import { KnowledgeCommands } from "@/components/knowledge/KnowledgeCommands";
+import { LifeCommands } from "@/components/life/LifeCommands";
+import { ResourceCommands } from "@/components/resource/ResourceCommands";
+import { IntelligenceCommands } from "@/components/intelligence/IntelligenceCommands";
 
 /**
  * The OS shell. Every future feature renders inside `children`. Composes the
@@ -95,6 +99,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <NotificationBanner />
       <AutomationCommands />
       <OrchestrationCommands />
+      <KnowledgeCommands />
+      <LifeCommands />
+      <ResourceCommands />
+      <IntelligenceCommands />
       <CommandPalette />
 
       {/* Overlays */}

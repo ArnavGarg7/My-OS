@@ -40,6 +40,10 @@ import { MorningFocusSection } from "./MorningFocusSection";
 import { MorningNotificationSection } from "./MorningNotificationSection";
 import { MorningAutomationSection } from "./MorningAutomationSection";
 import { MorningOrchestrationSection } from "./MorningOrchestrationSection";
+import { MorningKnowledgeSection } from "./MorningKnowledgeSection";
+import { MorningLifeSection } from "./MorningLifeSection";
+import { MorningResourceSection } from "./MorningResourceSection";
+import { MorningExecutiveSection } from "./MorningExecutiveSection";
 import { HealthMorningSlot } from "@/components/health/HealthMorningSlot";
 
 /**
@@ -232,6 +236,22 @@ export function MorningBriefing() {
 
         <MorningSection id="morning-orchestration" label="System">
           <MorningOrchestrationSection />
+        </MorningSection>
+
+        <MorningSection id="morning-knowledge" label="Knowledge">
+          <MorningKnowledgeSection />
+        </MorningSection>
+
+        <MorningSection id="morning-life" label="Life">
+          <MorningLifeSection />
+        </MorningSection>
+
+        <MorningSection id="morning-executive" label="Executive Summary">
+          <MorningExecutiveSection />
+        </MorningSection>
+
+        <MorningSection id="morning-resources" label="Resources">
+          <MorningResourceSection />
         </MorningSection>
 
         <MorningSection id="morning-tomorrow" label="Tomorrow's Plan">

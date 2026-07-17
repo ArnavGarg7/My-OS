@@ -407,4 +407,195 @@ describe("decision rules — build", () => {
     ).toBe(true);
     expect(rule("orchestration-pipelines-pending").priority).toBe("low");
   });
+
+  it("flashcards-overdue fires when reviews are due", () => {
+    expect(
+      rule("flashcards-overdue").matches(makeContext({ knowledge: { flashcardsOverdue: true } })),
+    ).toBe(true);
+    expect(rule("flashcards-overdue").matches(makeContext())).toBe(false);
+    expect(rule("flashcards-overdue").build(makeContext()).inputsUsed).toContain("Knowledge");
+  });
+
+  it("book-stalled fires for an idle book", () => {
+    expect(rule("book-stalled").matches(makeContext({ knowledge: { bookStalled: true } }))).toBe(
+      true,
+    );
+    expect(rule("book-stalled").priority).toBe("low");
+  });
+
+  it("course-deadline fires for a stalled near-done course", () => {
+    expect(
+      rule("course-deadline").matches(makeContext({ knowledge: { courseDeadline: true } })),
+    ).toBe(true);
+  });
+
+  it("research-inactive fires for a quiet investigation", () => {
+    expect(
+      rule("research-inactive").matches(makeContext({ knowledge: { researchInactive: true } })),
+    ).toBe(true);
+  });
+
+  it("learning-goal-falling fires when learning slips", () => {
+    expect(
+      rule("learning-goal-falling").matches(
+        makeContext({ knowledge: { learningGoalFalling: true } }),
+      ),
+    ).toBe(true);
+    expect(rule("learning-goal-falling").priority).toBe("medium");
+  });
+
+  it("habit-streak-at-risk-today fires when a streak is at risk", () => {
+    expect(
+      rule("habit-streak-at-risk-today").matches(
+        makeContext({ life: { habitStreakAtRisk: true } }),
+      ),
+    ).toBe(true);
+    expect(rule("habit-streak-at-risk-today").matches(makeContext())).toBe(false);
+    expect(rule("habit-streak-at-risk-today").priority).toBe("high");
+    expect(rule("habit-streak-at-risk-today").build(makeContext()).inputsUsed).toContain("Life");
+  });
+
+  it("routine-skipped fires for a missed routine", () => {
+    expect(rule("routine-skipped").matches(makeContext({ life: { routineSkipped: true } }))).toBe(
+      true,
+    );
+    expect(rule("routine-skipped").priority).toBe("low");
+  });
+
+  it("low-recovery is a high-priority health decision", () => {
+    expect(rule("low-recovery").matches(makeContext({ life: { lowRecovery: true } }))).toBe(true);
+    expect(rule("low-recovery").type).toBe("health");
+    expect(rule("low-recovery").priority).toBe("high");
+  });
+
+  it("doctor-appointment fires when one is soon", () => {
+    expect(
+      rule("doctor-appointment").matches(makeContext({ life: { doctorAppointment: true } })),
+    ).toBe(true);
+    expect(rule("doctor-appointment").matches(makeContext())).toBe(false);
+  });
+
+  it("medication-due fires with high confidence", () => {
+    expect(rule("medication-due").matches(makeContext({ life: { medicationDue: true } }))).toBe(
+      true,
+    );
+    expect(rule("medication-due").priority).toBe("high");
+    expect(rule("medication-due").build(makeContext()).confidence).toBeGreaterThan(70);
+  });
+
+  it("training-load-high fires on overreaching", () => {
+    expect(
+      rule("training-load-high").matches(makeContext({ life: { trainingLoadHigh: true } })),
+    ).toBe(true);
+    expect(rule("training-load-high").type).toBe("health");
+  });
+
+  it("identity-goal-stalled fires when growth stalls", () => {
+    expect(
+      rule("identity-goal-stalled").matches(makeContext({ life: { identityGoalStalled: true } })),
+    ).toBe(true);
+    expect(rule("identity-goal-stalled").priority).toBe("low");
+  });
+
+  it("insurance-expiring is high priority — a gap in cover is expensive", () => {
+    expect(
+      rule("insurance-expiring").matches(makeContext({ resources: { insuranceExpiring: true } })),
+    ).toBe(true);
+    expect(rule("insurance-expiring").matches(makeContext())).toBe(false);
+    expect(rule("insurance-expiring").priority).toBe("high");
+    expect(rule("insurance-expiring").build(makeContext()).inputsUsed).toContain("Resources");
+  });
+
+  it("document-expiring fires for identity or travel documents", () => {
+    expect(
+      rule("document-expiring").matches(makeContext({ resources: { documentExpiring: true } })),
+    ).toBe(true);
+    expect(rule("document-expiring").priority).toBe("medium");
+  });
+
+  it("maintenance-overdue fires for deferred upkeep", () => {
+    expect(
+      rule("maintenance-overdue").matches(makeContext({ resources: { maintenanceOverdue: true } })),
+    ).toBe(true);
+    expect(rule("maintenance-overdue").matches(makeContext())).toBe(false);
+  });
+
+  it("relationship-cold fires when someone goes quiet", () => {
+    expect(
+      rule("relationship-cold").matches(makeContext({ resources: { relationshipCold: true } })),
+    ).toBe(true);
+    expect(rule("relationship-cold").priority).toBe("low");
+  });
+
+  it("portfolio-unbalanced states plainly that it is an observation, not advice", () => {
+    expect(
+      rule("portfolio-unbalanced").matches(
+        makeContext({ resources: { portfolioUnbalanced: true } }),
+      ),
+    ).toBe(true);
+    expect(rule("portfolio-unbalanced").build(makeContext()).reason).toMatch(/not advice/);
+  });
+
+  it("large-expense-due fires on a forecast obligation", () => {
+    expect(
+      rule("large-expense-due").matches(makeContext({ resources: { largeExpenseDue: true } })),
+    ).toBe(true);
+    expect(rule("large-expense-due").priority).toBe("medium");
+  });
+
+  it("investment-review-due fires on a stale review", () => {
+    expect(
+      rule("investment-review-due").matches(
+        makeContext({ resources: { investmentReviewDue: true } }),
+      ),
+    ).toBe(true);
+    expect(rule("investment-review-due").matches(makeContext())).toBe(false);
+  });
+
+  it("multiple-life-areas-declining is a high-priority dashboard rule", () => {
+    expect(
+      rule("multiple-life-areas-declining").matches(
+        makeContext({ dashboard: { multipleAreasDeclining: true } }),
+      ),
+    ).toBe(true);
+    expect(rule("multiple-life-areas-declining").matches(makeContext())).toBe(false);
+    expect(rule("multiple-life-areas-declining").priority).toBe("high");
+    expect(rule("multiple-life-areas-declining").build(makeContext()).inputsUsed).toContain(
+      "Dashboard",
+    );
+  });
+
+  it("overall-health-low fires on a low rollup", () => {
+    expect(
+      rule("overall-health-low").matches(makeContext({ dashboard: { overallHealthLow: true } })),
+    ).toBe(true);
+    expect(rule("overall-health-low").priority).toBe("high");
+  });
+
+  it("overall-growth-positive celebrates strong momentum", () => {
+    expect(
+      rule("overall-growth-positive").matches(
+        makeContext({ dashboard: { overallGrowthPositive: true } }),
+      ),
+    ).toBe(true);
+    expect(rule("overall-growth-positive").priority).toBe("low");
+  });
+
+  it("review-due fires when a review passes cadence", () => {
+    expect(rule("review-due").matches(makeContext({ dashboard: { reviewDue: true } }))).toBe(true);
+    expect(rule("review-due").priority).toBe("medium");
+  });
+
+  it("life-balance-low fires on an uneven wheel", () => {
+    expect(
+      rule("life-balance-low").matches(makeContext({ dashboard: { lifeBalanceLow: true } })),
+    ).toBe(true);
+  });
+
+  it("attention-overload fires when too much is flagged", () => {
+    expect(
+      rule("attention-overload").matches(makeContext({ dashboard: { attentionOverload: true } })),
+    ).toBe(true);
+    expect(rule("attention-overload").priority).toBe("high");
+  });
 });
