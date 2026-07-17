@@ -60,6 +60,10 @@ function workoutRow(over: Partial<WorkoutRow> = {}): WorkoutRow {
     caloriesBurned: 360,
     rpe: 7,
     completed: true,
+    workoutProgramId: null,
+    exerciseId: null,
+    recoveryNotes: "",
+    perceivedExertion: null,
     ...over,
   };
 }
@@ -86,6 +90,8 @@ function bodyRow(over: Partial<BodyMeasurementRow> = {}): BodyMeasurementRow {
     muscleMass: 35,
     waist: 82,
     recordedAt: D(7, 0),
+    bodyFatPercentage: null,
+    restingHeartRate: null,
     ...over,
   };
 }

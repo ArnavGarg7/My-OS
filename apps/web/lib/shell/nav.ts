@@ -1,6 +1,8 @@
 import {
   BarChart3,
   BookOpen,
+  Boxes,
+  LayoutDashboard,
   Briefcase,
   CalendarClock,
   FolderKanban,
@@ -18,6 +20,8 @@ import {
   Timer,
   Wallet,
   Workflow,
+  Brain,
+  Activity,
   Zap,
   type LucideIcon,
 } from "lucide-react";
@@ -118,6 +122,30 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/journal",
         icon: BookOpen,
         description: "Reflect, track your mood, and grow.",
+      },
+      {
+        label: "Knowledge",
+        href: "/knowledge",
+        icon: Brain,
+        description: "Your second brain — notes, wiki, reading, and memory.",
+      },
+      {
+        label: "Life",
+        href: "/life",
+        icon: Activity,
+        description: "Habits, routines, health, and who you're becoming.",
+      },
+      {
+        label: "Resources",
+        href: "/resources",
+        icon: Boxes,
+        description: "Investments, assets, documents, and the people who matter.",
+      },
+      {
+        label: "Dashboard",
+        href: "/dashboard",
+        icon: LayoutDashboard,
+        description: "The executive view — how your whole life is progressing.",
       },
       {
         label: "Health",

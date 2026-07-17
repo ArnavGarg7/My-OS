@@ -31,6 +31,10 @@ export const timelineSource = pgEnum("timeline_source", [
   "inbox",
   "automation",
   "orchestration",
+  "knowledge",
+  "life",
+  "resource",
+  "dashboard",
   "ai",
 ]);
 

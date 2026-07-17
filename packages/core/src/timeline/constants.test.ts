@@ -10,11 +10,14 @@ import {
 } from "./constants";
 
 describe("timeline constants", () => {
-  it("declares all 14 sources including today/automation/orchestration/ai", () => {
-    expect(TIMELINE_SOURCES).toHaveLength(14);
+  it("declares all 16 sources including orchestration/knowledge/life/ai", () => {
+    expect(TIMELINE_SOURCES).toHaveLength(18);
     expect(TIMELINE_SOURCES).toContain("today");
-    expect(TIMELINE_SOURCES).toContain("automation");
     expect(TIMELINE_SOURCES).toContain("orchestration");
+    expect(TIMELINE_SOURCES).toContain("knowledge");
+    expect(TIMELINE_SOURCES).toContain("life");
+    expect(TIMELINE_SOURCES).toContain("resource");
+    expect(TIMELINE_SOURCES).toContain("dashboard");
     expect(TIMELINE_SOURCES).toContain("ai");
   });
 

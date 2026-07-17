@@ -1,0 +1,44 @@
+name: Performance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: performance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    name: Core derivation baseline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      # Runs the pure-core perf test through vitest and reports µs-per-call baselines.
+      - name: Benchmark core derivations
+        run: node scripts/benchmark.mjs
+
+  bundle:
+    name: Route bundle report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Production build
+        run: pnpm --filter @myos/web build
+      - name: Bundle report (first-load JS per route)
+        run: node scripts/bundle-report.mjs

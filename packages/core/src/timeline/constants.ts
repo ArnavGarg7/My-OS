@@ -20,6 +20,10 @@ export const TIMELINE_SOURCES = [
   "inbox",
   "automation",
   "orchestration",
+  "knowledge",
+  "life",
+  "resource",
+  "dashboard",
   "ai",
 ] as const;
 export type TimelineSource = (typeof TIMELINE_SOURCES)[number];

@@ -18,6 +18,10 @@ import { FocusContextPanel } from "@/components/focus/FocusContextPanel";
 import { NotificationContextPanel } from "@/components/notification/NotificationContextPanel";
 import { AutomationContextPanel } from "@/components/automation/AutomationContextPanel";
 import { OrchestrationContextPanel } from "@/components/orchestration/OrchestrationContextPanel";
+import { KnowledgeContextPanel } from "@/components/knowledge/ContextPanel";
+import { LifeContextPanel } from "@/components/life/ContextPanel";
+import { ResourceContextPanel } from "@/components/resource/ContextPanel";
+import { IntelligenceContextPanel } from "@/components/intelligence/ContextPanel";
 
 /**
  * Inspector registry (Sprint 2.8.5). One source of truth mapping a route to its
@@ -49,6 +53,10 @@ export const INSPECTOR_REGISTRY: InspectorEntry[] = [
   { match: "/notifications", Component: NotificationContextPanel },
   { match: "/automation", Component: AutomationContextPanel },
   { match: "/orchestration", Component: OrchestrationContextPanel },
+  { match: "/knowledge", Component: KnowledgeContextPanel },
+  { match: "/life", Component: LifeContextPanel },
+  { match: "/resources", Component: ResourceContextPanel },
+  { match: "/dashboard", Component: IntelligenceContextPanel },
 ];
 
 /** Resolve the inspector that owns a pathname (longest prefix wins), or null. */

@@ -54,6 +54,10 @@ export const transactions = pgTable("transactions", {
   merchant: text("merchant").notNull().default(""),
   description: text("description").notNull().default(""),
   projectId: uuid("project_id"),
+  // Sprint 4.3 links: a transaction may fund an investment account or buy/maintain an asset.
+  // Soft references (no FK) so Finance stays independent of the Resource platform's lifecycle.
+  investmentAccountId: uuid("investment_account_id"),
+  assetId: uuid("asset_id"),
   occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

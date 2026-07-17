@@ -19,6 +19,10 @@ export const TIMELINE_SOURCES = [
   "notification",
   "automation",
   "orchestration",
+  "knowledge",
+  "life",
+  "resource",
+  "dashboard",
 ] as const;
 export type TimelineSource = (typeof TIMELINE_SOURCES)[number];
 
@@ -66,6 +70,31 @@ export const TIMELINE_KINDS = [
   "orchestration.failed",
   "orchestration.recovered",
   "orchestration.previewed",
+  "note.created",
+  "wiki.created",
+  "book.finished",
+  "course.completed",
+  "research.created",
+  "flashcard.reviewed",
+  "life_habit.completed",
+  "routine.completed",
+  "workout.completed",
+  "medication.logged",
+  "appointment.completed",
+  "injury.logged",
+  "personal_review.completed",
+  "investment.updated",
+  "asset.added",
+  "maintenance.completed",
+  "document.renewed",
+  "relationship.created",
+  "interaction.logged",
+  "birthday",
+  "insurance.renewed",
+  "review.generated",
+  "report.generated",
+  "milestone.reached",
+  "achievement.unlocked",
 ] as const;
 export type TimelineKind = (typeof TIMELINE_KINDS)[number];
 

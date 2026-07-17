@@ -1,0 +1,27 @@
+name: Architecture Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: arch-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: Dependencies · Schema · Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # These audits are pure filesystem+regex (no build, no Postgres), so they need no install.
+      - name: Dependency graph (no cross-domain imports, no cycles)
+        run: node scripts/dependency-graph.mjs
+      - name: Schema audit (indexes + knowledge-link coverage)
+        run: node scripts/schema-audit.mjs
+      - name: Security audit (every schema file classified)
+        run: node scripts/security-audit.mjs

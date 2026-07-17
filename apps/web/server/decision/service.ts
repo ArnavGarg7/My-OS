@@ -25,6 +25,10 @@ import { notificationSignals } from "../notification/signals";
 import { automationSignals } from "../automation/signals";
 import { orchestrationSignals } from "../orchestration/signals";
 import { summary as orchestrationSummary } from "../orchestration/summary";
+import { signals as knowledgeSignals } from "../knowledge/summary";
+import { signals as lifeSignals } from "../life/signals";
+import { signals as resourceSignals } from "../resource/summary";
+import { signals as dashboardSignals } from "../intelligence/summary";
 import * as repo from "./repository";
 import { rowToDecision } from "./mapper";
 
@@ -60,6 +64,10 @@ async function buildContext(
     automation,
     orchestration,
     orchSummary,
+    knowledge,
+    life,
+    resources,
+    dashboard,
   ] = await Promise.all([
     getState(db, tz, date),
     getFocus(db, tz, date),
@@ -76,6 +84,10 @@ async function buildContext(
     automationSignals(db, tz),
     orchestrationSignals(db, tz),
     orchestrationSummary(db, tz),
+    knowledgeSignals(db),
+    lifeSignals(db),
+    resourceSignals(db),
+    dashboardSignals(db, tz),
   ]);
   const workingHours = selectWorkingHours({
     state,
@@ -144,6 +156,39 @@ async function buildContext(
       failuresToday: orchestration.failuresToday > 0,
       recoveryRequired: orchSummary.recoveriesToday > 0,
       pipelinesPending: orchestration.pendingPipelines > 0,
+    },
+    knowledge: {
+      flashcardsOverdue: knowledge.flashcardsOverdue > 0,
+      bookStalled: knowledge.bookStalled,
+      courseDeadline: knowledge.courseDeadlineSoon,
+      researchInactive: knowledge.researchInactive,
+      learningGoalFalling: knowledge.learningGoalFalling,
+    },
+    life: {
+      habitStreakAtRisk: life.habitStreakAtRisk,
+      routineSkipped: life.routineSkipped,
+      lowRecovery: life.lowRecovery,
+      doctorAppointment: life.doctorAppointmentSoon,
+      medicationDue: life.medicationDue,
+      trainingLoadHigh: life.trainingLoadHigh,
+      identityGoalStalled: life.identityGoalStalled,
+    },
+    resources: {
+      insuranceExpiring: resources.insuranceExpiring,
+      documentExpiring: resources.documentExpiring,
+      maintenanceOverdue: resources.maintenanceOverdue,
+      relationshipCold: resources.relationshipCold,
+      portfolioUnbalanced: resources.portfolioUnbalanced,
+      largeExpenseDue: resources.largeExpenseDue,
+      investmentReviewDue: resources.investmentReviewDue,
+    },
+    dashboard: {
+      multipleAreasDeclining: dashboard.multipleAreasDeclining,
+      overallHealthLow: dashboard.overallHealthLow,
+      overallGrowthPositive: dashboard.overallGrowthPositive,
+      reviewDue: dashboard.reviewDue,
+      lifeBalanceLow: dashboard.lifeBalanceLow,
+      attentionOverload: dashboard.attentionOverload,
     },
   };
 }

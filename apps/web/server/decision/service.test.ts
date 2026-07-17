@@ -26,6 +26,10 @@ const h = vi.hoisted(() => ({
   automationSignals: vi.fn(),
   orchestrationSignals: vi.fn(),
   orchestrationSummary: vi.fn(),
+  knowledgeSignals: vi.fn(),
+  lifeSignals: vi.fn(),
+  resourceSignals: vi.fn(),
+  dashboardSignals: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
@@ -40,6 +44,10 @@ vi.mock("../notification/signals", () => ({ notificationSignals: h.notificationS
 vi.mock("../automation/signals", () => ({ automationSignals: h.automationSignals }));
 vi.mock("../orchestration/signals", () => ({ orchestrationSignals: h.orchestrationSignals }));
 vi.mock("../orchestration/summary", () => ({ summary: h.orchestrationSummary }));
+vi.mock("../knowledge/summary", () => ({ signals: h.knowledgeSignals }));
+vi.mock("../life/signals", () => ({ signals: h.lifeSignals }));
+vi.mock("../resource/summary", () => ({ signals: h.resourceSignals }));
+vi.mock("../intelligence/summary", () => ({ signals: h.dashboardSignals }));
 vi.mock("./repository", () => ({
   listByDate: h.listByDate,
   list: h.list,
@@ -167,6 +175,39 @@ beforeEach(() => {
     recoveriesToday: 0,
     affectedModulesLastRun: 0,
     systemReady: true,
+  });
+  h.knowledgeSignals.mockResolvedValue({
+    flashcardsOverdue: 0,
+    bookStalled: false,
+    courseDeadlineSoon: false,
+    researchInactive: false,
+    learningGoalFalling: false,
+  });
+  h.lifeSignals.mockResolvedValue({
+    habitStreakAtRisk: false,
+    routineSkipped: false,
+    lowRecovery: false,
+    doctorAppointmentSoon: false,
+    medicationDue: false,
+    trainingLoadHigh: false,
+    identityGoalStalled: false,
+  });
+  h.resourceSignals.mockResolvedValue({
+    insuranceExpiring: false,
+    documentExpiring: false,
+    maintenanceOverdue: false,
+    relationshipCold: false,
+    portfolioUnbalanced: false,
+    largeExpenseDue: false,
+    investmentReviewDue: false,
+  });
+  h.dashboardSignals.mockResolvedValue({
+    multipleAreasDeclining: false,
+    overallHealthLow: false,
+    overallGrowthPositive: false,
+    reviewDue: false,
+    lifeBalanceLow: false,
+    attentionOverload: false,
   });
   h.getState.mockResolvedValue({
     date: "2026-07-06",

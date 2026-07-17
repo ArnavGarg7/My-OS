@@ -1,0 +1,1 @@
+ALTER TYPE "public"."timeline_source" ADD VALUE 'knowledge' BEFORE 'ai';

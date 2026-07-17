@@ -102,6 +102,43 @@ export interface DecisionContext {
     recoveryRequired?: boolean;
     pipelinesPending?: boolean;
   };
+  /** Knowledge signals (Sprint 4.1) — learning + memory inputs. */
+  knowledge?: {
+    flashcardsOverdue?: boolean;
+    bookStalled?: boolean;
+    courseDeadline?: boolean;
+    researchInactive?: boolean;
+    learningGoalFalling?: boolean;
+  };
+  /** Life signals (Sprint 4.2) — habits, routines, health + growth inputs. */
+  life?: {
+    habitStreakAtRisk?: boolean;
+    routineSkipped?: boolean;
+    lowRecovery?: boolean;
+    doctorAppointment?: boolean;
+    medicationDue?: boolean;
+    trainingLoadHigh?: boolean;
+    identityGoalStalled?: boolean;
+  };
+  /** Resource & Relationship platform signals (Sprint 4.3). Thresholds live in core/resource. */
+  resources?: {
+    insuranceExpiring?: boolean;
+    documentExpiring?: boolean;
+    maintenanceOverdue?: boolean;
+    relationshipCold?: boolean;
+    portfolioUnbalanced?: boolean;
+    largeExpenseDue?: boolean;
+    investmentReviewDue?: boolean;
+  };
+  /** Personal Intelligence dashboard signals (Sprint 4.4). Thresholds live in core/intelligence. */
+  dashboard?: {
+    multipleAreasDeclining?: boolean;
+    overallHealthLow?: boolean;
+    overallGrowthPositive?: boolean;
+    reviewDue?: boolean;
+    lifeBalanceLow?: boolean;
+    attentionOverload?: boolean;
+  };
 }
 
 /** A rule's built content before it becomes a full Decision. */

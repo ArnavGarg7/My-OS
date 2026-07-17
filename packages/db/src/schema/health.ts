@@ -64,6 +64,12 @@ export const workouts = pgTable("workouts", {
   caloriesBurned: integer("calories_burned").notNull().default(0),
   rpe: integer("rpe"),
   completed: boolean("completed").notNull().default(false),
+  // Sprint 4.2 (Personal Life Platform) extensions — link a workout to a program/exercise
+  // and capture recovery + effort. Nullable so existing rows are unaffected.
+  workoutProgramId: uuid("workout_program_id"),
+  exerciseId: uuid("exercise_id"),
+  recoveryNotes: text("recovery_notes").notNull().default(""),
+  perceivedExertion: integer("perceived_exertion"),
 });
 
 export const sleepSessions = pgTable("sleep_sessions", {
@@ -98,6 +104,9 @@ export const bodyMeasurements = pgTable("body_measurements", {
   muscleMass: doublePrecision("muscle_mass"),
   waist: doublePrecision("waist"),
   recordedAt: timestamp("recorded_at", { withTimezone: true }).notNull().defaultNow(),
+  // Sprint 4.2 extensions — richer composition metrics. Nullable.
+  bodyFatPercentage: doublePrecision("body_fat_percentage"),
+  restingHeartRate: integer("resting_heart_rate"),
 });
 
 export const healthDailyRelations = relations(healthDaily, () => ({}));
