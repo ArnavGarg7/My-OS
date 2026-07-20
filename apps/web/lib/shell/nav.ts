@@ -23,6 +23,9 @@ import {
   Brain,
   Activity,
   Zap,
+  Cpu,
+  Compass,
+  Bot,
   type LucideIcon,
 } from "lucide-react";
 
@@ -47,6 +50,13 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     label: "Main",
     items: [
+      {
+        label: "Chief of Staff",
+        href: "/chief",
+        icon: Compass,
+        description:
+          "What should you do right now? Your AI Chief of Staff, grounded in everything.",
+      },
       {
         label: "Today",
         href: "/today",
@@ -204,6 +214,18 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/orchestration",
         icon: Workflow,
         description: "Every engine cooperating — one operating system, not twenty apps.",
+      },
+      {
+        label: "AI Settings",
+        href: "/ai/settings",
+        icon: Bot,
+        description: "Providers, keys, budget, and privacy for your conversational Chief.",
+      },
+      {
+        label: "AI Platform",
+        href: "/ai",
+        icon: Cpu,
+        description: "The AI Core Platform — providers, prompts, context, telemetry, and cost.",
       },
       {
         label: "Settings",

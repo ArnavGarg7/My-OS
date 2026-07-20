@@ -203,6 +203,29 @@ export const DOMAIN_CLASSIFICATION: DomainClassification[] = [
     rawAiSafe: false,
     rationale: "Push subscriptions hold device endpoints + keys — secrets.",
   },
+  {
+    file: "ai.ts",
+    level: "internal",
+    rawAiSafe: true,
+    rationale:
+      "AI Core Platform + production-readiness infrastructure only — prompt registry/versions, provider health, eval runs, deterministic cache, stream sessions, plus Sprint 5.4 observability (execution traces), benchmarks, performance/cost metrics, security + reliability events. No business entities and no secret values (credentials live in provider_credentials/assistant.ts); operational metadata safe to compose for AI context.",
+  },
+  {
+    file: "chief.ts",
+    level: "sensitive",
+    rawAiSafe: false,
+    rationale:
+      "Chief of Staff interaction state — session/recommendation snapshots reference personal tasks and reasoning, feedback + the Personal AI Profile hold preference data. Config (provider policies) is internal, but recommendation/explanation snapshots can echo personal free text, so treat raw rows as sensitive.",
+    overrides: { chief_recommendations: "private", chief_feedback: "private" },
+  },
+  {
+    file: "assistant.ts",
+    level: "private",
+    rawAiSafe: false,
+    rationale:
+      "Conversational Chief state — assistant messages hold free-text conversation content, and provider_credentials stores ENCRYPTED API keys (server-side only, never returned or logged). The most sensitive AI data in the system; never crosses the AI boundary raw. assistant_modes config is internal.",
+    overrides: { assistant_modes: "internal" },
+  },
 ];
 
 /**

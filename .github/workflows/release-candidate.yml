@@ -1,0 +1,31 @@
+name: Release Candidate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: rc-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: Repository audit (architecture frozen)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # All Sprint 5.5 validators are pure filesystem+regex (no build, no Postgres) — no install needed.
+      - name: Public-API export boundaries (single barrel, no deep imports)
+        run: node scripts/export-validator.mjs
+      - name: Migration history (contiguous + snapshots)
+        run: node scripts/migration-validator.mjs
+      - name: Package health (README + index + tests per package)
+        run: node scripts/package-health.mjs
+      - name: Documentation completeness (ADRs + guides + diagrams + release bundle)
+        run: node scripts/docs-validator.mjs
+      - name: Aggregate repository audit
+        run: node scripts/repository-audit.mjs

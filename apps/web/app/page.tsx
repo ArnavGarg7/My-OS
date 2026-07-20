@@ -10,11 +10,14 @@ export const dynamic = "force-dynamic";
  * Public landing (Sprint 1.5). Authenticated users are sent to onboarding or
  * their landing page; everyone else sees the entry point. In local dev mode the
  * owner is always present, so this immediately forwards into the OS.
+ *
+ * As of Sprint 5.2 the AI Chief of Staff is the default homepage — opening My OS
+ * answers "what should I be doing right now?" rather than dropping onto a module.
  */
 export default async function LandingPage() {
   const identity = await getCurrentUser();
   if (identity) {
-    redirect(identity.isOnboarded ? identity.preferences.defaultLandingPage : "/onboarding");
+    redirect(identity.isOnboarded ? "/chief" : "/onboarding");
   }
 
   return (
@@ -37,7 +40,7 @@ export default async function LandingPage() {
         </div>
       ) : (
         <Button asChild size="lg">
-          <Link href="/today">Enter My OS</Link>
+          <Link href="/chief">Enter My OS</Link>
         </Button>
       )}
     </main>
