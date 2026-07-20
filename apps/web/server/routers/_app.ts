@@ -22,6 +22,9 @@ import { knowledgeRouter } from "../knowledge/router";
 import { lifeRouter } from "../life/router";
 import { resourceRouter } from "../resource/router";
 import { intelligenceRouter } from "../intelligence/router";
+import { aiRouter } from "../ai/router";
+import { chiefRouter } from "../chief/router";
+import { assistantRouter } from "../assistant/router";
 
 /**
  * Root tRPC router (04 §5). Feature routers (tasks, planner, health, …) mount
@@ -51,6 +54,9 @@ export const appRouter = router({
   life: lifeRouter,
   resource: resourceRouter,
   intelligence: intelligenceRouter,
+  ai: aiRouter,
+  chief: chiefRouter,
+  assistant: assistantRouter,
   system: router({
     health: publicProcedure.query(async ({ ctx }) => {
       let db = false;

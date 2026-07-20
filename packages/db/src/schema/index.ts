@@ -28,3 +28,6 @@ export * from "./knowledge";
 export * from "./life";
 export * from "./resource";
 export * from "./intelligence";
+export * from "./ai";
+export * from "./chief";
+export * from "./assistant";

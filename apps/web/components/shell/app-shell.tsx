@@ -37,6 +37,7 @@ import { KnowledgeCommands } from "@/components/knowledge/KnowledgeCommands";
 import { LifeCommands } from "@/components/life/LifeCommands";
 import { ResourceCommands } from "@/components/resource/ResourceCommands";
 import { IntelligenceCommands } from "@/components/intelligence/IntelligenceCommands";
+import { ChiefBar } from "@/components/assistant/ChiefBar";
 
 /**
  * The OS shell. Every future feature renders inside `children`. Composes the
@@ -74,6 +75,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </div>
+      <ChiefBar />
       <StatusBar />
 
       {/* Command Center: register built-in + platform + today commands + palette */}

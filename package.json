@@ -1,6 +1,6 @@
 {
   "name": "myos",
-  "version": "0.0.0",
+  "version": "1.0.0-rc.1",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.4",
@@ -24,7 +24,12 @@
     "db:check": "pnpm --filter @myos/db check",
     "db:seed": "pnpm --filter @myos/db seed",
     "worker:dev": "pnpm --filter @myos/worker dev",
-    "prepare": "husky"
+    "prepare": "husky",
+    "audit": "node scripts/repository-audit.mjs",
+    "audit:exports": "node scripts/export-validator.mjs",
+    "audit:migrations": "node scripts/migration-validator.mjs",
+    "audit:packages": "node scripts/package-health.mjs",
+    "audit:docs": "node scripts/docs-validator.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",

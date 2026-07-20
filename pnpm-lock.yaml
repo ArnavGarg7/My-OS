@@ -193,15 +193,12 @@ importers:
 
   packages/ai:
     dependencies:
-      '@myos/core':
-        specifier: workspace:*
-        version: link:../core
-      '@myos/db':
-        specifier: workspace:*
-        version: link:../db
       '@myos/shared':
         specifier: workspace:*
         version: link:../shared
+      zod:
+        specifier: ^3.24.1
+        version: 3.25.76
     devDependencies:
       eslint:
         specifier: ^9.17.0
@@ -209,6 +206,9 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.0)(jsdom@25.0.1)(lightningcss@1.32.0)
 
   packages/core:
     dependencies:

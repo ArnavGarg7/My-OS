@@ -48,9 +48,16 @@ export const serverEnvSchema = z.object({
   NEXT_PUBLIC_CLERK_SIGN_IN_URL: z.string().default("/sign-in"),
   NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.string().default("/sign-up"),
 
-  // AI providers (optional)
+  // AI providers (optional). Server-side only — never exposed to the browser,
+  // never logged. A provider activates only when its key is present; the Local
+  // provider is always available as the offline fallback (Sprint 5.3).
   ANTHROPIC_API_KEY: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
+  GROQ_API_KEY: z.string().optional(),
   VOYAGE_API_KEY: z.string().optional(),
+  /** Secret used to encrypt provider_credentials at rest (Sprint 5.3). */
+  MYOS_AI_CREDENTIALS_SECRET: z.string().optional(),
 
   // Web Push / VAPID (optional until Stage 4). The public key is also exposed to
   // the browser (NEXT_PUBLIC_) so the client can create a push subscription.
