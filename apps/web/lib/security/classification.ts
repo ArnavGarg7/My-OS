@@ -226,6 +226,64 @@ export const DOMAIN_CLASSIFICATION: DomainClassification[] = [
       "Conversational Chief state — assistant messages hold free-text conversation content, and provider_credentials stores ENCRYPTED API keys (server-side only, never returned or logged). The most sensitive AI data in the system; never crosses the AI boundary raw. assistant_modes config is internal.",
     overrides: { assistant_modes: "internal" },
   },
+  {
+    file: "signals.ts",
+    level: "sensitive",
+    rawAiSafe: false,
+    rationale:
+      "Event Intelligence Engine state (Sprint 6.1) — immutable signals, their events/rankings/timeline/notifications and context-window membership. Explanations + related-object labels reference personal tasks/deadlines/health, so raw rows are sensitive; the DERIVED signal read models (current/risks/opportunities, already banded/scored) are what the Chief consumes. No user business data is owned here and no signal mutates it. Watcher/subscription config is internal.",
+    overrides: { signal_watchers: "internal", signal_subscriptions: "internal" },
+  },
+  {
+    file: "prediction.ts",
+    level: "sensitive",
+    rawAiSafe: false,
+    rationale:
+      "Predictive Intelligence Engine state (Sprint 6.2) — immutable predictions + their models/history/confidence/scenarios/timelines/metrics/features. Forecast explanations and related-object labels reference personal goals/deadlines/health/study, so raw rows are sensitive; the DERIVED forecast read models (banded confidence + calculations) are what the Chief consumes. Deterministic — NO AI predicts, and no prediction mutates user data or triggers automations. Model/metrics config is internal.",
+    overrides: { prediction_models: "internal", prediction_metrics: "internal" },
+  },
+  {
+    file: "autopilot.ts",
+    level: "sensitive",
+    rawAiSafe: false,
+    rationale:
+      "Proposal-First Automation Engine state (Sprint 6.3) — registered automations, proposals + immutable execution/verification/rollback records, per-automation policies/permissions, audit trail + metrics. Proposal reasons + execution plans reference personal signals/predictions and the actions taken on them, so raw rows are sensitive. Deterministic — NO AI executes; every mutation is proposal-gated, reversible, verified and audited. Registry/policy/permission/metrics config is internal.",
+    overrides: {
+      autopilot_automations: "internal",
+      autopilot_triggers: "internal",
+      autopilot_conditions: "internal",
+      autopilot_policies: "internal",
+      autopilot_permissions: "internal",
+      autopilot_metrics: "internal",
+    },
+  },
+  {
+    file: "connectors.ts",
+    level: "sensitive",
+    rawAiSafe: false,
+    rationale:
+      'Connector Platform state (Sprint 6.4) — external-service accounts, sync jobs/history/checkpoints, immutable normalized events, health/rate-limits/webhooks/permissions/metrics. Normalized events + their payloads reference personal calendar/email/code/chat activity, so raw rows are sensitive. Connectors own NO business logic and NO AI — they only answer "what changed?"; the Event Engine decides why it matters. connector_credentials is PRIVATE: AES-256-GCM ciphertext (secret/refresh tokens), server-only, never returned through the API and never reachable by the AI. Provider registry + rate-limit/webhook/permission/metrics config is internal.',
+    overrides: {
+      connector_credentials: "private",
+      connector_providers: "internal",
+      connector_rate_limits: "internal",
+      connector_webhooks: "internal",
+      connector_permissions: "internal",
+      connector_metrics: "internal",
+    },
+  },
+  {
+    file: "adaptation.ts",
+    level: "sensitive",
+    rawAiSafe: false,
+    rationale:
+      "Adaptive Personal Intelligence state (Sprint 6.5, Phase 6 finale) — the deterministic Personal Profile: versioned profile fields, learned preferences (user-editable/disableable), habit + routine models, behavioral metrics, recommendation feedback, weekly/monthly reviews and personal insights. This IS a model of the user built from long-term behavior, so raw rows are sensitive. **NO AI writes here** — the OS learns deterministically from observed behaviour + explicit feedback; AI only reads/explains, and every learned value carries confidence + evidence + version. Nothing here mutates other modules' data or bypasses approval; personalization shapes presentation, not business logic. Learning-policy + confidence + immutable event-log config is internal.",
+    overrides: {
+      adaptation_policies: "internal",
+      adaptation_confidence: "internal",
+      adaptation_events: "internal",
+    },
+  },
 ];
 
 /**

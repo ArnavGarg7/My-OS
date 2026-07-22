@@ -6,8 +6,11 @@ A single-user, self-hosted, AI-augmented personal operating system. This reposit
 is the implementation; the design is fully specified in the nine documents at the
 repo root (`01_Vision.md` … `09_Future_Versions.md`) — those are the source of truth.
 
-> **Status:** Sprint 1.1 — Project Bootstrap & Foundation. Infrastructure, tooling,
-> and the monorepo skeleton only. No product features yet.
+> **Status:** **v1.0.0** — Phases 1–6 complete. A deterministic personal life OS with
+> 20+ domains, a grounded AI Chief of Staff, and the full Autonomous Intelligence stack
+> (Event Intelligence → Predictive Intelligence → Proposal-First Automation → External
+> Connectors → Adaptive Personal Intelligence). Architecture is frozen
+> ([ADR-010](docs/adr/ADR-010.md)). See [release notes](docs/release/release-notes.md).
 
 ## Stack
 
@@ -24,10 +27,11 @@ apps/
 packages/
   ui/        Design system (tokens + components)
   db/        Drizzle schema, migrations, query helpers
-  core/      Pure domain logic (no IO)
+  core/      Pure domain logic (no IO) — 25+ deterministic domain modules
   shared/    Zod schemas, env validation, constants
-  ai/        AI service seam (Anthropic / Voyage)
+  ai/        Provider-agnostic AI platform (Anthropic / OpenAI / Gemini / Groq / Local)
 infra/       Docker Compose, Caddy, Dockerfiles, runbooks
+docs/        Architecture, ADRs, guides, release notes, security & performance reports
 ```
 
 Import direction is enforced by ESLint (`08 §1`):

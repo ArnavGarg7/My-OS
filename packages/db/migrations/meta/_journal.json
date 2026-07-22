@@ -246,6 +246,48 @@
       "when": 1784407254850,
       "tag": "0034_spotty_gravity",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1784556875120,
+      "tag": "0035_calm_drax",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1784626770734,
+      "tag": "0036_daily_weapon_omega",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1784634759494,
+      "tag": "0037_flawless_glorian",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1784711336771,
+      "tag": "0038_stiff_namorita",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1784712939055,
+      "tag": "0039_greedy_terrax",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1784713303532,
+      "tag": "0040_light_apocalypse",
+      "breakpoints": true
     }
   ]
 }
