@@ -1,0 +1,14 @@
+# Cloudflare Tunnel — credentials-file method (optional alternative to the token in docker-compose.yml).
+# Copy to config.yml and fill in. `config.yml` and the *.json credentials file are gitignored.
+# Docs: ../../docs/operations/remote-access.md
+
+tunnel: <YOUR_TUNNEL_ID>
+credentials-file: /etc/cloudflared/<YOUR_TUNNEL_ID>.json
+
+# Route the public hostname to the Caddy reverse proxy inside the compose network. Caddy terminates the
+# internal routing and forwards to web:3000; Cloudflare provides the public TLS certificate.
+ingress:
+  - hostname: myos.example.com
+    service: http://caddy:80
+  # Everything else returns 404 (required catch-all).
+  - service: http_status:404
