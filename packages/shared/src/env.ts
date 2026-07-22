@@ -37,9 +37,6 @@ export const serverEnvSchema = z.object({
   DATABASE_URL: z.string().url(),
   MYOS_APP_URL: z.string().url().default("http://localhost:3000"),
 
-  // Auth (required once Stage 0 auth lands; optional during bootstrap)
-  SESSION_SECRET: z.string().min(32).optional(),
-
   // Clerk (Sprint 1.5). Optional so the app builds/boots without them; when both
   // are present, authentication is enforced (see `isClerkConfigured`). Kept behind
   // the IdentityService abstraction — no app code reads these directly.
@@ -58,6 +55,12 @@ export const serverEnvSchema = z.object({
   VOYAGE_API_KEY: z.string().optional(),
   /** Secret used to encrypt provider_credentials at rest (Sprint 5.3). */
   MYOS_AI_CREDENTIALS_SECRET: z.string().optional(),
+  /**
+   * Secret used to encrypt connector_credentials at rest (Sprint 6.4). DISTINCT from the AI secret —
+   * connector credentials are isolated from the AI subsystem and never reachable by any AI provider.
+   * When absent, a deterministic dev key derives from it so offline connectors still work in CI.
+   */
+  MYOS_CONNECTOR_SECRET: z.string().optional(),
 
   // Web Push / VAPID (optional until Stage 4). The public key is also exposed to
   // the browser (NEXT_PUBLIC_) so the client can create a push subscription.
