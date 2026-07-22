@@ -26,6 +26,11 @@ import {
   Cpu,
   Compass,
   Bot,
+  Radar,
+  TrendingUp,
+  Rocket,
+  Plug,
+  Fingerprint,
   type LucideIcon,
 } from "lucide-react";
 
@@ -181,6 +186,26 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Insights",
     items: [
       {
+        label: "Signals",
+        href: "/signals",
+        icon: Radar,
+        description: "Event intelligence — risks and opportunities the OS notices for you.",
+      },
+      {
+        label: "Predictions",
+        href: "/prediction",
+        icon: TrendingUp,
+        description:
+          "Predictive intelligence — deterministic forecasts of what's likely to happen.",
+      },
+      {
+        label: "Personal Intelligence",
+        href: "/adaptation",
+        icon: Fingerprint,
+        description:
+          "What the OS has learned about you — preferences, habits, routines. Evidence-backed, editable, yours.",
+      },
+      {
         label: "Timeline",
         href: "/timeline",
         icon: Milestone,
@@ -208,6 +233,20 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/automation",
         icon: Zap,
         description: "Rules that run your life on autopilot.",
+      },
+      {
+        label: "Autopilot",
+        href: "/autopilot",
+        icon: Rocket,
+        description:
+          "Proposal-first automation — safe, reversible work you approve before it runs.",
+      },
+      {
+        label: "Connectors",
+        href: "/connectors",
+        icon: Plug,
+        description:
+          "External services as normalized event sources — synced, encrypted, read-first.",
       },
       {
         label: "Orchestration",

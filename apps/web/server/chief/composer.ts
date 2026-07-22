@@ -8,6 +8,7 @@ import * as goalService from "../goal/service";
 import * as decisionService from "../decision/service";
 import { healthSignals } from "../health";
 import { focusSignals } from "../focus";
+import { signalDisruptions } from "../signals/service";
 import { loadProfile } from "./repository";
 
 /**
@@ -67,7 +68,7 @@ export async function composeChiefContext(
   const dayStart = `${date}T00:00:00.000Z`;
   const dayEnd = `${date}T23:59:59.999Z`;
 
-  const [tasks, events, goals, health, focus, decisions, profile] = await Promise.all([
+  const [tasks, events, goals, health, focus, decisions, profile, disruptions] = await Promise.all([
     taskService.list(db, {}).catch(() => []),
     calendarService.list(db, { from: dayStart, to: dayEnd }).catch(() => []),
     goalService.list(db).catch(() => []),
@@ -75,6 +76,8 @@ export async function composeChiefContext(
     focusSignals(db, tz, now).catch(() => null),
     decisionService.list(db, undefined, 50).catch(() => [] as unknown[]),
     loadProfile(db).catch(() => null),
+    // Sprint 6.1: the Chief's situational awareness now comes from the Event Intelligence Engine.
+    signalDisruptions(db, tz, now).catch(() => []),
   ]);
 
   const scored = scoreTasks(tasks as never[]);
@@ -128,7 +131,7 @@ export async function composeChiefContext(
       .map((g) => ({ id: g.id, title: g.title, progress: g.progress ?? 0, staleDays: 0 })),
     activeFocusSession: activeSession,
     pendingDecisions: Array.isArray(decisions) ? decisions.length : 0,
-    disruptions: [],
+    disruptions,
     profile: resolvedProfile,
   };
 }
