@@ -31,3 +31,8 @@ export * from "./intelligence";
 export * from "./ai";
 export * from "./chief";
 export * from "./assistant";
+export * from "./signals";
+export * from "./prediction";
+export * from "./autopilot";
+export * from "./connectors";
+export * from "./adaptation";

@@ -1,6 +1,6 @@
 {
   "name": "@myos/core",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -27,7 +27,12 @@
     "./knowledge": "./src/knowledge/index.ts",
     "./life": "./src/life/index.ts",
     "./resource": "./src/resource/index.ts",
-    "./intelligence": "./src/intelligence/index.ts"
+    "./intelligence": "./src/intelligence/index.ts",
+    "./events": "./src/events/index.ts",
+    "./prediction": "./src/prediction/index.ts",
+    "./autopilot": "./src/autopilot/index.ts",
+    "./connectors": "./src/connectors/index.ts",
+    "./adaptation": "./src/adaptation/index.ts"
   },
   "types": "./src/index.ts",
   "scripts": {

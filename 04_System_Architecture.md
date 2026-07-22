@@ -151,7 +151,7 @@ History = the `notifications` table itself (90-day retention job). "Why?" = stor
 
 - **docker-compose services:** `caddy` (80/443), `web`, `worker`, `postgres` (pgvector image, volume `pgdata`), `backup` (cron sidecar running the backup script — or backup runs inside worker; chosen: **inside worker** via pg-boss cron for visibility, executing `pg_dump` against the db container).
 - **Build/deploy:** GitHub private repo; CI (lint, typecheck, tests, build images) → GHCR; deploy = `docker compose pull && up -d` via SSH action or manual. Migrations run on web container start (`drizzle-kit migrate`, advisory-locked so only one runner).
-- **Config:** single `.env` (DB URL, VAPID keys, ANTHROPIC_API_KEY, VOYAGE_API_KEY, BACKUP_S3_*, SESSION_SECRET, APP_URL, TZ default).
+- **Config:** single `.env` (DB URL, Clerk keys, VAPID keys, AI provider keys [ANTHROPIC/OPENAI/GEMINI/GROQ/VOYAGE], MYOS_AI_CREDENTIALS_SECRET, MYOS_CONNECTOR_SECRET, BACKUP_S3_*, APP_URL, TZ default). See `.env.example` for the authoritative list.
 - **Health:** `/api/health` (db ping, boss ping, disk space) polled by Caddy + external uptime pinger (optional); worker heartbeats row every minute → web surfaces "worker down" banner in Settings if stale > 5 min.
 - **Backups:** per PRD §24 — nightly `pg_dump -Fc` + uploads tar → `age`-encrypt → local rotation + S3 upload; weekly verify-restore into scratch schema; results in `backup_runs`.
 - **Logs:** pino JSON → stdout → docker logging (rotated); errors additionally to GlitchTip.
