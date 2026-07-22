@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1
+# One-shot database migration runner (Operations Sprint O1). Runs the frozen, forward-only Drizzle
+# migrations (`packages/db`) against Postgres before the web/worker services start, then exits. This
+# does NOT change the schema or app code — it is deployment wiring so `docker compose up` is safe on a
+# fresh machine and idempotent on an existing one (Drizzle records applied migrations).
+FROM node:22-alpine AS base
+ENV HUSKY=0
+RUN corepack enable
+WORKDIR /app
+
+FROM base AS build
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
+COPY packages/shared/package.json ./packages/shared/package.json
+COPY packages/db/package.json ./packages/db/package.json
+# Only the db + shared packages are needed to run migrations.
+RUN pnpm install --frozen-lockfile --filter @myos/db --filter @myos/shared
+COPY packages/shared ./packages/shared
+COPY packages/db ./packages/db
+
+# `pnpm --filter @myos/db migrate` runs `tsx src/migrate.ts` (ensures extensions + applies migrations).
+CMD ["pnpm", "--filter", "@myos/db", "migrate"]
