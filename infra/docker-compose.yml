@@ -1,12 +1,44 @@
-# Production topology (04_System_Architecture.md §11): caddy · web · worker · postgres.
-#   cp .env.example .env   # then fill secrets
+# Production topology (04_System_Architecture.md §11 + Operations Sprint O1):
+#   migrate (one-shot) · postgres · web · worker · caddy · cloudflared (optional).
+#
+# The job queue/scheduler is pg-boss (Postgres-backed) — there is no Redis in the stack, so no Redis
+# container is required. This file WRAPS the frozen application; it changes no app code or schema.
+#
+#   cp .env.example .env                 # fill secrets; set MYOS_DOMAIN
 #   docker compose -f infra/docker-compose.yml up -d --build
+#   # with public remote access (Cloudflare Tunnel):
+#   docker compose -f infra/docker-compose.yml --profile tunnel up -d --build
 name: myos
 
+# Shared JSON log-rotation policy (Operations Sprint O1, Workstream 8). Caps container logs so a
+# long-running personal deployment never fills the disk. Applied to every service via YAML anchor.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
+  # One-shot migration runner. Applies the forward-only Drizzle migrations, then exits 0. web + worker
+  # wait for it to complete successfully so the schema is always current before the app serves traffic.
+  migrate:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.migrate
+    restart: "no"
+    logging: *default-logging
+    env_file:
+      - ../.env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-myos}:${POSTGRES_PASSWORD:-myos}@postgres:5432/${POSTGRES_DB:-myos}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   postgres:
     image: pgvector/pgvector:pg16
     restart: unless-stopped
+    logging: *default-logging
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-myos}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-myos}
@@ -25,6 +57,7 @@ services:
       context: ..
       dockerfile: infra/Dockerfile.web
     restart: unless-stopped
+    logging: *default-logging
     env_file:
       - ../.env
     environment:
@@ -35,6 +68,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
       interval: 30s
@@ -46,6 +81,7 @@ services:
       context: ..
       dockerfile: infra/Dockerfile.worker
     restart: unless-stopped
+    logging: *default-logging
     env_file:
       - ../.env
     environment:
@@ -54,10 +90,24 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    # The worker owns pg-boss; a healthy worker keeps a live connection to Postgres. A TCP connect to
+    # the postgres service is the cheapest liveness signal without adding an HTTP surface to the worker.
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "require(''net'').connect(5432,''postgres'').on(''connect'',()=>process.exit(0)).on(''error'',()=>process.exit(1))"',
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
 
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
+    logging: *default-logging
     ports:
       - "80:80"
       - "443:443"
@@ -69,6 +119,20 @@ services:
       - caddy_config:/config
     depends_on:
       - web
+
+  # Free public remote access (Operations Sprint O1, Workstream 3). Opt-in via `--profile tunnel`.
+  # Cloudflare Tunnel gives a stable HTTPS hostname reachable from ANY browser away from home with no
+  # client install and no open inbound ports. Provide MYOS_TUNNEL_TOKEN in .env (see the Remote Access
+  # guide). When the profile is not selected the tunnel is not started; the rest of the stack is
+  # unaffected.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    logging: *default-logging
+    profiles: ["tunnel"]
+    command: tunnel --no-autoupdate run --token ${MYOS_TUNNEL_TOKEN}
+    depends_on:
+      - caddy
 
 volumes:
   pgdata:
