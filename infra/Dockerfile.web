@@ -20,7 +20,23 @@ RUN pnpm install --frozen-lockfile
 # ── Build ───────────────────────────────────────────────────────────────────
 FROM base AS build
 ENV MYOS_BUILD_STANDALONE=1
-COPY --from=deps /app/node_modules ./node_modules
+# Public client-config values (Operations Sprint O1 config fix). Next.js inlines every
+# NEXT_PUBLIC_* variable into the client bundle at BUILD time, so these must be present here — the
+# container-runtime `.env` is too late. Only PUBLIC values are accepted as build args:
+#   - NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY : the VAPID *public* key (needed to create push subscriptions).
+#   - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY : Clerk's *publishable* key (public by design).
+# No private/server-side secret (VAPID private key, CLERK_SECRET_KEY, AI keys, DB creds, vault secrets)
+# is EVER passed as a build arg or exposed to the client — those stay runtime-only via `env_file`.
+ARG NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY=""
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=""
+ENV NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY=$NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+# Copy the ENTIRE installed workspace (root node_modules + every package's node_modules), not just the
+# root. pnpm hoists most deps to the root store but the per-package `.bin` symlinks (e.g. apps/web's
+# `next` binary) live in `apps/web/node_modules` — copying only `/app/node_modules` leaves them behind,
+# so `next build` fails with "next: not found". `.dockerignore` excludes node_modules from the source
+# COPY below, so this deps copy is what provides them.
+COPY --from=deps /app/ ./
 COPY . .
 RUN pnpm --filter @myos/web build
 

@@ -44,8 +44,11 @@ control). Then:
    ```
 5. **Start with the tunnel profile:**
    ```
-   docker compose -f infra/docker-compose.yml --profile tunnel up -d --build
+   docker compose --env-file .env -f infra/docker-compose.yml --profile tunnel up -d --build
    ```
+   (`--env-file .env` makes the root `.env` available for the `NEXT_PUBLIC_*` build args — see the
+   [deployment guide](deployment.md). `MYOS_APP_URL` is a runtime value, so changing it to your HTTPS
+   origin does not require a rebuild; changing a `NEXT_PUBLIC_*` value does.)
 6. Open `https://myos.yourdomain.com` from anywhere.
 
 Full details and the credentials-file alternative: [`infra/cloudflared/README.md`](../../infra/cloudflared/README.md).
