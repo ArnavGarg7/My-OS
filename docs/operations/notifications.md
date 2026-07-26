@@ -16,6 +16,11 @@ How notifications behave after deployment, and their honest limits.
 
 1. **Set VAPID keys** in `.env` (generate with `npx web-push generate-vapid-keys`). Set
    `NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY` to the **same value** as `MYOS_VAPID_PUBLIC_KEY`.
+   ⚠️ **`NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY` is baked into the browser bundle at image-build time.** After
+   setting or changing it, you **must rebuild** the web image so the client picks it up:
+   `docker compose --env-file .env -f infra/docker-compose.yml up -d --build`. Setting it only at
+   runtime is not enough — the subscription code reads the value that was compiled in. (This is wired via
+   the build args in `infra/docker-compose.yml` → `infra/Dockerfile.web`.)
 2. **Serve over HTTPS** — push and installable PWAs require it. Use the Cloudflare URL
    ([Remote Access](remote-access.md)); `localhost` is treated as secure for testing on the same
    machine.

@@ -56,6 +56,14 @@ services:
     build:
       context: ..
       dockerfile: infra/Dockerfile.web
+      # Build-time client config (O1 config fix). NEXT_PUBLIC_* is inlined into the browser bundle at
+      # build time, so it must be passed as build args here — the runtime `env_file` below is too late.
+      # Only PUBLIC values are forwarded; every private secret stays runtime-only via `env_file`.
+      # These interpolate from the environment Compose sees at build time — run the build with the root
+      # .env available, e.g.:  docker compose --env-file .env -f infra/docker-compose.yml up -d --build
+      args:
+        NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY: ${NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY:-}
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-}
     restart: unless-stopped
     logging: *default-logging
     env_file:
