@@ -1,5 +1,17 @@
-# Auto-HTTPS reverse proxy (04 §1/§11). HTTPS is required for Web Push.
-# {$MYOS_DOMAIN} defaults to localhost for local testing.
+# Reverse proxy (04 §1/§11). {$MYOS_DOMAIN} defaults to localhost for local testing.
+#
+# Global options: serve HTTP on :80 DIRECTLY instead of redirecting to HTTPS. My OS publishes Caddy on
+# non-standard host ports (O1 port-isolation — default host 8080→80, 8443→443) so it can coexist with
+# other stacks that own 80/443. The default HTTP→HTTPS redirect would send the browser to the standard
+# :443, which is no longer where My OS listens — so we disable the redirect and serve the app over HTTP
+# on the mapped port. Local access is http://localhost:${MYOS_HTTP_PORT:-8080}. Remote access uses the
+# Cloudflare Tunnel (TLS terminated at Cloudflare's edge, forwarded to caddy:80). Caddy still provisions
+# HTTPS on :443 (local cert for `localhost`, or ACME for a real MYOS_DOMAIN) — reachable on the mapped
+# HTTPS host port — the redirect is simply not forced.
+{
+	auto_https disable_redirects
+}
+
 {$MYOS_DOMAIN:localhost} {
 	encode zstd gzip
 

@@ -7,7 +7,7 @@ scripts\ops\status.ps1
 docker compose -f infra/docker-compose.yml logs --tail=100 web worker migrate postgres
 ```
 
-## My OS won't open at http://localhost
+## My OS won't open at http://localhost:8080
 
 - **Docker not ready.** After a reboot the engine takes a minute. Check `logs\startup.log`; confirm
   Docker Desktop is running.

@@ -7,11 +7,11 @@
 #
 #   scripts/ops/update.sh
 #
-# Env: COMPOSE_FILE (infra/docker-compose.yml) · HEALTH_URL (http://localhost/api/health) · PROFILE ("")
+# Env: COMPOSE_FILE (infra/docker-compose.yml) · HEALTH_URL (http://localhost:8080/api/health) · PROFILE ("")
 set -euo pipefail
 
 COMPOSE_FILE="${COMPOSE_FILE:-infra/docker-compose.yml}"
-HEALTH_URL="${HEALTH_URL:-http://localhost/api/health}"
+HEALTH_URL="${HEALTH_URL:-http://localhost:8080/api/health}"
 PROFILE_ARGS=()
 [ -n "${PROFILE:-}" ] && PROFILE_ARGS=(--profile "$PROFILE")
 

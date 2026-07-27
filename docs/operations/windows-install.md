@@ -43,13 +43,13 @@ powershell -ExecutionPolicy Bypass -File scripts\ops\windows\install-startup-tas
 
 ## 3. Confirm
 
-Reboot. After you log in and wait ~1–2 minutes (Docker engine cold start), open **http://localhost** —
+Reboot. After you log in and wait ~1–2 minutes (Docker engine cold start), open **http://localhost:8080** —
 My OS should be up. Check `logs\startup.log` and `scripts\ops\status.ps1` if not; see
 [Troubleshooting](troubleshooting.md).
 
 ## 4. Optional: a desktop shortcut
 
-Create a shortcut to `http://localhost` (or install the PWA from Chrome/Edge — see
+Create a shortcut to `http://localhost:8080` (or install the PWA from Chrome/Edge — see
 [Android Setup](android-setup.md); desktop install works the same way) so My OS opens in its own window
 like a native app.
 

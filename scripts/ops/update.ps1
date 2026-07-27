@@ -5,12 +5,12 @@
 
     powershell -ExecutionPolicy Bypass -File scripts\ops\update.ps1
 
-  Env: COMPOSE_FILE (infra\docker-compose.yml) HEALTH_URL (http://localhost/api/health) PROFILE ("")
+  Env: COMPOSE_FILE (infra\docker-compose.yml) HEALTH_URL (http://localhost:8080/api/health) PROFILE ("")
 #>
 $ErrorActionPreference = "Stop"
 
 $ComposeFile = if ($env:COMPOSE_FILE) { $env:COMPOSE_FILE } else { "infra\docker-compose.yml" }
-$HealthUrl   = if ($env:HEALTH_URL)   { $env:HEALTH_URL }   else { "http://localhost/api/health" }
+$HealthUrl   = if ($env:HEALTH_URL)   { $env:HEALTH_URL }   else { "http://localhost:8080/api/health" }
 $ProfileArgs = @()
 if ($env:PROFILE) { $ProfileArgs = @("--profile", $env:PROFILE) }
 
