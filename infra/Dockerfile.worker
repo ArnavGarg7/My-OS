@@ -7,12 +7,20 @@ WORKDIR /app
 
 # ── Build + collect production dependencies ─────────────────────────────────
 FROM base AS build
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
+# Root tsconfig.base.json + tsconfig.json are required: apps/worker/tsconfig.json extends
+# "../../tsconfig.base.json", which tsup/esbuild resolves during the build. Copying only apps/ +
+# packages/ (below) leaves the root configs out, producing "Cannot find base config file" warnings.
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc tsconfig.base.json tsconfig.json ./
 COPY apps ./apps
 COPY packages ./packages
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @myos/worker build
-RUN pnpm --filter @myos/worker deploy --prod --legacy /out
+# Collect the worker's PRODUCTION dependency closure into /out via `pnpm deploy`. tsup inlines the
+# @myos/* workspace packages (noExternal), so the runtime only needs their external deps — pg-boss,
+# pino, drizzle-orm, postgres, zod (+ transitives) — which `deploy --prod` installs FLAT and
+# node-resolvable in /out/node_modules. NOTE: pnpm 9.15.4 has NO `--legacy` flag (it was invalid and
+# never validated because this image had never been built); `--prod` is the correct, supported flag.
+RUN pnpm --filter @myos/worker deploy --prod /out
 
 # ── Runtime ─────────────────────────────────────────────────────────────────
 FROM base AS runner
