@@ -20,8 +20,12 @@ Edit `.env` and set at minimum:
   a real one if you enable remote access).
 - `MYOS_DOMAIN` — `localhost` for local-only; your Cloudflare hostname (e.g. `myos.example.com`) if you
   use the tunnel.
-- `MYOS_APP_URL` — `http://localhost` for local production (Caddy is the ingress on :80; `web:3000` is
-  internal). Use `https://<your-domain>` with remote access. Do **not** use `:3000` in production.
+- `MYOS_HTTP_PORT` / `MYOS_HTTPS_PORT` — the **host** ports My OS's Caddy publishes. Defaults **8080** /
+  **8443** so My OS coexists with anything already using 80/443 on this host. Container-side Caddy still
+  listens on 80/443 — only host publishing changes.
+- `MYOS_APP_URL` — the externally-reachable origin **including the host port**: `http://localhost:8080`
+  for local production (matching `MYOS_HTTP_PORT`; `web:3000` is internal). Use `https://<your-domain>`
+  with remote access. Do **not** use `:3000` in production; keep the port in sync with `MYOS_HTTP_PORT`.
 - **Optional (per feature):**
   - **Cloud AI:** `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`,
     `VOYAGE_API_KEY`, `MYOS_AI_CREDENTIALS_SECRET`. Consumed server-side by `web` only; the OS runs
@@ -56,8 +60,10 @@ scripts/ops/status.ps1
 ```
 
 Expect all containers `running`/`healthy` and the health endpoint returning `{"status":"ok","db":"up"}`.
-Open **http://localhost** — you should see My OS. (Caddy serves plain HTTP on `localhost`; HTTPS is
-automatic once `MYOS_DOMAIN` is a real domain, or via the Cloudflare tunnel.)
+Open **http://localhost:8080** (the default `MYOS_HTTP_PORT`) — you should see My OS. Caddy serves plain
+HTTP directly on the mapped port (the HTTP→HTTPS redirect is disabled so the non-standard port works);
+HTTPS is available on `https://localhost:8443` with a local certificate, and remote access uses the
+Cloudflare tunnel. If you set a custom `MYOS_HTTP_PORT`, use that port instead.
 
 ## 4. Make it automatic (recommended)
 

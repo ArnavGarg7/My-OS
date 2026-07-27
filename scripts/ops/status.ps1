@@ -8,7 +8,7 @@
 $ErrorActionPreference = "Continue"
 
 $ComposeFile = if ($env:COMPOSE_FILE) { $env:COMPOSE_FILE } else { "infra\docker-compose.yml" }
-$HealthUrl   = if ($env:HEALTH_URL)   { $env:HEALTH_URL }   else { "http://localhost/api/health" }
+$HealthUrl   = if ($env:HEALTH_URL)   { $env:HEALTH_URL }   else { "http://localhost:8080/api/health" }
 $BackupDir   = if ($env:BACKUP_DIR)   { $env:BACKUP_DIR }   else { ".\backups" }
 
 Write-Host "== My OS status - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') =="

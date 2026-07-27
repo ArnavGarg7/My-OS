@@ -47,4 +47,4 @@ Log "starting My OS stack"
 docker compose -f $ComposeFile @ProfileArgs up -d 2>&1 | Tee-Object -FilePath $log -Append
 if ($LASTEXITCODE -ne 0) { Log "ERROR: compose up failed"; exit 1 }
 
-Log "My OS started. http://localhost"
+Log "My OS started. http://localhost:8080"

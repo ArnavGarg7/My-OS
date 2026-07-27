@@ -5,10 +5,10 @@ How My OS fits into a normal day once it's deployed.
 ## It's just there
 
 After the [Windows auto-start](windows-install.md) is set up, you don't start anything. Turn on your
-laptop, log in, wait a minute for Docker, and My OS is running at **http://localhost** (and at your
+laptop, log in, wait a minute for Docker, and My OS is running at **http://localhost:8080** (and at your
 Cloudflare URL from anywhere).
 
-- **Laptop:** open the PWA (installed from Chrome/Edge) or `http://localhost`.
+- **Laptop:** open the PWA (installed from Chrome/Edge) or `http://localhost:8080`.
 - **Phone:** open the installed PWA from your home screen.
 - **Away:** open `https://myos.yourdomain.com` in any browser.
 
