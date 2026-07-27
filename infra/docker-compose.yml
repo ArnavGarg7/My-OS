@@ -78,8 +78,12 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+    # Use 127.0.0.1 (deterministic IPv4), NOT `localhost`: inside the container `localhost` resolves to
+    # both 127.0.0.1 and ::1, and the healthcheck's wget hits IPv6 ::1 first — but Next binds only
+    # 0.0.0.0 (IPv4), so `localhost` connections are refused and the container is wrongly marked
+    # unhealthy. 127.0.0.1 targets the IPv4 loopback Next actually listens on.
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 5
