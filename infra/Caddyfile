@@ -1,25 +1,24 @@
-# Reverse proxy (04 §1/§11). {$MYOS_DOMAIN} defaults to localhost for local testing.
+# Reverse proxy for My OS (04 §1/§11).
 #
-# Global options: serve HTTP on :80 DIRECTLY instead of redirecting to HTTPS. My OS publishes Caddy on
-# non-standard host ports (O1 port-isolation — default host 8080→80, 8443→443) so it can coexist with
-# other stacks that own 80/443. The default HTTP→HTTPS redirect would send the browser to the standard
-# :443, which is no longer where My OS listens — so we disable the redirect and serve the app over HTTP
-# on the mapped port. Local access is http://localhost:${MYOS_HTTP_PORT:-8080}. Remote access uses the
-# Cloudflare Tunnel (TLS terminated at Cloudflare's edge, forwarded to caddy:80). Caddy still provisions
-# HTTPS on :443 (local cert for `localhost`, or ACME for a real MYOS_DOMAIN) — reachable on the mapped
-# HTTPS host port — the redirect is simply not forced.
-{
-	auto_https disable_redirects
-}
-
-{$MYOS_DOMAIN:localhost} {
+# Serve plain HTTP on container :80 for ALL hosts. This is deterministic and correct for both paths:
+#   - Local production: browser → host ${MYOS_HTTP_PORT:-8080} → container :80 → here → web:3000.
+#     No local TLS, no certificate, and no HTTP→HTTPS redirect.
+#   - Remote: the Cloudflare Tunnel terminates TLS at Cloudflare's edge and forwards to caddy:80, so
+#     Caddy only ever needs to speak HTTP internally.
+# A ":80" site address (a PORT, not a hostname) makes Caddy bind and serve HTTP on :80 for any Host.
+# A hostname site (e.g. `localhost`) instead makes Caddy HTTPS-only on :443 and leaves :80 UNSERVED —
+# even with `auto_https disable_redirects` — which is why http://localhost:8080 returned "connection
+# closed" before this fix. Direct Caddy-terminated HTTPS is intentionally NOT configured here (remote
+# TLS is Cloudflare's job); to add it later, give this site a domain address + publish the HTTPS port.
+:80 {
 	encode zstd gzip
 
 	# Baseline security headers (v1.0.0 release hardening). Edge-only — no app change.
 	# A strict Content-Security-Policy is intentionally NOT set here: Next.js + Clerk +
 	# the PWA use inline styles/scripts, so CSP must be introduced app-side with nonces
-	# and tested end-to-end (tracked in docs/release/future-work.md). HSTS is safe behind
-	# Caddy's auto-HTTPS and is a no-op on plain-HTTP localhost.
+	# and tested end-to-end (tracked in docs/release/future-work.md). HSTS is a no-op over local plain
+	# HTTP but is honoured when Cloudflare serves the site over HTTPS remotely (Caddy emits it; the
+	# tunnel forwards it to the client over TLS).
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Content-Type-Options "nosniff"
