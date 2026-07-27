@@ -7,7 +7,7 @@
 set -uo pipefail
 
 COMPOSE_FILE="${COMPOSE_FILE:-infra/docker-compose.yml}"
-HEALTH_URL="${HEALTH_URL:-http://localhost/api/health}"
+HEALTH_URL="${HEALTH_URL:-http://localhost:8080/api/health}"
 BACKUP_DIR="${BACKUP_DIR:-./backups}"
 
 echo "== My OS status — $(date '+%Y-%m-%d %H:%M:%S') =="
