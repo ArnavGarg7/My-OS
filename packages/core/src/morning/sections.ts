@@ -102,7 +102,7 @@ export function buildNextAction(ctx: BriefingContext): NextActionSection {
   const mission = ctx.focus?.mission?.trim();
   const action =
     priority || deepWork || (mission ? `Start: ${mission}` : "Set your mission for today.");
-  return { action, hint: "Deterministic for now — this gets smarter later." };
+  return { action, hint: "Your most important next step right now." };
 }
 
 export function buildFocus(ctx: BriefingContext): FocusSection {

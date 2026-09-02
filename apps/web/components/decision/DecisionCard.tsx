@@ -7,6 +7,13 @@ import { DecisionBadge } from "./DecisionBadge";
 import { DecisionPriority } from "./DecisionPriority";
 import { DecisionReason } from "./DecisionReason";
 
+/** Turn a raw confidence percentage into a plain-language band (matches the Chief home wording). */
+function confidenceWord(pct: number): string {
+  if (pct >= 80) return "High confidence";
+  if (pct >= 50) return "Medium confidence";
+  return "Low confidence";
+}
+
 /**
  * Decision Card (Sprint 2.3). The OS's single "do this next" surface: title,
  * reason, confidence, priority, expiry + lifecycle actions. Read-only content —
@@ -37,7 +44,9 @@ export function DecisionCard({
     );
   }
 
-  const expires = decision.expiresAt ? formatRelativeTime(decision.expiresAt) : null;
+  const expiresAt = decision.expiresAt ? new Date(decision.expiresAt) : null;
+  const expiresLabel = expiresAt ? formatRelativeTime(expiresAt) : null;
+  const isExpired = expiresAt ? expiresAt.getTime() < Date.now() : false;
 
   return (
     <div className="border-accent-border bg-accent-muted/20 flex flex-col gap-3 rounded-xl border p-5">
@@ -45,14 +54,16 @@ export function DecisionCard({
         <DecisionPriority priority={decision.priority} />
         {decision.state !== "pending" ? <DecisionBadge state={decision.state} /> : null}
         <Badge variant="neutral" className="ml-auto">
-          {decision.confidence}% confidence
+          {confidenceWord(decision.confidence)}
         </Badge>
       </div>
 
       <p className="text-heading-m text-fg">{decision.title}</p>
       <DecisionReason reason={decision.reason} />
-      {expires && decision.state === "pending" ? (
-        <p className="text-caption text-fg-subtle">Expires {expires}</p>
+      {expiresLabel && decision.state === "pending" ? (
+        <p className={`text-caption ${isExpired ? "text-warning" : "text-fg-subtle"}`}>
+          {isExpired ? "Expired" : "Expires"} {expiresLabel}
+        </p>
       ) : null}
 
       {decision.state === "pending" ? (
