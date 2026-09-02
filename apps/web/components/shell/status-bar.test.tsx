@@ -4,16 +4,16 @@ import { PlatformTestProviders } from "@/test/providers";
 import { StatusBar } from "./status-bar";
 
 describe("StatusBar", () => {
-  it("renders provider-driven platform status", () => {
+  it("renders a single System health item (online by default under jsdom)", () => {
     render(
       <PlatformTestProviders>
         <StatusBar />
       </PlatformTestProviders>,
     );
-    // Connection is online by default under jsdom.
+    // Infrastructure health is collapsed into one "System" item; details (incl. version) live in its
+    // tooltip rather than as separate always-on debug items.
+    expect(screen.getByText("System")).toBeInTheDocument();
     expect(screen.getByText("Online")).toBeInTheDocument();
-    expect(screen.getByText("Connected")).toBeInTheDocument();
-    // App version comes from usePlatform().
-    expect(screen.getByText(/^v\d+\.\d+\.\d+$/)).toBeInTheDocument();
+    expect(screen.getByTitle(/v\d+\.\d+\.\d+/)).toBeInTheDocument();
   });
 });
