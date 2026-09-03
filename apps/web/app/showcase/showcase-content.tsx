@@ -37,6 +37,7 @@ import {
   Checkbox,
   Chip,
   Combobox,
+  Emblem,
   Command,
   CommandEmpty,
   CommandGroup,
@@ -888,9 +889,7 @@ export function ShowcaseContent() {
       <header className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="bg-elevated text-accent flex size-8 items-center justify-center rounded-lg font-mono">
-              ▮
-            </span>
+            <Emblem size={32} />
             <Text asChild variant="heading-l">
               <h1>My OS — Design System</h1>
             </Text>

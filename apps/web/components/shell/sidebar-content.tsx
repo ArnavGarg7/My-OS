@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
-import { Text } from "@myos/ui";
+import { MonoLabel } from "@myos/ui";
 import { NAV_SECTIONS } from "@/lib/shell/nav";
 import { SidebarNavItem } from "./sidebar-nav-item";
 
@@ -13,7 +13,7 @@ export interface SidebarContentProps {
 }
 
 /** Sections collapsed by default in the expanded sidebar (the daily-drivers stay open). */
-const DEFAULT_COLLAPSED = new Set(["Life", "Insights", "System"]);
+const DEFAULT_COLLAPSED = new Set(["Life", "Intelligence", "System"]);
 const STORE_KEY = "myos.sidebar.sections";
 
 function sectionHasActive(items: { href: string }[], pathname: string): boolean {
@@ -88,11 +88,11 @@ export function SidebarContent({ collapsed, onNavigate }: SidebarContentProps) {
               type="button"
               onClick={() => toggle(section.label)}
               aria-expanded={isOpen}
-              className="text-fg-subtle hover:text-fg-muted flex w-full items-center justify-between rounded-sm px-2.5 py-1"
+              className="text-fg-subtle hover:text-fg-muted flex w-full items-center justify-between rounded-sm px-2.5 py-1.5"
             >
-              <Text variant="label" tone="subtle" className="uppercase tracking-wider" aria-hidden>
+              <MonoLabel tone="subtle" aria-hidden>
                 {section.label}
-              </Text>
+              </MonoLabel>
               <ChevronRight
                 size={12}
                 aria-hidden

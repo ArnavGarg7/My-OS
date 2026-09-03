@@ -149,11 +149,14 @@
 
 /* ── Static design values (theme-independent) ──────────────────────────────── */
 @theme {
-  /* Fonts */
+  /* Fonts — the host app may set --font-inter / --font-jetbrains via next/font;
+     both gracefully fall back to the named family then the system stack. */
   --font-sans:
-    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    var(--font-inter, "Inter"), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono:
+    var(--font-jetbrains, "JetBrains Mono"), ui-monospace, "SFMono-Regular", Menlo, Consolas,
+    monospace;
 
   /* Type scale — 03 §2.2, expanded. Each is size / line-height / weight / tracking. */
   --text-display-xl: 44px;
@@ -254,6 +257,8 @@
   --shadow-e1: var(--shadow-e1);
   --shadow-e2: var(--shadow-e2);
   --shadow-e3: var(--shadow-e3);
+  /* Kinetic active aura — `shadow-kinetic` on focused / running surfaces. */
+  --shadow-kinetic: var(--glow-kinetic);
 }
 
 /* ── Theme-dependent colors (inline so utilities reference the live var) ────── */
@@ -279,6 +284,7 @@
   --color-accent-active: var(--accent-active);
   --color-accent-muted: var(--accent-muted);
   --color-accent-border: var(--accent-border);
+  --color-accent-fg: var(--accent-fg);
 
   --color-success: var(--success);
   --color-success-subtle: var(--success-subtle);

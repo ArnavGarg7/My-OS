@@ -37,3 +37,7 @@ npm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Stage 1: local extraction of the Stitch design ZIPs (derived, not source)
+Google Stitch/_extracted/
+apps/web/.env.local
