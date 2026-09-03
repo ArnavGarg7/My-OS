@@ -51,9 +51,10 @@ const CONFIDENCE_VARIANT: Record<string, "success" | "warning" | "neutral" | "ac
 };
 
 function ConfidenceIndicator({ level }: { level: string }) {
+  const label = level.replace("_", " ");
   return (
     <Badge variant={CONFIDENCE_VARIANT[level] ?? "neutral"}>
-      confidence: {level.replace("_", " ")}
+      {label.charAt(0).toUpperCase() + label.slice(1)} confidence
     </Badge>
   );
 }
@@ -92,7 +93,12 @@ function MorningSummary() {
             <Text variant="body-s" className="text-fg-muted">
               Readiness
             </Text>
-            <Text variant="heading-l">{m.readiness}</Text>
+            <div className="flex items-baseline justify-end gap-0.5">
+              <Text variant="heading-l">{m.readiness}</Text>
+              <Text variant="body-s" className="text-fg-subtle">
+                /100
+              </Text>
+            </div>
           </div>
         ) : null}
       </div>
@@ -142,7 +148,10 @@ function NowCard({ data }: { data: NowData }) {
         </Text>
         <div className="flex items-center gap-2">
           <ConfidenceIndicator level={rec.confidence} />
-          <ProviderBadge provider={data.provider.provider} />
+          {/* The provider name only means something to the user when a cloud model is active. */}
+          {data.provider.provider !== "local" ? (
+            <ProviderBadge provider={data.provider.provider} />
+          ) : null}
         </div>
       </div>
       <Text variant="heading-l">{rec.title}</Text>
@@ -169,29 +178,36 @@ function NowCard({ data }: { data: NowData }) {
 
       <div className="border-border flex items-center gap-2 border-t pt-3">
         <Text variant="body-s" className="text-fg-muted">
-          Was this useful?
+          Was this helpful?
         </Text>
-        {(["accepted", "modified", "rejected"] as const).map((o) => (
-          <Button
-            key={o}
-            variant="ghost"
-            size="sm"
-            disabled={fb.isPending || !data.recommendationId}
-            onClick={() =>
-              fb.mutate(
-                { recommendationId: data.recommendationId, outcome: o },
-                { onSuccess: () => void utils.chief.now.invalidate() },
-              )
-            }
-          >
-            {o}
-          </Button>
-        ))}
         {fb.data ? (
-          <Text variant="body-s" className="text-fg-muted">
-            profile rev {fb.data.profile.revision}
+          <Text variant="body-s" className="text-success">
+            Thanks — I’ll factor that in.
           </Text>
-        ) : null}
+        ) : (
+          (
+            [
+              { outcome: "accepted", label: "Helpful" },
+              { outcome: "modified", label: "Partly" },
+              { outcome: "rejected", label: "Not helpful" },
+            ] as const
+          ).map(({ outcome, label }) => (
+            <Button
+              key={outcome}
+              variant="ghost"
+              size="sm"
+              disabled={fb.isPending || !data.recommendationId}
+              onClick={() =>
+                fb.mutate(
+                  { recommendationId: data.recommendationId, outcome },
+                  { onSuccess: () => void utils.chief.now.invalidate() },
+                )
+              }
+            >
+              {label}
+            </Button>
+          ))
+        )}
       </div>
     </Card>
   );
@@ -318,7 +334,7 @@ function AIStatus({ provider }: { provider: string }) {
         {provider === "local" ? "Offline-ready · Local provider" : `AI online · ${provider}`}
       </Badge>
       <Text variant="body-s" className="text-fg-muted">
-        Every recommendation is grounded in your deterministic data.
+        Every recommendation is based on your real data — nothing invented.
       </Text>
     </div>
   );
