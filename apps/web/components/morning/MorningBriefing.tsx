@@ -45,6 +45,7 @@ import { MorningLifeSection } from "./MorningLifeSection";
 import { MorningResourceSection } from "./MorningResourceSection";
 import { MorningExecutiveSection } from "./MorningExecutiveSection";
 import { HealthMorningSlot } from "@/components/health/HealthMorningSlot";
+import { GetStartedCard } from "@/components/onboarding/GetStartedCard";
 
 /**
  * Morning Briefing (Sprint 2.2). A single scrollable, editorial report assembled
@@ -126,6 +127,8 @@ export function MorningBriefing() {
     <PageContainer width="prose">
       <PageContent>
         <GreetingSection data={briefing.greeting} />
+
+        <GetStartedCard />
 
         {/* ── The essentials: what to do today, and how you're set up for it. ── */}
         <MorningSection id="morning-energy" label="Energy Check">
