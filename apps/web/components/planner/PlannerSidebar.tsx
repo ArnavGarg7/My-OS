@@ -2,10 +2,10 @@
 
 import { Progress, Text } from "@myos/ui";
 import type { usePlanner } from "./use-planner";
-import { PlannerLegend } from "./PlannerLegend";
 import { PlannerMiniCalendar } from "./PlannerMiniCalendar";
 
-/** Planner sidebar (Sprint 2.6): utilization, conflicts, legend, calendar. */
+/** Planner sidebar (Sprint 2.6): utilization, conflicts, calendar. The colour key lives in the
+ *  interactive filters above the timeline, so a separate static legend here would just duplicate it. */
 export function PlannerSidebar({ planner }: { planner: ReturnType<typeof usePlanner> }) {
   const util = planner.utilization;
   return (
@@ -29,13 +29,6 @@ export function PlannerSidebar({ planner }: { planner: ReturnType<typeof usePlan
             ? "None — plan is clean."
             : `${planner.conflicts.length} to review`}
         </Text>
-      </section>
-
-      <section className="flex flex-col gap-2">
-        <Text variant="label" tone="subtle">
-          Legend
-        </Text>
-        <PlannerLegend />
       </section>
 
       <PlannerMiniCalendar date={planner.day?.date} />
