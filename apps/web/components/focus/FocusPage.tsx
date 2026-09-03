@@ -1,6 +1,6 @@
 "use client";
 
-import { PageHeader } from "@myos/ui";
+import { MonoLabel, PageHeader } from "@myos/ui";
 import { PageContainer, PageLoading } from "@/components/framework";
 import { trpc } from "@/lib/trpc/client";
 import { useFocus } from "./use-focus";
@@ -23,16 +23,24 @@ export function FocusPage() {
 
   if (focus.fullscreen) return <FocusOverlay focus={focus} />;
 
+  const active = Boolean(focus.active);
+
   return (
     <PageContainer>
-      <PageHeader title="Focus" description="Where the work actually happens." />
+      <PageHeader
+        eyebrow={
+          <MonoLabel tone={active ? "accent" : "subtle"} bead>
+            {active ? "Focus state · active" : "Focus state · idle"}
+          </MonoLabel>
+        }
+        title="Focus"
+        description="An operating mode for deep work — everything else recedes."
+      />
       <div className="flex flex-col gap-8">
         <FocusWorkspace focus={focus} />
         {metrics ? <SessionSummary metrics={metrics} /> : null}
         <section className="flex flex-col gap-2">
-          <h2 className="text-fg-muted text-caption font-medium uppercase tracking-wide">
-            Recent sessions
-          </h2>
+          <MonoLabel tone="subtle">Recent sessions</MonoLabel>
           <FocusHistory sessions={focus.history} />
         </section>
       </div>

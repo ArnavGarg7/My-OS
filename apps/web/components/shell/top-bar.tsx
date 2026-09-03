@@ -13,6 +13,7 @@ import {
 } from "@myos/ui";
 import { resolveActive } from "@/lib/shell/nav";
 import { useShellStore } from "@/lib/shell/store";
+import { useConnection } from "@/lib/platform";
 import { ProfileMenu } from "@/components/identity/profile-menu";
 
 /** Application header. UI only — no functionality beyond opening shell overlays. */
@@ -26,13 +27,15 @@ export function TopBar() {
   const setMobileNavOpen = useShellStore((state) => state.setMobileNavOpen);
   const toggleContextPanel = useShellStore((state) => state.toggleContextPanel);
 
+  const connection = useConnection();
+
   const crumbs: BreadcrumbItemData[] = active
     ? [
-        { label: "My OS", href: "/today" },
+        { label: "Workspace", href: "/command-center" },
         { label: active.section.label },
         { label: active.item.label },
       ]
-    : [{ label: "My OS" }];
+    : [{ label: "Workspace" }];
 
   return (
     <header
@@ -59,6 +62,13 @@ export function TopBar() {
 
       {/* Right: actions */}
       <div className="flex shrink-0 items-center gap-1.5">
+        <span className="border-border text-fg-subtle mr-1 hidden items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] lg:inline-flex">
+          <span
+            aria-hidden
+            className={`size-1.5 rounded-full ${connection.online ? "bg-success" : "bg-danger"}`}
+          />
+          {connection.online ? "Connected" : "Offline"}
+        </span>
         <Button
           variant="secondary"
           size="sm"

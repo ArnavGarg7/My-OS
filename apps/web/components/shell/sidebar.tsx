@@ -4,12 +4,19 @@ import { useCallback, useState } from "react";
 import { PanelLeft, PanelLeftClose } from "lucide-react";
 import { IconButton } from "@myos/ui";
 import { SIDEBAR_DEFAULT_WIDTH, SIDEBAR_RAIL_WIDTH, useShellStore } from "@/lib/shell/store";
+import { SidebarBrand } from "./sidebar-brand";
 import { SidebarContent } from "./sidebar-content";
+import { SidebarProfile } from "./sidebar-profile";
+import { OmniLauncherButton } from "./omni-launcher-button";
 
 /**
  * Desktop / tablet sidebar (md+). Collapsible to an icon rail, resizable within
  * a sensible min/max, persisted via the shell store. Below md it is hidden and
  * replaced by the MobileNav drawer.
+ *
+ * V2 Stage 1: the sidebar carries the Core Emblem identity, the Omni Launcher
+ * trigger, the sectioned navigation, and the workspace identity footer — the
+ * calm left edge of the operating system.
  */
 export function Sidebar({ hydrated }: { hydrated: boolean }) {
   const collapsed = useShellStore((state) => state.collapsed) && hydrated;
@@ -54,16 +61,12 @@ export function Sidebar({ hydrated }: { hydrated: boolean }) {
           : "transition-[width] duration-[var(--dur-base)] ease-[cubic-bezier(0.2,0,0,1)]"
       }`}
     >
-      {/* Header: brand + collapse toggle */}
-      <div className="flex h-12 shrink-0 items-center gap-2 px-3">
-        <span
-          aria-hidden
-          className="bg-elevated text-accent flex size-7 shrink-0 items-center justify-center rounded-lg font-mono"
-        >
-          ▮
-        </span>
+      {/* Header: emblem + brand + collapse toggle */}
+      <div className="flex h-14 shrink-0 items-center gap-2 px-3">
         {collapsed ? null : (
-          <span className="text-heading-s text-fg flex-1 truncate font-semibold">My OS</span>
+          <div className="min-w-0 flex-1">
+            <SidebarBrand />
+          </div>
         )}
         <IconButton
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -80,7 +83,17 @@ export function Sidebar({ hydrated }: { hydrated: boolean }) {
         </IconButton>
       </div>
 
+      {/* Omni Launcher */}
+      <div className="px-2 pb-2">
+        <OmniLauncherButton collapsed={collapsed} />
+      </div>
+
       <SidebarContent collapsed={collapsed} />
+
+      {/* Workspace identity footer */}
+      <div className="border-border shrink-0 border-t p-2">
+        <SidebarProfile collapsed={collapsed} />
+      </div>
 
       {/* Resize handle (mouse only; keyboard users collapse with ⌘B) */}
       {collapsed ? null : (

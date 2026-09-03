@@ -12,6 +12,8 @@ export * from "./components/theme-toggle";
 /* Foundations */
 export * from "./components/icon";
 export * from "./components/typography";
+export * from "./components/mono-label";
+export * from "./components/emblem";
 export * from "./components/motion";
 
 /* Actions */
@@ -29,6 +31,7 @@ export * from "./components/skeleton";
 export * from "./components/alert";
 export * from "./components/empty-state";
 export * from "./components/status-indicator";
+export * from "./components/inspector";
 export * from "./components/toast";
 
 /* Data display */

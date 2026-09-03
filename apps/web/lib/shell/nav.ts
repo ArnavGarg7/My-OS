@@ -10,6 +10,7 @@ import {
   CalendarDays,
   HeartPulse,
   Inbox,
+  LayoutGrid,
   ListChecks,
   Milestone,
   MoonStar,
@@ -35,9 +36,15 @@ import {
 } from "lucide-react";
 
 /**
- * Navigation model for the OS shell (Sprint 1.3). This is the single source of
- * truth for the sidebar sections, the routes, per-page icons/descriptions, and
- * the Command Center list. No business logic — structure only.
+ * Navigation model for the OS shell (Sprint 1.3; reorganised for V2 Stage 1).
+ * Single source of truth for the sidebar sections, routes, per-page
+ * icons/descriptions and the Command Center (⌘K) list. No business logic.
+ *
+ * V2 Stage 1 information architecture (PROJECT_STATE §"Global Application Shell"):
+ * PRIMARY · WORK · LIFE · INTELLIGENCE · SYSTEM. Routes the Stitch redesign did
+ * not name are folded into their nearest section rather than dropped — every V1
+ * capability stays one click away. `primary: true` marks the routes shown first
+ * in a section and kept open by default.
  */
 export interface NavItem {
   label: string;
@@ -53,20 +60,19 @@ export interface NavSection {
 
 export const NAV_SECTIONS: NavSection[] = [
   {
-    label: "Main",
+    label: "Primary",
     items: [
       {
-        label: "Chief of Staff",
-        href: "/chief",
-        icon: Compass,
-        description:
-          "What should you do right now? Your AI Chief of Staff, grounded in everything.",
+        label: "Command Center",
+        href: "/command-center",
+        icon: LayoutGrid,
+        description: "Understand your life at a glance — context, next action, and system pulse.",
       },
       {
         label: "Today",
         href: "/today",
         icon: Sun,
-        description: "Your daily briefing and what to do next.",
+        description: "Operate your day — current focus, next event, and what to do now.",
       },
       {
         label: "Tomorrow",
@@ -75,34 +81,34 @@ export const NAV_SECTIONS: NavSection[] = [
         description: "Close today and plan tomorrow in a guided evening flow.",
       },
       {
-        label: "Planner",
-        href: "/planner",
-        icon: CalendarClock,
-        description: "Design your day on a visual timeline.",
+        label: "Tasks",
+        href: "/tasks",
+        icon: ListChecks,
+        description: "Your canonical work — priorities, deps, energy, and schedule.",
       },
       {
         label: "Calendar",
         href: "/calendar",
         icon: CalendarDays,
-        description: "Events, meetings, and availability — the source of time.",
-      },
-      {
-        label: "Inbox",
-        href: "/inbox",
-        icon: Inbox,
-        description: "Capture anything now, organize it later.",
-      },
-      {
-        label: "Tasks",
-        href: "/tasks",
-        icon: ListChecks,
-        description: "Your canonical work — priorities, deps, and schedule.",
+        description: "How your time is being used — commitments, focus blocks, and conflicts.",
       },
       {
         label: "Focus",
         href: "/focus",
         icon: Timer,
         description: "Deep work sessions — where the work actually happens.",
+      },
+      {
+        label: "Planner",
+        href: "/planner",
+        icon: CalendarClock,
+        description: "Design your day on a visual timeline.",
+      },
+      {
+        label: "Inbox",
+        href: "/inbox",
+        icon: Inbox,
+        description: "Capture anything now, organize it later.",
       },
     ],
   },
@@ -151,24 +157,6 @@ export const NAV_SECTIONS: NavSection[] = [
         description: "Habits, routines, health, and who you're becoming.",
       },
       {
-        label: "Resources",
-        href: "/resources",
-        icon: Boxes,
-        description: "Investments, assets, documents, and the people who matter.",
-      },
-      {
-        label: "Dashboard",
-        href: "/dashboard",
-        icon: LayoutDashboard,
-        description: "The executive view — how your whole life is progressing.",
-      },
-      {
-        label: "Health",
-        href: "/health",
-        icon: HeartPulse,
-        description: "Workouts, sleep, water, and weight.",
-      },
-      {
         label: "Finance",
         href: "/finance",
         icon: Wallet,
@@ -180,30 +168,52 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: Target,
         description: "Long-term outcomes and check-ins.",
       },
+      {
+        label: "Health",
+        href: "/health",
+        icon: HeartPulse,
+        description: "Workouts, sleep, water, and weight.",
+      },
+      {
+        label: "Resources",
+        href: "/resources",
+        icon: Boxes,
+        description: "Investments, assets, documents, and the people who matter.",
+      },
     ],
   },
   {
-    label: "Insights",
+    label: "Intelligence",
     items: [
+      {
+        label: "Chief of Staff",
+        href: "/chief",
+        icon: Compass,
+        description: "An executive layer over your life — contextual, explainable recommendations.",
+      },
       {
         label: "Signals",
         href: "/signals",
         icon: Radar,
-        description: "Event intelligence — risks and opportunities the OS notices for you.",
+        description: "What is happening — risks and opportunities the OS notices for you.",
       },
       {
         label: "Predictions",
         href: "/prediction",
         icon: TrendingUp,
-        description:
-          "Predictive intelligence — deterministic forecasts of what's likely to happen.",
+        description: "What is likely to happen — deterministic forecasts, explained.",
       },
       {
         label: "Personal Intelligence",
         href: "/adaptation",
         icon: Fingerprint,
-        description:
-          "What the OS has learned about you — preferences, habits, routines. Evidence-backed, editable, yours.",
+        description: "What the OS understands about you — preferences, habits, routines.",
+      },
+      {
+        label: "Analytics",
+        href: "/analytics",
+        icon: BarChart3,
+        description: "How you are actually doing — focus, productivity, and trends.",
       },
       {
         label: "Timeline",
@@ -212,10 +222,10 @@ export const NAV_SECTIONS: NavSection[] = [
         description: "The story of your progress.",
       },
       {
-        label: "Analytics",
-        href: "/analytics",
-        icon: BarChart3,
-        description: "Focus, productivity, and trends.",
+        label: "Life Dashboard",
+        href: "/dashboard",
+        icon: LayoutDashboard,
+        description: "The executive view — how your whole life is progressing.",
       },
     ],
   },
@@ -223,16 +233,35 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "System",
     items: [
       {
-        label: "Notifications",
-        href: "/notifications",
-        icon: Bell,
-        description: "Every reminder and alert your OS surfaces — in one place.",
+        label: "Connectors",
+        href: "/connectors",
+        icon: Plug,
+        description:
+          "External services as normalized event sources — synced, encrypted, read-first.",
       },
       {
         label: "Automation",
         href: "/automation",
         icon: Zap,
         description: "Rules that run your life on autopilot.",
+      },
+      {
+        label: "AI Settings",
+        href: "/ai/settings",
+        icon: Bot,
+        description: "Providers, keys, budget, and privacy for your conversational Chief.",
+      },
+      {
+        label: "Settings",
+        href: "/settings",
+        icon: Settings,
+        description: "Preferences, data, and account.",
+      },
+      {
+        label: "Notifications",
+        href: "/notifications",
+        icon: Bell,
+        description: "Every reminder and alert your OS surfaces — in one place.",
       },
       {
         label: "Autopilot",
@@ -242,35 +271,16 @@ export const NAV_SECTIONS: NavSection[] = [
           "Proposal-first automation — safe, reversible work you approve before it runs.",
       },
       {
-        label: "Connectors",
-        href: "/connectors",
-        icon: Plug,
-        description:
-          "External services as normalized event sources — synced, encrypted, read-first.",
-      },
-      {
         label: "Orchestration",
         href: "/orchestration",
         icon: Workflow,
         description: "Every engine cooperating — one operating system, not twenty apps.",
       },
       {
-        label: "AI Settings",
-        href: "/ai/settings",
-        icon: Bot,
-        description: "Providers, keys, budget, and privacy for your conversational Chief.",
-      },
-      {
         label: "AI Platform",
         href: "/ai",
         icon: Cpu,
         description: "The AI Core Platform — providers, prompts, context, telemetry, and cost.",
-      },
-      {
-        label: "Settings",
-        href: "/settings",
-        icon: Settings,
-        description: "Preferences, data, and account.",
       },
     ],
   },
@@ -291,12 +301,15 @@ export function getNavItem(href: string): NavItem {
 
 /** Find the nav item + section that owns a given pathname. */
 export function resolveActive(pathname: string): { section: NavSection; item: NavItem } | null {
+  let best: { section: NavSection; item: NavItem } | null = null;
   for (const section of NAV_SECTIONS) {
     for (const item of section.items) {
       if (pathname === item.href || pathname.startsWith(`${item.href}/`)) {
-        return { section, item };
+        // Prefer the most specific (longest) matching href, so /ai/settings wins
+        // over /ai.
+        if (!best || item.href.length > best.item.href.length) best = { section, item };
       }
     }
   }
-  return null;
+  return best;
 }
