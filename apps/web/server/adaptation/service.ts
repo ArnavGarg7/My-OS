@@ -14,9 +14,18 @@ import {
   habitsAtRisk,
   topInsights,
   decisionTendencies,
+  analyzeEstimation,
+  assessWorkload,
   type AdaptationResult,
+  type EstimatePair,
   type Preference,
+  type WorkloadTask,
 } from "@myos/core/adaptation";
+import { PRIORITY_WEIGHT, selectOpen, DEFAULT_ESTIMATE_MINUTES } from "@myos/core/task";
+import { selectWorkingHours } from "@myos/core/today";
+import * as taskService from "../task/service";
+import * as calendarService from "../calendar/service";
+import { getState } from "../today/service";
 import { gatherAdaptationInput } from "./gather";
 import * as repo from "./repository";
 
@@ -228,6 +237,127 @@ export async function setPolicy(db: Database, category: string, mode: string) {
   const clamped = effectiveMode(category as never, mode as never);
   await repo.savePolicy(db, category, clamped).catch(() => {});
   return { ok: true as const, category, mode: clamped };
+}
+
+/**
+ * Historical completion rate (Stage 5): over the last `days`, the share of the
+ * day's-worth of work the user actually completes. Grounded: completed tasks vs
+ * (completed + still-open overdue). Returns null below an evidence floor so
+ * adaptive planning honestly falls back to raw capacity.
+ */
+async function historicalCompletion(
+  now: Date,
+  tasks: Awaited<ReturnType<typeof taskService.list>>,
+  days = 30,
+): Promise<{ rate: number | null; sampleDays: number }> {
+  const since = now.getTime() - days * 86_400_000;
+  const completed = tasks.filter(
+    (t) => t.status === "completed" && t.completedAt && new Date(t.completedAt).getTime() >= since,
+  ).length;
+  const overdueOpen = tasks.filter(
+    (t) =>
+      (t.status === "not_started" || t.status === "in_progress" || t.status === "blocked") &&
+      t.dueAt !== null &&
+      new Date(t.dueAt).getTime() < now.getTime(),
+  ).length;
+  const total = completed + overdueOpen;
+  if (completed < 3) return { rate: null, sampleDays: days };
+  return { rate: Math.max(0.05, Math.min(1, completed / Math.max(1, total))), sampleDays: days };
+}
+
+/**
+ * adaptation.estimation — how the user's estimates compare to recorded actuals.
+ * Real, evidence-first: only tasks with BOTH an estimate and an accrued actual
+ * (from Stage 2 task-linked focus) count; below the floor it reports "unknown".
+ */
+export async function estimation(db: Database) {
+  const now = new Date();
+  const tasks = await taskService.list(db, {}).catch(() => []);
+  const pairs: EstimatePair[] = tasks
+    .filter(
+      (t) =>
+        t.status === "completed" &&
+        t.completedAt &&
+        t.estimatedMinutes &&
+        t.estimatedMinutes > 0 &&
+        t.actualMinutes &&
+        t.actualMinutes > 0,
+    )
+    .map((t) => ({
+      estimateMinutes: t.estimatedMinutes!,
+      actualMinutes: t.actualMinutes!,
+      at: t.completedAt!,
+    }));
+  return analyzeEstimation(pairs, now);
+}
+
+export interface DecisionPrefs {
+  preferredStartOfDay: string;
+  preferredEndOfDay: string;
+}
+
+/**
+ * adaptation.todayPlan — is today's plan realistic? Composes today's open load,
+ * committed meetings, the user's historical completion rate and their learned
+ * estimation bias into a grounded, explainable overload assessment + deferral
+ * proposals. Recommendation-only: it never rearranges the plan.
+ */
+export async function todayPlan(db: Database, tz: string, prefs: DecisionPrefs) {
+  const now = new Date();
+  const dayStart = new Date(now);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart);
+  dayEnd.setDate(dayEnd.getDate() + 1);
+
+  const [allTasks, events, state] = await Promise.all([
+    taskService.list(db, {}).catch(() => []),
+    calendarService
+      .list(db, { from: dayStart.toISOString(), to: dayEnd.toISOString() })
+      .catch(() => []),
+    getState(db, tz, dayStart.toISOString().slice(0, 10)).catch(() => null),
+  ]);
+
+  // Today's realistic load: open tasks due today or already overdue.
+  const open = selectOpen(allTasks);
+  const todays = open.filter(
+    (t) => t.dueAt !== null && new Date(t.dueAt).getTime() < dayEnd.getTime(),
+  );
+  const workloadTasks: WorkloadTask[] = (todays.length > 0 ? todays : open.slice(0, 6)).map(
+    (t) => ({
+      id: t.id,
+      title: t.title,
+      priorityWeight: PRIORITY_WEIGHT[t.priority],
+      estimateMinutes: t.estimatedMinutes ?? DEFAULT_ESTIMATE_MINUTES,
+    }),
+  );
+
+  const meetingMinutes = events.reduce((sum, e) => {
+    const mins = (new Date(e.endAt).getTime() - new Date(e.startAt).getTime()) / 60_000;
+    return sum + Math.max(0, Math.round(mins));
+  }, 0);
+
+  const working = selectWorkingHours({
+    state,
+    preferredStartOfDay: prefs.preferredStartOfDay,
+    preferredEndOfDay: prefs.preferredEndOfDay,
+  });
+  const toMin = (hhmm: string) => {
+    const [h, m] = hhmm.split(":").map(Number);
+    return (h ?? 0) * 60 + (m ?? 0);
+  };
+  const availableMinutes = Math.max(0, toMin(working.end) - toMin(working.start));
+
+  const { rate, sampleDays } = await historicalCompletion(now, allTasks);
+  const est = await estimation(db);
+
+  return assessWorkload({
+    tasks: workloadTasks,
+    availableMinutes,
+    meetingMinutes,
+    completionRate: rate,
+    completionSampleDays: sampleDays,
+    estimateAdjustment: est.adjustmentFactor,
+  });
 }
 
 /**
