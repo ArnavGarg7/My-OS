@@ -4,6 +4,7 @@ import { Text, Switch } from "@myos/ui";
 import type { useCalendar } from "./use-calendar";
 import { PROVIDER_LABEL } from "./calendar-icons";
 import { CalendarConflicts } from "./CalendarConflicts";
+import { CalendarExternal } from "./CalendarExternal";
 
 /** Calendar sidebar (Sprint 2.7): calendars + free/busy + conflicts. */
 export function CalendarSidebar({ cal }: { cal: ReturnType<typeof useCalendar> }) {
@@ -48,6 +49,8 @@ export function CalendarSidebar({ cal }: { cal: ReturnType<typeof useCalendar> }
         </Text>
         <CalendarConflicts conflicts={cal.conflicts} />
       </section>
+
+      <CalendarExternal />
     </div>
   );
 }
