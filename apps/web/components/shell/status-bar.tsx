@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useConnection, useNotifications, usePlatform, useUpdates } from "@/lib/platform";
 import { useBackgroundSync } from "@/lib/platform";
+import { trpc } from "@/lib/trpc/client";
 import { MorningFlashStatus } from "@/components/morning/MorningFlashStatus";
 import { DecisionStatusIndicator } from "@/components/decision/DecisionStatusIndicator";
 import { InboxStatusIndicator } from "@/components/inbox/InboxStatusIndicator";
@@ -23,12 +25,14 @@ function StatusItem({
   value,
   tone,
   onClick,
+  href,
   title,
 }: {
   label: string;
   value: string;
   tone?: Tone;
   onClick?: () => void;
+  href?: string;
   title?: string;
 }) {
   const content = (
@@ -38,14 +42,18 @@ function StatusItem({
       <span className="text-fg-muted font-medium">{value}</span>
     </>
   );
+  const interactiveClass =
+    "hover:text-fg focus-visible:ring-ring flex items-center gap-1.5 rounded-sm outline-none transition-colors focus-visible:ring-1";
+  if (href) {
+    return (
+      <Link href={href} title={title} className={interactiveClass}>
+        {content}
+      </Link>
+    );
+  }
   if (onClick) {
     return (
-      <button
-        type="button"
-        onClick={onClick}
-        title={title}
-        className="hover:text-fg focus-visible:ring-ring flex items-center gap-1.5 rounded-sm outline-none focus-visible:ring-1"
-      >
+      <button type="button" onClick={onClick} title={title} className={interactiveClass}>
         {content}
       </button>
     );
@@ -70,6 +78,10 @@ export function StatusBar() {
   const updates = useUpdates();
   const platform = usePlatform();
   const backgroundSync = useBackgroundSync();
+  const activeNotifications = trpc.notification.active.useQuery(undefined, {
+    refetchInterval: 60_000,
+  });
+  const unread = activeNotifications.data?.length ?? 0;
   const [now, setNow] = useState<string | null>(null);
 
   useEffect(() => {
@@ -125,8 +137,12 @@ export function StatusBar() {
         <div className="hidden sm:block">
           <StatusItem
             label="Notifications"
-            value={notifications.isGranted ? "On" : "Off"}
-            tone={notifications.isGranted ? "success" : "muted"}
+            href="/notifications"
+            value={unread > 0 ? `${unread} unread` : notifications.isGranted ? "On" : "Off"}
+            tone={unread > 0 ? "warning" : notifications.isGranted ? "success" : "muted"}
+            title={
+              notifications.isGranted ? "Alerts enabled" : "Alerts disabled — enable in Settings"
+            }
           />
         </div>
         <span className="text-fg-muted" suppressHydrationWarning>

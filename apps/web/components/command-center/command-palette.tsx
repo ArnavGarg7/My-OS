@@ -1,19 +1,25 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Search } from "lucide-react";
+import { Inbox, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, Kbd, Spinner, cn } from "@myos/ui";
+import { useToaster } from "@/lib/framework";
+import { trpc } from "@/lib/trpc/client";
 import { highlightMatch, useCommandPalette, type PaletteItem } from "@/lib/command-center";
 
 /**
- * Command Palette (Sprint 1.6). The ⌘K interface over the Command Center. Custom
- * keyboard navigation + simple contains() filtering (no fuzzy search). Renders
- * category headers, highlighted matches, shortcuts, and empty/loading states.
- * Execution always goes through the executor (via the controller) — never here.
+ * Command Palette (Sprint 1.6; V2 polish). The ⌘K interface over the Command
+ * Center — a command surface, not just search: navigate, run commands, or when
+ * nothing matches, capture the text straight to the Inbox. Custom keyboard
+ * navigation + contains() filtering. Execution always goes through the executor.
  */
 export function CommandPalette() {
   const palette = useCommandPalette();
   const listRef = useRef<HTMLDivElement>(null);
+  const captureRef = useRef<(() => void) | null>(null);
+
+  const trimmed = palette.query.trim();
+  const canCapture = trimmed.length >= 2;
 
   // Keep the active row scrolled into view.
   useEffect(() => {
@@ -38,8 +44,15 @@ export function CommandPalette() {
             autoFocus
             value={palette.query}
             onChange={(e) => palette.setQuery(e.target.value)}
-            onKeyDown={palette.onKeyDown}
-            placeholder="Type a command…"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && palette.isEmpty && canCapture && captureRef.current) {
+                e.preventDefault();
+                captureRef.current();
+                return;
+              }
+              palette.onKeyDown(e);
+            }}
+            placeholder="Search, jump, or capture…"
             aria-label="Command"
             role="combobox"
             aria-expanded
@@ -64,13 +77,22 @@ export function CommandPalette() {
               <span className="text-body-s text-fg-subtle">Loading commands…</span>
             </div>
           ) : palette.isEmpty ? (
-            <div className="py-10 text-center">
-              <p className="text-body-m text-fg">No commands found</p>
-              {palette.query ? (
-                <p className="text-body-s text-fg-subtle mt-1">
-                  Nothing matches “{palette.query}”.
-                </p>
-              ) : null}
+            <div className="flex flex-col items-center gap-3 py-8 text-center">
+              <p className="text-body-m text-fg">No commands match “{palette.query}”.</p>
+              {canCapture ? (
+                <PaletteInlineCapture
+                  query={trimmed}
+                  onClose={() => {
+                    palette.setOpen(false);
+                    palette.setQuery("");
+                  }}
+                  register={(fn) => {
+                    captureRef.current = fn;
+                  }}
+                />
+              ) : (
+                <p className="text-body-s text-fg-subtle">Keep typing, or press Esc.</p>
+              )}
             </div>
           ) : (
             palette.sections.map((section) => (
@@ -90,8 +112,84 @@ export function CommandPalette() {
             ))
           )}
         </div>
+
+        {/* Keyboard legend — a command surface, not just a search box. */}
+        <div className="border-border text-fg-subtle flex items-center gap-3 border-t px-4 py-2 font-mono text-[10px] uppercase tracking-[0.06em]">
+          <span className="flex items-center gap-1">
+            <Kbd size="sm" aria-hidden>
+              ↑
+            </Kbd>
+            <Kbd size="sm" aria-hidden>
+              ↓
+            </Kbd>
+            navigate
+          </span>
+          <span className="flex items-center gap-1">
+            <Kbd size="sm" aria-hidden>
+              ↵
+            </Kbd>
+            run
+          </span>
+          <span className="ml-auto flex items-center gap-1">
+            <Kbd size="sm" aria-hidden>
+              ⌘K
+            </Kbd>
+            omni
+          </span>
+        </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * The "nothing matched" affordance: capture the query straight to the Inbox.
+ * Isolated so the tRPC / toast hooks only mount when the empty state renders —
+ * the palette itself stays dependency-light and unit-testable.
+ */
+function PaletteInlineCapture({
+  query,
+  onClose,
+  register,
+}: {
+  query: string;
+  onClose: () => void;
+  register: (fn: (() => void) | null) => void;
+}) {
+  const toaster = useToaster();
+  const utils = trpc.useUtils();
+  const capture = trpc.inbox.capture.useMutation({
+    onSuccess: () => {
+      void utils.inbox.countNew.invalidate();
+      toaster.success("Captured to Inbox");
+    },
+    onError: () => toaster.error("Couldn't capture that"),
+  });
+
+  const run = () => {
+    if (capture.isPending || query.length < 2) return;
+    onClose();
+    capture.mutate({ type: "text", content: query, source: "quick_add" });
+  };
+
+  useEffect(() => {
+    register(run);
+    return () => register(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, capture.isPending]);
+
+  return (
+    <button
+      type="button"
+      onClick={run}
+      disabled={capture.isPending}
+      className="border-border bg-elevated hover:bg-overlay hover:border-border-strong text-fg flex items-center gap-2 rounded-md border px-3 py-2 outline-none disabled:opacity-50"
+    >
+      <Inbox size={15} className="text-accent-fg" aria-hidden />
+      <span className="text-body-s">
+        Capture <span className="text-fg font-medium">“{query}”</span> to Inbox
+      </span>
+    </button>
   );
 }
 

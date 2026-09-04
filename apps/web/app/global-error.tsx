@@ -32,27 +32,51 @@ export default function GlobalError({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "system-ui, sans-serif",
-          background: "#0b0b0c",
-          color: "#e7e7e9",
+          fontFamily: "'Inter', system-ui, sans-serif",
+          background: "#0c0d0e",
+          color: "#ededed",
         }}
       >
         <main style={{ maxWidth: 420, padding: 24, textAlign: "center" }}>
-          <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 8 }}>The app hit a problem</h1>
-          <p style={{ fontSize: 14, opacity: 0.7, marginBottom: 20 }}>
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 100 100"
+            fill="none"
+            aria-hidden
+            style={{ marginBottom: 16 }}
+          >
+            <rect width="100" height="100" rx="24" fill="#141618" />
+            <circle
+              cx="50"
+              cy="50"
+              r="28"
+              stroke="#ff7a1a"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeDasharray="140 35"
+            />
+            <circle cx="50" cy="50" r="14" fill="#ff7a1a" />
+            <circle cx="50" cy="22" r="4" fill="#ffffff" />
+          </svg>
+          <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 8, letterSpacing: "-0.01em" }}>
+            My OS hit a problem
+          </h1>
+          <p style={{ fontSize: 14, color: "#9aa0a6", marginBottom: 20, lineHeight: 1.5 }}>
             An unexpected error stopped the page from loading. Your data is safe. Reload to try
             again.
           </p>
           <button
             onClick={reset}
             style={{
-              padding: "8px 16px",
-              borderRadius: 8,
-              border: "1px solid #2a2a2e",
-              background: "#1a1a1d",
-              color: "#e7e7e9",
+              padding: "9px 18px",
+              borderRadius: 6,
+              border: "none",
+              background: "#ff7a1a",
+              color: "#0c0d0e",
               cursor: "pointer",
               fontSize: 14,
+              fontWeight: 600,
             }}
           >
             Reload
