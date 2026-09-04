@@ -202,6 +202,12 @@ export async function generate(
   const date = todayInTimeZone(tz);
   await todayRepo.ensureDay(db, date);
 
+  // Reconcile cross-day staleness (Stage 3): a decision is only valid for the day
+  // it was generated, so expire any pending rows carried over from earlier days
+  // before we compose today's set. Keeps the actionable set honest at the source
+  // rather than filtering stale rows out in every reader.
+  await repo.expireStalePending(db, date).catch(() => 0);
+
   const existing = (await repo.listByDate(db, date)).map(rowToDecision);
   const ctx = await buildContext(db, tz, prefs, date);
   const desired = decisionEngine.generate(ctx, existing);
