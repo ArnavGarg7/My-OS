@@ -44,6 +44,8 @@ export const projects = pgTable("projects", {
   priority: projectPriority("priority").notNull().default("medium"),
   color: text("color").notNull().default("blue"),
   owner: text("owner").notNull().default(""),
+  /** Stage 7: explicit sharing intent. Personal by default; shared projects have members. */
+  shared: boolean("shared").notNull().default(false),
   startDate: timestamp("start_date", { withTimezone: true }),
   targetDate: timestamp("target_date", { withTimezone: true }),
   completedAt: timestamp("completed_at", { withTimezone: true }),

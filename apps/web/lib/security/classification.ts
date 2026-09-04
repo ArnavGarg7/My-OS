@@ -284,6 +284,21 @@ export const DOMAIN_CLASSIFICATION: DomainClassification[] = [
       adaptation_events: "internal",
     },
   },
+  {
+    file: "collaboration.ts",
+    level: "sensitive",
+    rawAiSafe: false,
+    rationale:
+      "Collaboration state (Stage 7) — people (collaborators), shared-project membership, object-attached conversations + messages, invitations, task collaboration and shared-decision participants. This is 'My OS with other people', reusing the existing Notification/Timeline/Decision engines — NO second identity, activity or notification system. Message bodies are free-text and collaborator emails are PII, so those are PRIVATE; membership/participant/task-collaborator rows are internal operational links; collaborator + conversation metadata is sensitive (reveals who the owner works with and on what). Personal objects (conversations with a null project scope) are owner-only — a collaborator can never reach personal tasks/journal/health/intelligence because no membership grants it. NO AI reads collaboration data.",
+    overrides: {
+      messages: "private",
+      collaborators: "private",
+      invitations: "private",
+      project_members: "internal",
+      task_collaborators: "internal",
+      decision_participants: "internal",
+    },
+  },
 ];
 
 /**

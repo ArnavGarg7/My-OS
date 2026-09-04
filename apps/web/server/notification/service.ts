@@ -10,6 +10,7 @@ import {
   selectUnread,
   isWithinQuietHours,
   type Notification,
+  type NotificationDraft,
   type NotificationHistoryEntry,
   type NotificationPreferences,
   type NotificationSummary,
@@ -83,6 +84,32 @@ export async function generate(
 
   // Rule-based reminders + proactive interventions, deduped together by the engine.
   const drafts = [...generateDrafts(ctx), ...proactive];
+  return ingestWith(db, drafts, existing, prefs, tz);
+}
+
+/**
+ * Ingest a set of drafts through the engine (reconcile → persist → schedule → dispatch).
+ * Shared by `generate` and by event-driven producers (Stage 7 collaboration: a mention or
+ * assignment creates its notification immediately, through the SAME dedup/lifecycle path —
+ * no second notification system). Fetches active + prefs itself.
+ */
+export async function ingest(
+  db: Database,
+  drafts: NotificationDraft[],
+  tz: string,
+): Promise<{ created: number; delivered: number; suppressed: number }> {
+  if (drafts.length === 0) return { created: 0, delivered: 0, suppressed: 0 };
+  const [existing, prefs] = await Promise.all([repo.listActive(db), repo.getPreferences(db)]);
+  return ingestWith(db, drafts, existing, prefs, tz);
+}
+
+async function ingestWith(
+  db: Database,
+  drafts: NotificationDraft[],
+  existing: Notification[],
+  prefs: NotificationPreferences,
+  tz: string,
+): Promise<{ created: number; delivered: number; suppressed: number }> {
   const { created, refreshed } = engine.reconcile(drafts, existing);
 
   // Persist refreshed (dedup) notifications' updated content.
