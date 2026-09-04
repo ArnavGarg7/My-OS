@@ -1,5 +1,5 @@
 /**
- * Identity schema (Sprint 1.5) — 05_Database_Design.md §1 (adapted).
+ * Identity schema (Sprint 1.5) — docs/specs/05_Database_Design.md §1 (adapted).
  *
  * Deliberately minimal per the Sprint 1.5 decision: `auth_users` holds ONLY the
  * identity link (whichever provider is in use — Clerk today, swappable later)

@@ -1,6 +1,6 @@
 /**
  * My OS design tokens — the single source of truth for every visual primitive
- * (03_Design_Requirements_Document.md §2). Dark is the reference theme; light is
+ * (docs/specs/03_Design_Requirements_Document.md §2). Dark is the reference theme; light is
  * the derived mapping. Nothing outside @myos/ui may define these values.
  *
  * V2 · Stage 1 — "Kinetic Obsidian". The identity is dark, premium, restrained

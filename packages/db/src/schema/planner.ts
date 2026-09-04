@@ -1,7 +1,7 @@
 /**
  * Planner schema (Sprint 2.6). Scheduling is persisted separately from task data
  * — the Planner produces timelines it can regenerate without mutating work.
- * Single user (05_Database_Design.md §0: no user_id on domain tables).
+ * Single user (docs/specs/05_Database_Design.md §0: no user_id on domain tables).
  */
 import { relations } from "drizzle-orm";
 import { boolean, date, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";

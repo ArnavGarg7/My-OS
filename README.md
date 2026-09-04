@@ -3,8 +3,8 @@
 **The Operating System for My Life.**
 
 A single-user, self-hosted, AI-augmented personal operating system. This repository
-is the implementation; the design is fully specified in the nine documents at the
-repo root (`01_Vision.md` … `09_Future_Versions.md`) — those are the source of truth.
+is the implementation; the design is fully specified in the nine documents in
+[`docs/specs/`](docs/specs/) (`01_Vision.md` … `09_Future_Versions.md`) — those are the source of truth.
 
 > **Status:** **v1.0.0** — Phases 1–6 complete. A deterministic personal life OS with
 > 20+ domains, a grounded AI Chief of Staff, and the full Autonomous Intelligence stack
@@ -16,7 +16,7 @@ repo root (`01_Vision.md` … `09_Future_Versions.md`) — those are the source 
 
 TypeScript · pnpm workspaces + Turborepo · Next.js 15 / React 19 · tRPC v11 ·
 Tailwind CSS v4 · Drizzle ORM · PostgreSQL 16 + pgvector · pg-boss · Node worker ·
-Docker Compose + Caddy. Full rationale: `04_System_Architecture.md §1`.
+Docker Compose + Caddy. Full rationale: `docs/specs/04_System_Architecture.md §1`.
 
 ## Layout
 

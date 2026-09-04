@@ -2,7 +2,7 @@
  * Project schema (Sprint 2.8). Projects own long-term outcomes above the
  * execution layer — milestones, objectives, dependencies and an append-only
  * history. Progress / health / forecast are derived at read time, never stored.
- * Single user (05_Database_Design.md §0: no user_id on domain tables).
+ * Single user (docs/specs/05_Database_Design.md §0: no user_id on domain tables).
  */
 import { relations } from "drizzle-orm";
 import {

@@ -13,7 +13,7 @@ export interface DbHandle {
 }
 
 /**
- * Create a pooled database handle. Pool sizes per 04_System_Architecture.md §9
+ * Create a pooled database handle. Pool sizes per docs/specs/04_System_Architecture.md §9
  * (web max 10, worker max 5). `prepare: false` keeps compatibility with
  * connection poolers and simplifies the single-user deployment.
  */

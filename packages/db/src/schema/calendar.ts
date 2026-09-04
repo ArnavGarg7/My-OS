@@ -1,7 +1,7 @@
 /**
  * Calendar schema (Sprint 2.7). The single source of truth for time — events,
  * calendars, availability windows and sync history. Single user
- * (05_Database_Design.md §0: no user_id on domain tables).
+ * (docs/specs/05_Database_Design.md §0: no user_id on domain tables).
  */
 import { relations } from "drizzle-orm";
 import {

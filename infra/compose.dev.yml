@@ -1,5 +1,5 @@
 # Local development: Postgres only. The web + worker run on the host via
-# `pnpm dev` (08_Developer_Guidelines.md §7).
+# `pnpm dev` (docs/specs/08_Developer_Guidelines.md §7).
 #   docker compose -f infra/compose.dev.yml up -d
 name: myos-dev
 

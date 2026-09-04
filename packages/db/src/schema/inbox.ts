@@ -1,7 +1,7 @@
 /**
  * Universal Inbox schema (Sprint 2.4). The Inbox is the single capture surface
  * for the whole OS — every piece of incoming information lands here first and
- * nothing is auto-categorized. Single user (05_Database_Design.md §0: no
+ * nothing is auto-categorized. Single user (docs/specs/05_Database_Design.md §0: no
  * user_id on domain tables).
  */
 import { jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";

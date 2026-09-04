@@ -1,6 +1,6 @@
 /**
  * Task schema (Sprint 2.5). The canonical work model of My OS — consumed later
- * by Planner, Projects, AI and Calendar. Single user (05_Database_Design.md §0:
+ * by Planner, Projects, AI and Calendar. Single user (docs/specs/05_Database_Design.md §0:
  * no user_id on domain tables). Five tables: tasks, dependencies, labels, the
  * label map, and recurring rules.
  */
