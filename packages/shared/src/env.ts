@@ -27,7 +27,7 @@ export function loadRootEnv(startDir: string = process.cwd()): void {
 
 /**
  * Server-side environment schema. Consumed at the app boundary by web + worker
- * (04_System_Architecture.md §11). Optional AI / push / backup vars degrade
+ * (docs/specs/04_System_Architecture.md §11). Optional AI / push / backup vars degrade
  * gracefully when unset (NFR-9) — only DATABASE_URL is required to boot.
  */
 export const serverEnvSchema = z.object({
@@ -111,7 +111,7 @@ export function parseServerEnv(
   return parsed.data;
 }
 
-/** Feature flag: is the external AI layer configured? (06_AI_Architecture.md §1) */
+/** Feature flag: is the external AI layer configured? (docs/specs/06_AI_Architecture.md §1) */
 export function isAiEnabled(env: Pick<ServerEnv, "ANTHROPIC_API_KEY">): boolean {
   return Boolean(env.ANTHROPIC_API_KEY);
 }

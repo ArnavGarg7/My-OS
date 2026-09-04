@@ -1,6 +1,6 @@
 /**
  * @myos/core — pure domain logic (no IO, no DB, no fetch). Side-effect free and
- * unit-testable in isolation (08_Developer_Guidelines.md §1).
+ * unit-testable in isolation (docs/specs/08_Developer_Guidelines.md §1).
  *
  * Sprint 1.1 ships the empty seam only. Scheduling engine, recurrence, streaks,
  * priority scoring, budgets math, automation evaluation and the decision-insight

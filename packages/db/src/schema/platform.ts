@@ -1,5 +1,5 @@
 /**
- * Platform schema (Sprint 1.7) — 05_Database_Design.md §1 (push_subscriptions).
+ * Platform schema (Sprint 1.7) — docs/specs/05_Database_Design.md §1 (push_subscriptions).
  *
  * Stores Web Push subscriptions per device so a future server-side push sender
  * can target them. This sprint only stores/registers them — there is no sender

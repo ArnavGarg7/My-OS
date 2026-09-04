@@ -6,7 +6,7 @@ import prettier from "eslint-config-prettier";
 
 /**
  * Flat ESLint config for the My OS monorepo.
- * Enforces the layering/import-direction rule from 08_Developer_Guidelines.md §1:
+ * Enforces the layering/import-direction rule from docs/specs/08_Developer_Guidelines.md §1:
  *   ui -> (nothing app-specific) ; shared -> nothing ; core -> shared ;
  *   db -> shared ; ai -> core, db, shared ; apps -> everything.
  */

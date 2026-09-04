@@ -1,6 +1,6 @@
 /**
  * Typed application errors. Domain code throws `AppError`; the tRPC layer maps
- * `code` to a user-facing message (04_System_Architecture.md §5, 08 §3).
+ * `code` to a user-facing message (docs/specs/04_System_Architecture.md §5, 08 §3).
  */
 export const APP_ERROR_CODES = [
   "NOT_FOUND",

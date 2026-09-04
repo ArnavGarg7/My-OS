@@ -39,5 +39,5 @@ Thumbs.db
 .idea/
 
 # Stage 1: local extraction of the Stitch design ZIPs (derived, not source)
-Google Stitch/_extracted/
+docs/design-stitch/_extracted/
 apps/web/.env.local

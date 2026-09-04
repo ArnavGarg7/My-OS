@@ -1,6 +1,6 @@
 # Runbooks
 
-Operational runbooks (08_Developer_Guidelines.md §6). Each is a numbered,
+Operational runbooks (docs/specs/08_Developer_Guidelines.md §6). Each is a numbered,
 tested command list. Populated as the relevant subsystems land:
 
 - `deploy.md` — build images, run migrations, `docker compose up -d` (Stage 0/12)

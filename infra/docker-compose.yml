@@ -1,4 +1,4 @@
-# Production topology (04_System_Architecture.md §11 + Operations Sprint O1):
+# Production topology (docs/specs/04_System_Architecture.md §11 + Operations Sprint O1):
 #   migrate (one-shot) · postgres · web · worker · caddy · cloudflared (optional).
 #
 # The job queue/scheduler is pg-boss (Postgres-backed) — there is no Redis in the stack, so no Redis

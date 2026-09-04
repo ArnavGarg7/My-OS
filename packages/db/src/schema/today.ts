@@ -1,6 +1,6 @@
 /**
  * Today schema (Sprint 2.1) — the first real feature module's storage. Single
- * user (05_Database_Design.md §0: no user_id on domain tables). `daily_state` is
+ * user (docs/specs/05_Database_Design.md §0: no user_id on domain tables). `daily_state` is
  * the per-day anchor; focus/metrics/notes/decisions hang off the date.
  * Intentionally minimal — these grow in later sprints.
  */

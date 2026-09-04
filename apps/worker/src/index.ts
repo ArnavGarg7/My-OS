@@ -6,7 +6,7 @@ import { logger } from "./logger";
 loadRootEnv();
 
 /**
- * My OS worker (04_System_Architecture.md §2 / §11).
+ * My OS worker (docs/specs/04_System_Architecture.md §2 / §11).
  *
  * Owns pg-boss: cron schedules, queue consumers, the notification dispatcher,
  * the automation engine, AI background jobs and backups. All of those land from

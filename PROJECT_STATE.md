@@ -8,7 +8,7 @@
 
 A **single-user, self-hosted, deterministic personal life operating system**. Not a SaaS product (yet — V2 may change that). Core philosophy, unbroken since Sprint 1: **business logic is deterministic (pure functions, no AI, no randomness); AI explains and assists but never decides.** Every engine — planning, decisions, predictions, automation, personalization — is hand-written rule/scoring logic in `packages/core`. AI (when configured) reads derived, already-computed data and produces natural-language explanations or proposals; it never computes the underlying numbers and never executes a mutation without an explicit human-approved proposal.
 
-Nine spec docs at the repo root (`01_Vision.md` … `09_Future_Versions.md`) are the original source of truth for V1's design; they're historical now but still accurate for what exists. `CHANGELOG.md` and `docs/release/` have the V1 release history.
+Nine spec docs in `docs/specs/` (`01_Vision.md` … `09_Future_Versions.md`) are the original source of truth for V1's design; they're historical now but still accurate for what exists. `CHANGELOG.md` and `docs/release/` have the V1 release history.
 
 ---
 
@@ -44,10 +44,9 @@ packages/
   ui/             design-system components (components/, hooks/, lib/, styles.css)
   ai/             provider-agnostic AI platform (assistant/, chief/, gateway/, providers/, tools/, …)
 infra/            Dockerfiles (web/worker/migrate), docker-compose.yml (prod), compose.dev.yml (dev), Caddyfile
-docs/             operations/ (10 ops guides), release/, security/, performance/, architecture/, adr/
+docs/             specs/ (9 V1 design docs — source of truth), operations/, release/, security/, performance/, architecture/, adr/, design-stitch/ (Stage 1 redesign source ZIPs)
 scripts/          repository-audit.mjs + validators (export/migration/package-health/docs/security)
 scripts/ops/      backup/restore/verify-backup/update/status/disk-check (bash + PowerShell), windows/ autostart
-Google Stitch/    UI redesign source ZIPs already dropped here for Stage 1 (see §14)
 ```
 
 **The module pattern (applies to all 25+ domains — memorize this, it's load-bearing):**
@@ -166,7 +165,7 @@ Google Stitch/    UI redesign source ZIPs already dropped here for Stage 1 (see 
 
 ## 15. V1 → V2 handoff notes
 
-- The user has **already dropped 4 Google Stitch export ZIPs** into `Google Stitch/` at the repo root (`MY OS Command Center.zip`, `MY OS Tasks Engine.zip`, `MY OS Calender & Timeline.zip`, `My OS Core Emblem.zip`) — these are Stage 1 redesign source material, not yet unpacked or reviewed as of this writing.
+- The Google Stitch export ZIPs (Stage 1 redesign source material) live in `docs/design-stitch/` (moved there from the repo root during post-Stage-5 cleanup).
 - The recent incremental UX passes (status bar, sidebar, Today briefing, Chief home copy) are real, shipped, and currently live in production — but expect Stage 1 to significantly restyle or replace most of this UI layer. Don't be surprised if Stage 1 supersedes them; that's expected, not a regression.
 - Production is deployed and was verified healthy as of the last session (`http://localhost:8080`, containers healthy, backed up).
 

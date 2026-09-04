@@ -87,7 +87,7 @@ function clampWidth(width: number): number {
 }
 
 /**
- * Shell UI state (04_System_Architecture.md §4 — Zustand for ephemeral UI state).
+ * Shell UI state (docs/specs/04_System_Architecture.md §4 — Zustand for ephemeral UI state).
  * Only the sidebar collapsed/width is persisted; overlay flags are transient.
  * `skipHydration` avoids an SSR/CSR mismatch — the AppShell rehydrates on mount.
  */

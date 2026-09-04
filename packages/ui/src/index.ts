@@ -1,5 +1,5 @@
 /**
- * @myos/ui — the My OS design system (03_Design_Requirements_Document.md).
+ * @myos/ui — the My OS design system (docs/specs/03_Design_Requirements_Document.md).
  * The single source of truth for every visual primitive. Import styles once via
  * `@myos/ui/styles.css`; import components / hooks / utilities from here.
  */
