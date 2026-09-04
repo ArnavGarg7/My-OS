@@ -21,6 +21,7 @@ import { GreetingSection } from "./GreetingSection";
 import { SleepSection } from "./SleepSection";
 import { EnergySection } from "./EnergySection";
 import { MissionSection } from "./MissionSection";
+import { AdaptivePlanCard } from "@/components/today/AdaptivePlanCard";
 import { NextActionSection } from "./NextActionSection";
 import { FocusSection } from "./FocusSection";
 import { RemainingDaySection } from "./RemainingDaySection";
@@ -180,6 +181,10 @@ export function MorningBriefing() {
         <MorningSection label="Today's Mission">
           <MissionSection data={briefing.mission} />
         </MorningSection>
+
+        {/* Adaptive planning (Stage 5) — renders only when the day is genuinely
+            overloaded, grounded in real capacity + history. */}
+        <AdaptivePlanCard />
 
         <MorningSection label="Next Action">
           <NextActionSection

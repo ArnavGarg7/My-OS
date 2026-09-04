@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { day, makeGoal, makeHabit, makeKeyResult, makeObjective } from "./fixtures";
+import { makeGoal, makeHabit, makeKeyResult, makeObjective } from "./fixtures";
 import { goalProgress } from "./progress";
 
-const recent = [day(2026, 6, 5), day(2026, 6, 6), day(2026, 6, 7)];
+// Completion % counts only history within the recency window of *today*, so the
+// "recent" fixture must be relative to now — a hardcoded date silently decays to 0.
+const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
+const recent = [daysAgo(2), daysAgo(1), daysAgo(0)];
 
 describe("progress", () => {
   it("returns 100 for a completed goal", () => {

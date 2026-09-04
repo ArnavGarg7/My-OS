@@ -38,6 +38,7 @@ import { KnowledgeCommands } from "@/components/knowledge/KnowledgeCommands";
 import { LifeCommands } from "@/components/life/LifeCommands";
 import { ResourceCommands } from "@/components/resource/ResourceCommands";
 import { IntelligenceCommands } from "@/components/intelligence/IntelligenceCommands";
+import { AdaptationCommands } from "@/components/adaptation/AdaptationCommands";
 import { ConnectorCommands } from "@/components/connectors/ConnectorCommands";
 import { ChiefBar } from "@/components/assistant/ChiefBar";
 
@@ -134,6 +135,7 @@ function PaletteModuleCommands() {
       <LifeCommands />
       <ResourceCommands />
       <IntelligenceCommands />
+      <AdaptationCommands />
     </>
   );
 }
