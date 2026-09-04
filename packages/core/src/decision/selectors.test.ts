@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   rankDecisions,
+  selectActionable,
   selectCurrentDecision,
   selectDecisionStatus,
   selectHistory,
@@ -32,6 +33,20 @@ describe("selectPending / selectCurrentDecision", () => {
   });
   it("returns null with no pending", () => {
     expect(selectCurrentDecision([makeDecision({ state: "completed" })])).toBeNull();
+  });
+});
+
+describe("selectActionable", () => {
+  const now = at(12);
+  it("keeps only pending, unexpired, one-per-rule", () => {
+    const list = [
+      makeDecision({ ruleId: "a", state: "pending", expiresAt: at(14).toISOString() }),
+      makeDecision({ ruleId: "a", state: "pending", expiresAt: at(15).toISOString() }), // dup rule
+      makeDecision({ ruleId: "b", state: "pending", expiresAt: at(9).toISOString() }), // expired
+      makeDecision({ ruleId: "c", state: "accepted", expiresAt: at(15).toISOString() }), // resolved
+      makeDecision({ ruleId: "d", state: "pending", expiresAt: null }),
+    ];
+    expect(selectActionable(list, now).map((d) => d.ruleId)).toEqual(["a", "d"]);
   });
 });
 

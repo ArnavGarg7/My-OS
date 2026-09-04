@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useKeyboardShortcuts } from "@/lib/shell/use-keyboard-shortcuts";
 import { useLastPath } from "@/lib/shell/use-last-path";
+import { useShellStore } from "@/lib/shell/store";
 import { Sidebar } from "./sidebar";
 import { TopBar } from "./top-bar";
 import { StatusBar } from "./status-bar";
@@ -78,9 +79,34 @@ export function AppShell({ children }: { children: ReactNode }) {
       <ChiefBar />
       <StatusBar />
 
-      {/* Command Center: register built-in + platform + today commands + palette */}
+      {/* Command Center. Navigation + platform commands are always registered so
+          ⌘K is instantly useful. Module command groups pull that module's data,
+          so they only mount while the palette is open — nothing fetches a
+          module's dataset on every page just to populate the palette. */}
       <BuiltinCommands />
       <PlatformCommands />
+      <NotificationBanner />
+      <PaletteModuleCommands />
+      <CommandPalette />
+
+      {/* Overlays */}
+      <MobileNav />
+      <QuickAddDialog />
+    </div>
+  );
+}
+
+/**
+ * Module command groups. Each pulls its module's data via that module's hook, so
+ * we only mount them while the command palette is open — otherwise every route
+ * would fetch every module's dataset on load just to keep the palette warm.
+ * They register on open and unregister on close; the palette reads the registry.
+ */
+function PaletteModuleCommands() {
+  const open = useShellStore((state) => state.commandOpen);
+  if (!open) return null;
+  return (
+    <>
       <TodayCommands />
       <MorningCommands />
       <DecisionCommands />
@@ -98,18 +124,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       <StudioCommands />
       <FocusCommands />
       <NotificationCommands />
-      <NotificationBanner />
       <AutomationCommands />
       <OrchestrationCommands />
       <KnowledgeCommands />
       <LifeCommands />
       <ResourceCommands />
       <IntelligenceCommands />
-      <CommandPalette />
-
-      {/* Overlays */}
-      <MobileNav />
-      <QuickAddDialog />
-    </div>
+    </>
   );
 }

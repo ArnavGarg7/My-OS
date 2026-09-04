@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { MonoLabel, Skeleton, Text } from "@myos/ui";
-import { selectDecisionStatus } from "@myos/core/decision";
+import { selectActionable } from "@myos/core/decision";
 import { trpc } from "@/lib/trpc/client";
 
 type Tone = "accent" | "info" | "success" | "warning" | "danger" | "muted";
@@ -140,12 +140,12 @@ export function SystemPulse({
       });
     }
 
-    if (decisions.data && decisions.data.length > 0) {
-      const status = selectDecisionStatus(decisions.data);
+    if (decisions.data) {
+      const actionable = selectActionable(decisions.data, now).length;
       out.push({
-        label: "Decision",
-        value: status === "idle" ? "Reviewed" : status.charAt(0).toUpperCase() + status.slice(1),
-        tone: status === "pending" ? "warning" : "muted",
+        label: "Decisions",
+        value: actionable === 0 ? "Reviewed" : `${actionable} to review`,
+        tone: actionable > 0 ? "warning" : "muted",
         href: "/today#morning-recommendation",
       });
     }
