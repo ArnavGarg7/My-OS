@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@myos/ui";
 import { assembleMorningBriefing, type MorningBriefing as Briefing } from "@myos/core/morning";
 import { selectWorkingHours, type EnergyLevel } from "@myos/core/today";
+import { PRIORITY_WEIGHT, selectOpen } from "@myos/core/task";
 import { PageContainer, PageContent, PageLoading } from "@/components/framework";
 import { useToaster } from "@/lib/framework";
+import { useFocusLauncher } from "@/lib/focus/use-focus-launcher";
 import { useIdentity } from "@/lib/identity";
 import { useMorningFlash } from "@/lib/today/morning-flash";
 import { trpc } from "@/lib/trpc/client";
@@ -71,6 +74,28 @@ export function MorningBriefing() {
   const focus = trpc.today.getFocus.useQuery({});
   const metrics = trpc.today.getMetrics.useQuery({});
   const notes = trpc.today.listNotes.useQuery({});
+  const tasks = trpc.task.list.useQuery({ limit: 100 }, { staleTime: 60_000 });
+
+  // The single highest-priority open task — what "Next Action" executes.
+  const topTask = useMemo(() => {
+    const open = selectOpen(tasks.data ?? []);
+    return (
+      [...open].sort((a, b) => PRIORITY_WEIGHT[b.priority] - PRIORITY_WEIGHT[a.priority])[0] ?? null
+    );
+  }, [tasks.data]);
+
+  const focusLauncher = useFocusLauncher();
+  const router = useRouter();
+  const startNextAction = () => {
+    if (topTask) {
+      focusLauncher.startFocusOnTask(topTask.id, {
+        ...(topTask.projectId ? { projectId: topTask.projectId } : {}),
+        ...(topTask.estimatedMinutes ? { plannedMinutes: topTask.estimatedMinutes } : {}),
+      });
+    } else {
+      router.push("/focus");
+    }
+  };
 
   const updateState = trpc.today.updateState.useMutation({
     onSuccess: () => utils.today.getState.invalidate(),
@@ -159,7 +184,8 @@ export function MorningBriefing() {
         <MorningSection label="Next Action">
           <NextActionSection
             data={briefing.nextAction}
-            onAct={() => toaster.info("This becomes actionable soon.")}
+            actionLabel={topTask ? `Focus on “${topTask.title}”` : "Start a focus session"}
+            onAct={startNextAction}
           />
         </MorningSection>
 

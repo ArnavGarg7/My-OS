@@ -19,10 +19,13 @@ const h = vi.hoisted(() => ({
   persistDailySummary: vi.fn(),
 }));
 
+const taskSvc = vi.hoisted(() => ({ get: vi.fn(), update: vi.fn() }));
+
 vi.mock("server-only", () => ({}));
 vi.mock("./repository", () => h);
 vi.mock("./summary", () => ({ persistDailySummary: h.persistDailySummary }));
 vi.mock("../health/summary", () => ({ buildSignals: h.buildHealthSignals }));
+vi.mock("../task/service", () => taskSvc);
 
 import * as service from "./service";
 
@@ -56,6 +59,8 @@ beforeEach(() => {
   h.getById.mockResolvedValue(makeSession({ status: "running" }));
   plannerUpdate.set.mockReturnValue(plannerUpdate);
   plannerUpdate.where.mockReturnValue(Promise.resolve());
+  taskSvc.get.mockResolvedValue({ id: "t1", status: "not_started", actualMinutes: null });
+  taskSvc.update.mockResolvedValue({});
 });
 
 describe("FocusService.start", () => {
@@ -73,6 +78,32 @@ describe("FocusService.start", () => {
     const firstArg = h.updateSession.mock.calls[0]?.[1];
     expect(firstArg.status).toBe("abandoned");
     expect(h.insertSession).toHaveBeenCalledOnce();
+  });
+
+  it("moves a not-started anchored task to in_progress (EXECUTE seam)", async () => {
+    h.insertSession.mockImplementation((_db, s) => Promise.resolve({ ...s, taskId: "t1" }));
+    await service.start(asDb, TZ, { taskId: "t1", type: "deep_work" });
+    expect(taskSvc.get).toHaveBeenCalledWith(asDb, "t1");
+    expect(taskSvc.update).toHaveBeenCalledWith(asDb, { id: "t1", status: "in_progress" });
+  });
+
+  it("leaves an already in-progress task untouched", async () => {
+    taskSvc.get.mockResolvedValue({ id: "t1", status: "in_progress", actualMinutes: 10 });
+    h.insertSession.mockImplementation((_db, s) => Promise.resolve({ ...s, taskId: "t1" }));
+    await service.start(asDb, TZ, { taskId: "t1", type: "deep_work" });
+    expect(taskSvc.update).not.toHaveBeenCalled();
+  });
+
+  it("never lets a task-update failure break session start", async () => {
+    taskSvc.get.mockRejectedValue(new Error("task gone"));
+    h.insertSession.mockImplementation((_db, s) => Promise.resolve({ ...s, taskId: "t1" }));
+    const s = await service.start(asDb, TZ, { taskId: "t1", type: "deep_work" });
+    expect(s.status).toBe("running");
+  });
+
+  it("does not touch any task when the session is unanchored", async () => {
+    await service.start(asDb, TZ, { type: "focus" });
+    expect(taskSvc.get).not.toHaveBeenCalled();
   });
 });
 
@@ -104,6 +135,28 @@ describe("FocusService transitions", () => {
     h.getById.mockResolvedValue(makeSession({ status: "running", plannerBlockId: null }));
     await service.complete(asDb, TZ, "s1");
     expect(db.update).not.toHaveBeenCalled();
+  });
+
+  it("complete credits focused minutes back to the anchored task", async () => {
+    taskSvc.get.mockResolvedValue({ id: "t1", status: "in_progress", actualMinutes: 5 });
+    h.getById.mockResolvedValue(
+      makeSession({
+        status: "running",
+        taskId: "t1",
+        startedAt: new Date(Date.now() - 30 * 60_000).toISOString(),
+      }),
+    );
+    await service.complete(asDb, TZ, "s1");
+    expect(taskSvc.get).toHaveBeenCalledWith(asDb, "t1");
+    const [, patch] = taskSvc.update.mock.calls[0] ?? [];
+    expect(patch.id).toBe("t1");
+    expect(patch.actualMinutes).toBeGreaterThan(5);
+  });
+
+  it("complete leaves tasks alone when the session is unanchored", async () => {
+    h.getById.mockResolvedValue(makeSession({ status: "running", taskId: null }));
+    await service.complete(asDb, TZ, "s1");
+    expect(taskSvc.update).not.toHaveBeenCalled();
   });
 
   it("cancel ends without completion", async () => {
