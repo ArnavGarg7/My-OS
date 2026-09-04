@@ -75,7 +75,7 @@ export function CalendarToolbar({
         <span className="text-body-s text-fg-muted ml-1">{label}</span>
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto">
         <Button
           size="sm"
           variant="ghost"
@@ -101,7 +101,12 @@ export function CalendarToolbar({
         >
           Sync
         </Button>
-        <Button size="sm" onClick={onNew} leftIcon={<Plus size={14} aria-hidden />}>
+        <Button
+          size="sm"
+          className="ml-auto sm:ml-0"
+          onClick={onNew}
+          leftIcon={<Plus size={14} aria-hidden />}
+        >
           New event
         </Button>
       </div>

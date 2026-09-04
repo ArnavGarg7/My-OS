@@ -59,7 +59,7 @@ export function TaskFilters({
         value={priority ?? "all"}
         onValueChange={(v) => onPriority(v === "all" ? null : (v as TaskPriority))}
       >
-        <SelectTrigger className="w-32" aria-label="Filter by priority">
+        <SelectTrigger className="w-40" aria-label="Filter by priority">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -89,7 +89,8 @@ export function TaskFilters({
       ) : null}
 
       <Select value={sort} onValueChange={(v) => onSort(v as TaskSort)}>
-        <SelectTrigger className="w-32" aria-label="Sort">
+        <SelectTrigger className="w-40" aria-label="Sort tasks">
+          <span className="text-fg-subtle mr-1">Sort:</span>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
