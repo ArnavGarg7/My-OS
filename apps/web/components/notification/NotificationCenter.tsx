@@ -10,6 +10,7 @@ import { NotificationFilters } from "./NotificationFilters";
 import { NotificationHistory } from "./NotificationHistory";
 import { NotificationPreferences } from "./NotificationPreferences";
 import { NotificationSettings } from "./NotificationSettings";
+import { ProactivePanel } from "@/components/proactive/ProactivePanel";
 
 /**
  * NotificationCenter (Sprint 3.3). The /notifications page — the editorial home for
@@ -51,6 +52,7 @@ export function NotificationCenter() {
 
         <TabsContent value="inbox">
           <div className="flex flex-col gap-3">
+            <ProactivePanel />
             <NotificationFilters filter={n.filter} onChange={n.setFilter} />
             <NotificationList
               notifications={n.notifications}

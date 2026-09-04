@@ -126,6 +126,8 @@ export const notificationPreferences = pgTable("notification_preferences", {
   muted: boolean("muted").notNull().default(false),
   /** Per-category preferences (array of CategoryPreference). */
   categories: jsonb("categories").notNull().default([]),
+  /** Stage 6: master switch for the proactive OS (always-on interventions). */
+  proactiveEnabled: boolean("proactive_enabled").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
