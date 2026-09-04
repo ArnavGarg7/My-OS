@@ -33,7 +33,8 @@
     "./autopilot": "./src/autopilot/index.ts",
     "./connectors": "./src/connectors/index.ts",
     "./adaptation": "./src/adaptation/index.ts",
-    "./proactive": "./src/proactive/index.ts"
+    "./proactive": "./src/proactive/index.ts",
+    "./collaboration": "./src/collaboration/index.ts"
   },
   "types": "./src/index.ts",
   "scripts": {

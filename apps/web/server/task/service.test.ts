@@ -51,6 +51,7 @@ function taskRow(over: Partial<TaskRow> = {}): TaskRow {
     projectId: null,
     milestoneId: null,
     objectiveId: null,
+    assigneeCollaboratorId: null,
     createdAt: new Date("2026-07-07T06:00:00Z"),
     updatedAt: new Date("2026-07-07T06:00:00Z"),
     ...over,
