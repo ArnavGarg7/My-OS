@@ -86,6 +86,17 @@ export function MorningBriefing() {
   const decisions = useDecisions({ generateOnMount: true });
   const [explainId, setExplainId] = useState<string | null>(null);
 
+  // The "More" roll-ups each fetch their module's summary — keep them unmounted
+  // until the user opens the disclosure so the briefing loads fast. A deep link
+  // into one of those sections auto-expands it.
+  const MORE_ANCHORS =
+    /^#morning-(projects|journal|finance|goals|timeline|analytics|focus|notifications|automation|orchestration|knowledge|life|executive|resources|tomorrow|yesterday|sleep)/;
+  const [moreOpen, setMoreOpen] = useState(false);
+  useEffect(() => {
+    if (MORE_ANCHORS.test(window.location.hash)) setMoreOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const briefing: Briefing | null = useMemo(() => {
     if (!state.data || !focus.data || !metrics.data) return null;
     const workingHours = selectWorkingHours({
@@ -180,100 +191,112 @@ export function MorningBriefing() {
           <FocusSection data={briefing.focus} />
         </MorningSection>
 
-        {/* ── Everything else: collapsed by default so the briefing stays short. ── */}
-        <details className="border-border bg-elevated/40 group mt-2 rounded-lg border">
-          <summary className="text-fg-muted hover:text-fg flex cursor-pointer select-none list-none items-center justify-between gap-2 px-4 py-3 text-sm font-medium">
+        {/* ── Everything else: collapsed + unmounted until opened (each roll-up
+             fetches its own module summary, so mounting them all would slow the
+             briefing to a crawl). ── */}
+        <div className="border-border bg-elevated/40 mt-2 rounded-lg border">
+          <button
+            type="button"
+            onClick={() => setMoreOpen((o) => !o)}
+            aria-expanded={moreOpen}
+            className="text-fg-muted hover:text-fg flex w-full cursor-pointer select-none items-center justify-between gap-2 px-4 py-3 text-sm font-medium"
+          >
             <span>More in today’s briefing</span>
-            <span className="text-fg-subtle transition-transform group-open:rotate-90" aria-hidden>
+            <span
+              className={`text-fg-subtle transition-transform ${moreOpen ? "rotate-90" : ""}`}
+              aria-hidden
+            >
               ›
             </span>
-          </summary>
-          <div className="flex flex-col gap-6 px-4 pb-4 pt-1">
-            <MorningSection label="Sleep">
-              <SleepSection data={briefing.sleep} />
-            </MorningSection>
+          </button>
+          {moreOpen ? (
+            <div className="flex flex-col gap-6 px-4 pb-4 pt-1">
+              <MorningSection label="Sleep">
+                <SleepSection data={briefing.sleep} />
+              </MorningSection>
 
-            <MorningSection label="Remaining Day">
-              <RemainingDaySection data={briefing.remainingDay} />
-            </MorningSection>
+              <MorningSection label="Remaining Day">
+                <RemainingDaySection data={briefing.remainingDay} />
+              </MorningSection>
 
-            <MorningSection label="Workout">
-              <WorkoutSection data={briefing.workout} />
-            </MorningSection>
+              <MorningSection label="Workout">
+                <WorkoutSection data={briefing.workout} />
+              </MorningSection>
 
-            <MorningSection label="Weather">
-              <WeatherSection data={briefing.weather} />
-            </MorningSection>
+              <MorningSection label="Weather">
+                <WeatherSection data={briefing.weather} />
+              </MorningSection>
 
-            <MorningSection id="morning-yesterday" label="Yesterday">
-              <YesterdaySection data={briefing.yesterday} />
-            </MorningSection>
+              <MorningSection id="morning-yesterday" label="Yesterday">
+                <YesterdaySection data={briefing.yesterday} />
+              </MorningSection>
 
-            <MorningSection label="Notifications">
-              <NotificationsSection data={briefing.notifications} />
-            </MorningSection>
+              <MorningSection label="Notifications">
+                <NotificationsSection data={briefing.notifications} />
+              </MorningSection>
 
-            <MorningSection id="morning-projects" label="Projects & Goals">
-              <MorningProjectSection />
-            </MorningSection>
+              <MorningSection id="morning-projects" label="Projects & Goals">
+                <MorningProjectSection />
+              </MorningSection>
 
-            <MorningSection id="morning-journal" label="Journal">
-              <MorningJournalSection />
-            </MorningSection>
+              <MorningSection id="morning-journal" label="Journal">
+                <MorningJournalSection />
+              </MorningSection>
 
-            <MorningSection id="morning-finance" label="Finance">
-              <MorningFinanceSection />
-            </MorningSection>
+              <MorningSection id="morning-finance" label="Finance">
+                <MorningFinanceSection />
+              </MorningSection>
 
-            <MorningSection id="morning-goals" label="Goals">
-              <MorningGoalSection />
-            </MorningSection>
+              <MorningSection id="morning-goals" label="Goals">
+                <MorningGoalSection />
+              </MorningSection>
 
-            <MorningSection id="morning-timeline" label="Yesterday & Highlights">
-              <MorningTimelineSection />
-            </MorningSection>
+              <MorningSection id="morning-timeline" label="Yesterday & Highlights">
+                <MorningTimelineSection />
+              </MorningSection>
 
-            <MorningSection id="morning-analytics" label="Analytics">
-              <MorningAnalyticsSection />
-            </MorningSection>
+              <MorningSection id="morning-analytics" label="Analytics">
+                <MorningAnalyticsSection />
+              </MorningSection>
 
-            <MorningSection id="morning-focus" label="Deep Work">
-              <MorningFocusSection />
-            </MorningSection>
+              <MorningSection id="morning-focus" label="Deep Work">
+                <MorningFocusSection />
+              </MorningSection>
 
-            <MorningSection id="morning-notifications" label="Notification Rules">
-              <MorningNotificationSection />
-            </MorningSection>
+              <MorningSection id="morning-notifications" label="Notification Rules">
+                <MorningNotificationSection />
+              </MorningSection>
 
-            <MorningSection id="morning-automation" label="Automation">
-              <MorningAutomationSection />
-            </MorningSection>
+              <MorningSection id="morning-automation" label="Automation">
+                <MorningAutomationSection />
+              </MorningSection>
 
-            <MorningSection id="morning-orchestration" label="System">
-              <MorningOrchestrationSection />
-            </MorningSection>
+              <MorningSection id="morning-orchestration" label="System">
+                <MorningOrchestrationSection />
+              </MorningSection>
 
-            <MorningSection id="morning-knowledge" label="Knowledge">
-              <MorningKnowledgeSection />
-            </MorningSection>
+              <MorningSection id="morning-knowledge" label="Knowledge">
+                <MorningKnowledgeSection />
+              </MorningSection>
 
-            <MorningSection id="morning-life" label="Life">
-              <MorningLifeSection />
-            </MorningSection>
+              <MorningSection id="morning-life" label="Life">
+                <MorningLifeSection />
+              </MorningSection>
 
-            <MorningSection id="morning-executive" label="Executive Summary">
-              <MorningExecutiveSection />
-            </MorningSection>
+              <MorningSection id="morning-executive" label="Executive Summary">
+                <MorningExecutiveSection />
+              </MorningSection>
 
-            <MorningSection id="morning-resources" label="Resources">
-              <MorningResourceSection />
-            </MorningSection>
+              <MorningSection id="morning-resources" label="Resources">
+                <MorningResourceSection />
+              </MorningSection>
 
-            <MorningSection id="morning-tomorrow" label="Tomorrow's Plan">
-              <MorningTomorrowSection />
-            </MorningSection>
-          </div>
-        </details>
+              <MorningSection id="morning-tomorrow" label="Tomorrow's Plan">
+                <MorningTomorrowSection />
+              </MorningSection>
+            </div>
+          ) : null}
+        </div>
 
         <ClosingSection data={briefing.closing} />
 

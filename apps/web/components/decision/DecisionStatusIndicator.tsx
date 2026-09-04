@@ -1,17 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { selectDecisionStatus } from "@myos/core/decision";
+import { selectActionable } from "@myos/core/decision";
 import { trpc } from "@/lib/trpc/client";
 
 /**
- * "Decision · Pending/Accepted/Deferred/Idle" indicator for the status bar.
- * Links to today's recommendation.
+ * Status-bar decision indicator. Shows the count of decisions genuinely waiting
+ * on the user (pending, unexpired, one per rule) — the same number the Chief and
+ * the Command Center use. Links to today's recommendation.
  */
 export function DecisionStatusIndicator() {
   const list = trpc.today.listDecisions.useQuery({});
-  const status = selectDecisionStatus(list.data ?? []);
-  const pending = status === "pending";
+  const waiting = list.data ? selectActionable(list.data, new Date()).length : 0;
   return (
     <Link
       href="/today#morning-recommendation"
@@ -19,10 +19,12 @@ export function DecisionStatusIndicator() {
     >
       <span
         aria-hidden
-        className={`size-1.5 rounded-full ${pending ? "bg-warning" : "bg-fg-subtle"}`}
+        className={`size-1.5 rounded-full ${waiting > 0 ? "bg-warning" : "bg-fg-subtle"}`}
       />
-      <span className="text-fg-subtle">Decision</span>
-      <span className="text-fg-muted font-medium capitalize">{status}</span>
+      <span className="text-fg-subtle">Decisions</span>
+      <span className="text-fg-muted font-medium">
+        {waiting === 0 ? "clear" : `${waiting} waiting`}
+      </span>
     </Link>
   );
 }
