@@ -38,6 +38,7 @@ import { KnowledgeCommands } from "@/components/knowledge/KnowledgeCommands";
 import { LifeCommands } from "@/components/life/LifeCommands";
 import { ResourceCommands } from "@/components/resource/ResourceCommands";
 import { IntelligenceCommands } from "@/components/intelligence/IntelligenceCommands";
+import { ConnectorCommands } from "@/components/connectors/ConnectorCommands";
 import { ChiefBar } from "@/components/assistant/ChiefBar";
 
 /**
@@ -85,6 +86,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           module's dataset on every page just to populate the palette. */}
       <BuiltinCommands />
       <PlatformCommands />
+      {/* Connector commands mount always (no queries at mount — mutation-only), so
+          the Omni Launcher can always reach Sync/connect capabilities. */}
+      <ConnectorCommands />
       <NotificationBanner />
       <PaletteModuleCommands />
       <CommandPalette />

@@ -124,8 +124,8 @@ export function SystemStatusPopover() {
                 <StatusRow
                   key={p.id}
                   label={p.name}
-                  value={p.connected ? "connected" : "not connected"}
-                  tone={p.connected ? "success" : "muted"}
+                  value={p.connected ? (p.sample ? "sample" : "connected") : "not connected"}
+                  tone={p.connected ? (p.sample ? "warning" : "success") : "muted"}
                   href="/connectors"
                 />
               ))}
