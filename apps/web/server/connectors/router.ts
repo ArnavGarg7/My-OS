@@ -40,4 +40,19 @@ export const connectorsRouter = router({
     .query(({ ctx, input }) => service.syncHistory(ctx.db, input?.accountId)),
   metrics: protectedProcedure.query(({ ctx }) => service.metrics(ctx.db)),
   settings: protectedProcedure.query(({ ctx }) => service.settings(ctx.db)),
+  /** Per-provider live availability (drives honest live/sample labelling). */
+  capabilities: protectedProcedure.query(() => service.capabilities()),
+  /** EXTERNAL → OS: normalized calendar activity from connected calendar accounts. */
+  calendarActivity: protectedProcedure.query(({ ctx }) => service.calendarActivity(ctx.db)),
+  /** MY OS → EXTERNAL: create a calendar event (honest not-connected without live creds). */
+  createCalendarEvent: protectedProcedure
+    .input(
+      z.object({
+        providerId: z.string().optional(),
+        title: z.string().min(1).max(500),
+        startAt: z.string().datetime(),
+        endAt: z.string().datetime().optional(),
+      }),
+    )
+    .mutation(({ ctx, input }) => service.createCalendarEvent(ctx.db, input)),
 });

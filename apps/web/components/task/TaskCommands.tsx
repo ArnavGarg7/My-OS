@@ -296,7 +296,7 @@ export function TaskCommands() {
         ],
       },
     ];
-  }, [router, toaster, open, t, planner, selectedInboxId, convertM, utils]);
+  }, [router, toaster, open, t, planner, selectedInboxId, convertM]);
 
   useRegisterGroups(groups);
   return null;

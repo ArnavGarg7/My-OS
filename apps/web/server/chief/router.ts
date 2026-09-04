@@ -9,7 +9,12 @@ import * as service from "./service";
  * Chief core; planner changes are always PROPOSALS (optimize/rescue/night) never applied here.
  * Protected + grounded. `tz` + the greeting name come from the identity on the context.
  */
-function name(ctx: { identity: { email: string | null } }): string {
+function name(ctx: {
+  identity: { email: string | null; preferences: { displayName: string | null } };
+}): string {
+  // Prefer the user's real display name; fall back to the email local-part.
+  const display = ctx.identity.preferences.displayName?.trim();
+  if (display) return display.split(/\s+/)[0] ?? display;
   const email = ctx.identity.email ?? "";
   const local = email.split("@")[0] ?? "there";
   return local.charAt(0).toUpperCase() + local.slice(1);

@@ -10,6 +10,7 @@ const h = vi.hoisted(() => ({
   getById: vi.fn(),
   insertDecision: vi.fn(),
   updateDecision: vi.fn(),
+  expireStalePending: vi.fn(),
   ensureDay: vi.fn(),
   getState: vi.fn(),
   getFocus: vi.fn(),
@@ -54,6 +55,7 @@ vi.mock("./repository", () => ({
   getById: h.getById,
   insertDecision: h.insertDecision,
   updateDecision: h.updateDecision,
+  expireStalePending: h.expireStalePending,
 }));
 vi.mock("../today/repository", () => ({ ensureDay: h.ensureDay }));
 vi.mock("../today/service", () => ({
@@ -95,6 +97,7 @@ function decisionRow(over: Partial<DecisionHistoryRow> = {}): DecisionHistoryRow
 
 beforeEach(() => {
   vi.clearAllMocks();
+  h.expireStalePending.mockResolvedValue(0);
   h.countNewInbox.mockResolvedValue(0);
   h.projectSignals.mockResolvedValue({
     topProjectName: null,
@@ -291,6 +294,28 @@ describe("generate", () => {
     expect(h.insertDecision).toHaveBeenCalled();
     expect(h.updateDecision).not.toHaveBeenCalled();
     expect(result.length).toBeGreaterThan(0);
+  });
+
+  it("reconciles cross-day stale pending decisions before composing today's set", async () => {
+    h.listByDate.mockResolvedValue([]);
+    h.insertDecision.mockResolvedValue(decisionRow());
+
+    await service.generate(db, TZ, PREFS);
+
+    // Prior-day pending rows are expired at the source, keyed on the current date.
+    expect(h.expireStalePending).toHaveBeenCalledWith(db, expect.any(String));
+    const passedDate = h.expireStalePending.mock.calls[0]?.[1];
+    expect(passedDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it("still generates if the stale-pending sweep fails (guarded)", async () => {
+    h.expireStalePending.mockRejectedValue(new Error("db blip"));
+    h.listByDate.mockResolvedValueOnce([]).mockResolvedValueOnce([decisionRow()]);
+    h.insertDecision.mockResolvedValue(decisionRow());
+
+    // A sweep failure must never break decision generation.
+    await expect(service.generate(db, TZ, PREFS)).resolves.toBeDefined();
+    expect(h.insertDecision).toHaveBeenCalled();
   });
 
   it("updates a matched existing decision in place rather than inserting a duplicate", async () => {

@@ -23,6 +23,13 @@ export { weeklyReview, monthlyReview } from "./reviews";
 export { adaptationEvent, type AdaptationEvent, type AdaptationEventKind } from "./timeline";
 export { explainPreference, confidenceCaption, type Explanation } from "./explanation";
 export { runAdaptation, type AdaptationResult } from "./engine";
+export { analyzeEstimation, type EstimatePair, type EstimationInsight } from "./estimation";
+export {
+  assessWorkload,
+  type WorkloadInput,
+  type WorkloadTask,
+  type WorkloadAssessment,
+} from "./workload";
 export {
   profileByCategory,
   actionablePreferences,

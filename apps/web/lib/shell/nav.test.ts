@@ -4,17 +4,17 @@ import { getNavItem, NAV_HREFS, NAV_ITEMS, NAV_SECTIONS, resolveActive } from ".
 describe("nav config", () => {
   it("has the five expected sections in order", () => {
     expect(NAV_SECTIONS.map((s) => s.label)).toEqual([
-      "Main",
+      "Primary",
       "Work",
       "Life",
-      "Insights",
+      "Intelligence",
       "System",
     ]);
   });
 
-  it("defines 32 routes with unique hrefs", () => {
-    expect(NAV_ITEMS).toHaveLength(32);
-    expect(new Set(NAV_HREFS).size).toBe(32);
+  it("defines 33 routes with unique hrefs", () => {
+    expect(NAV_ITEMS).toHaveLength(33);
+    expect(new Set(NAV_HREFS).size).toBe(33);
   });
 
   it("gives every item an icon and a description", () => {

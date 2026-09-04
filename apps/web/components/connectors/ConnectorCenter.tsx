@@ -105,6 +105,7 @@ function ConnectorCard({ p, onDone }: { p: Provider; onDone: () => void }) {
           {p.readOnly ? <Badge variant="neutral">read-only</Badge> : null}
         </div>
         <div className="flex items-center gap-1.5">
+          {p.sample ? <Badge variant="warning">sample data</Badge> : null}
           {account ? (
             <Badge variant={STATE[account.state] ?? "neutral"}>{account.state}</Badge>
           ) : (
@@ -112,6 +113,12 @@ function ConnectorCard({ p, onDone }: { p: Provider; onDone: () => void }) {
           )}
         </div>
       </div>
+      {p.sample ? (
+        <Text variant="body-s" className="text-warning">
+          Sample connection — no live {p.name} credentials are configured, so this shows labelled
+          sample events, not your real data.
+        </Text>
+      ) : null}
       <Text variant="body-s" className="text-fg-muted">
         {p.auth} · {p.syncStrategy}
         {p.webhookCapable ? " · webhooks" : ""} · emits {p.supportedEvents.length} event types
@@ -153,7 +160,7 @@ function ConnectorCard({ p, onDone }: { p: Provider; onDone: () => void }) {
             disabled={busy}
             onClick={() => connect.mutate({ providerId: p.id }, { onSuccess: onDone })}
           >
-            Connect
+            {p.liveAvailable ? "Connect" : "Connect (sample)"}
           </Button>
         )}
         {sync.data ? (
@@ -191,8 +198,10 @@ function Services() {
   return q.data ? (
     <div className="flex flex-col gap-2">
       <Text variant="body-s" className="text-fg-muted">
-        {q.data.connectedCount} connected · {q.data.providers.length} available. Sync runs offline
-        by default — no keys required to see the pipeline work end-to-end.
+        {q.data.connectedCount} connected · {q.data.providers.length} available.
+        {q.data.anyLive
+          ? " Live credentials are configured — connections sync real data."
+          : " No live provider credentials are configured, so a connection runs against a clearly-labelled sample feed. Sample data is never presented as real."}
       </Text>
       {q.data.providers.map((p) => (
         <ConnectorCard key={p.id} p={p} onDone={refresh} />
@@ -246,9 +255,12 @@ function Activity() {
       {q.data.events.map((e, i) => (
         <Card key={`${e.externalId}-${i}`} className="flex items-center justify-between gap-2 p-3">
           <div className="min-w-0">
-            <Text variant="body-m" className="truncate">
-              {String(e.payload.label ?? e.kind)}
-            </Text>
+            <div className="flex items-center gap-2">
+              <Text variant="body-m" className="truncate">
+                {String(e.payload.label ?? e.kind)}
+              </Text>
+              {e.sample ? <Badge variant="warning">sample</Badge> : null}
+            </div>
             <Text variant="body-s" className="text-fg-muted">
               {e.providerKey} → {e.kind}
             </Text>
@@ -322,8 +334,9 @@ function Settings() {
       <Text variant="body-s" className="text-fg-muted">
         Every connector is read-first and provider-agnostic. Credentials are encrypted with
         AES-256-GCM, stored server-side only, and are never returned through the API or reachable by
-        any AI provider. Sync runs offline by default; live OAuth activates when credentials are
-        present.
+        any AI provider. A live connection requires that provider's credentials to be configured on
+        the server; until then a connector runs against a clearly-labelled <strong>sample</strong>{" "}
+        feed so the pipeline is exercisable — sample data is never presented as real.
       </Text>
       <div className="flex flex-wrap items-center gap-2">
         <div className="border-border bg-elevated rounded border px-4 py-2">
@@ -340,9 +353,9 @@ function Settings() {
         </div>
         <div className="border-border bg-elevated rounded border px-4 py-2">
           <Text variant="body-s" className="text-fg-muted">
-            Mode
+            Live-configured
           </Text>
-          <Text variant="heading-s">{q.data?.offlineDefault ? "Offline default" : "Live"}</Text>
+          <Text variant="heading-s">{q.data?.liveConfigured ?? 0}</Text>
         </div>
       </div>
     </Card>

@@ -26,6 +26,15 @@ export const adaptationRouter = router({
   timeline: protectedProcedure.query(({ ctx }) => service.timeline(ctx.db)),
   settings: protectedProcedure.query(({ ctx }) => service.settings(ctx.db)),
   forChief: protectedProcedure.query(({ ctx }) => service.forChief(ctx.db)),
+  /** Estimate-vs-reality: how the user's estimates compare to recorded actuals. */
+  estimation: protectedProcedure.query(({ ctx }) => service.estimation(ctx.db)),
+  /** Adaptive planning: is today's plan realistic given real capacity + history? */
+  todayPlan: protectedProcedure.query(({ ctx }) =>
+    service.todayPlan(ctx.db, ctx.identity.preferences.timezone, {
+      preferredStartOfDay: ctx.identity.preferences.preferredStartOfDay,
+      preferredEndOfDay: ctx.identity.preferences.preferredEndOfDay,
+    }),
+  ),
 
   submitFeedback: protectedProcedure
     .input(submitFeedbackSchema)

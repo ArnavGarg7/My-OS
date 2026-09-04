@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Spinner, cn } from "@myos/ui";
+import { Emblem, Spinner, cn } from "@myos/ui";
 
 /**
  * Page framework (Sprint 1.4, Part 1). Composable layout primitives — every
@@ -103,13 +103,23 @@ export function PageFooter({ children, className }: { children: ReactNode; class
   );
 }
 
-/** Centered loading state for a page (spinner + label). */
+/** Centered loading state for a page — the Core Emblem, breathing, with a label. */
 export function PageLoading({ label = "Loading…" }: { label?: string }) {
   return (
     <div className="flex h-full items-center justify-center p-10">
-      <div className="flex flex-col items-center gap-3">
-        <Spinner size="lg" />
-        <span className="text-body-s text-fg-subtle">{label}</span>
+      <div className="flex flex-col items-center gap-4">
+        <span className="animate-pulse-soft relative flex">
+          <Emblem size={40} />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10 rounded-[12px] blur-xl"
+            style={{ background: "var(--accent-muted)" }}
+          />
+        </span>
+        <span className="text-body-s text-fg-subtle inline-flex items-center gap-2">
+          <Spinner size="sm" />
+          {label}
+        </span>
       </div>
     </div>
   );

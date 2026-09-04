@@ -1,13 +1,16 @@
 "use client";
 
+import { Play } from "lucide-react";
 import { formatRelativeTime } from "@myos/shared/format";
-import { cn } from "@myos/ui";
+import { cn, SimpleTooltip } from "@myos/ui";
 import type { Task } from "@myos/core/task";
 import { TaskPriority } from "./TaskPriority";
 
 /**
  * A single task row (Sprint 2.5). Checkbox · title · priority · due. Clicking the
  * checkbox completes; clicking the row selects it (opens in the context panel).
+ * When `onFocus` is provided, a hover-revealed Focus action starts a deep-work
+ * session anchored to this task (the EXECUTE seam).
  */
 export function TaskRow({
   task,
@@ -16,6 +19,7 @@ export function TaskRow({
   blocked,
   onSelect,
   onToggle,
+  onFocus,
 }: {
   task: Task;
   selected: boolean;
@@ -23,13 +27,14 @@ export function TaskRow({
   blocked?: boolean;
   onSelect: () => void;
   onToggle: () => void;
+  onFocus?: (() => void) | undefined;
 }) {
   const done = task.status === "completed";
 
   return (
     <div
       className={cn(
-        "border-border flex items-center gap-3 border-b px-4 py-2.5 transition-colors",
+        "border-border group flex items-center gap-3 border-b px-4 py-2.5 transition-colors",
         selected ? "bg-accent-muted/40" : "hover:bg-elevated",
       )}
     >
@@ -74,6 +79,22 @@ export function TaskRow({
         >
           {formatRelativeTime(task.dueAt)}
         </span>
+      ) : null}
+
+      {onFocus && !done ? (
+        <SimpleTooltip content="Start a focus session">
+          <button
+            type="button"
+            aria-label={`Focus on ${task.title}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onFocus();
+            }}
+            className="text-fg-subtle hover:text-accent hover:bg-accent-muted focus-visible:ring-ring flex size-6 shrink-0 items-center justify-center rounded-md opacity-0 outline-none transition-all focus-visible:opacity-100 focus-visible:ring-1 group-hover:opacity-100"
+          >
+            <Play size={13} aria-hidden />
+          </button>
+        </SimpleTooltip>
       ) : null}
     </div>
   );

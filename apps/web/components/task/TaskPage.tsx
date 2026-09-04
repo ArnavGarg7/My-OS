@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { PageContainer, PageContent, PageLoading } from "@/components/framework";
 import { selectByStatus, selectOpen, type Task } from "@myos/core/task";
 import { useShellStore } from "@/lib/shell/store";
+import { useFocusLauncher } from "@/lib/focus/use-focus-launcher";
 import { useTask } from "./use-task";
 import { TaskSearch } from "./TaskSearch";
 import { TaskFilters } from "./TaskFilters";
@@ -18,6 +19,7 @@ import { TaskList } from "./TaskList";
 export function TaskPage() {
   const t = useTask();
   const openContextPanel = useShellStore((s) => s.setContextPanelOpen);
+  const focusLauncher = useFocusLauncher();
   const now = useMemo(() => new Date(), []);
 
   const sidebarCounts = useMemo(
@@ -71,6 +73,12 @@ export function TaskPage() {
           now={now}
           onSelect={select}
           onToggle={toggle}
+          onFocus={(task) =>
+            focusLauncher.startFocusOnTask(task.id, {
+              ...(task.projectId ? { projectId: task.projectId } : {}),
+              ...(task.estimatedMinutes ? { plannedMinutes: task.estimatedMinutes } : {}),
+            })
+          }
           emptyLabel={t.text.trim() ? "No tasks match your search." : undefined}
         />
       </PageContent>
