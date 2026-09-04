@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Badge, Button, Card, EmptyState, MonoLabel, Skeleton, Text } from "@myos/ui";
 import { PRIORITY_WEIGHT, parseTask, type TaskPriority } from "@myos/core/task";
+import { useFocusLauncher } from "@/lib/focus/use-focus-launcher";
 import { trpc, type RouterOutputs } from "@/lib/trpc/client";
 
 type NowData = RouterOutputs["chief"]["now"];
@@ -44,9 +45,33 @@ function confidenceLabel(level: string) {
 /** The dominant surface: the single next action, with its primary control. */
 export function NextActionHero({ data }: { data: NowData }) {
   const [showWhy, setShowWhy] = useState(false);
+  const focusLauncher = useFocusLauncher();
   const rec = data.recommendation;
   const route = ACTION_ROUTE[rec.action] ?? { href: "/today", label: "Continue", icon: ArrowRight };
   const Icon = route.icon;
+
+  // When the Chief recommends focusing on a specific task, the primary control
+  // executes it directly — starts the anchored session and opens Focus — rather
+  // than dropping the user on the Focus page to re-pick the task.
+  const focusTaskId =
+    rec.action === "start_focus" && rec.ref?.module === "task" ? rec.ref.id : null;
+  const primary = focusTaskId ? (
+    <Button
+      leftIcon={<Icon size={15} aria-hidden />}
+      disabled={focusLauncher.pending}
+      onClick={() =>
+        focusLauncher.startFocusOnTask(focusTaskId, {
+          ...(rec.estimateMinutes ? { plannedMinutes: rec.estimateMinutes } : {}),
+        })
+      }
+    >
+      {route.label}
+    </Button>
+  ) : (
+    <Button asChild leftIcon={<Icon size={15} aria-hidden />}>
+      <Link href={route.href}>{route.label}</Link>
+    </Button>
+  );
 
   return (
     <Card variant="hero" padding="lg" className="relative overflow-hidden">
@@ -92,9 +117,7 @@ export function NextActionHero({ data }: { data: NowData }) {
 
         <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
           <div className="flex flex-wrap items-center gap-2">
-            <Button asChild leftIcon={<Icon size={15} aria-hidden />}>
-              <Link href={route.href}>{route.label}</Link>
-            </Button>
+            {primary}
             <Button variant="secondary" onClick={() => setShowWhy((s) => !s)}>
               {showWhy ? "Hide reasoning" : "Explain"}
             </Button>
@@ -319,6 +342,7 @@ const PRIORITY_TONE: Record<TaskPriority, "danger" | "warning" | "info" | "neutr
 
 export function PrioritiesColumn() {
   const utils = trpc.useUtils();
+  const focusLauncher = useFocusLauncher();
   const list = trpc.task.list.useQuery({ limit: 60 });
   const complete = trpc.task.complete.useMutation({
     onSuccess: () => {
@@ -433,6 +457,20 @@ export function PrioritiesColumn() {
                   </Text>
                 ) : null}
               </div>
+              <button
+                type="button"
+                aria-label={`Focus on ${t.title}`}
+                disabled={focusLauncher.pending}
+                onClick={() =>
+                  focusLauncher.startFocusOnTask(t.id, {
+                    ...(t.projectId ? { projectId: t.projectId } : {}),
+                    ...(t.estimatedMinutes ? { plannedMinutes: t.estimatedMinutes } : {}),
+                  })
+                }
+                className="text-fg-subtle hover:text-accent hover:bg-accent-muted focus-visible:ring-ring flex size-7 shrink-0 items-center justify-center rounded-md opacity-0 outline-none transition-all focus-visible:opacity-100 focus-visible:ring-1 group-hover:opacity-100"
+              >
+                <Timer size={14} aria-hidden />
+              </button>
             </div>
           ))
         )}

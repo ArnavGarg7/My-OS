@@ -1,9 +1,10 @@
 "use client";
 
-import { CalendarClock, CheckCircle2, Archive, Trash2 } from "lucide-react";
+import { CalendarClock, CheckCircle2, Archive, Trash2, Play } from "lucide-react";
 import { formatDate } from "@myos/shared/format";
 import { Button, Text, Progress } from "@myos/ui";
 import { calculateProgress, type TaskDependency } from "@myos/core/task";
+import { useFocusLauncher } from "@/lib/focus/use-focus-launcher";
 import { useTask } from "./use-task";
 import { TaskEditor } from "./TaskEditor";
 import { TaskStatus } from "./TaskStatus";
@@ -29,6 +30,7 @@ function Section({ label, children }: { label: string; children: React.ReactNode
 
 export function TaskContextPanel() {
   const t = useTask();
+  const focusLauncher = useFocusLauncher();
   const task = t.selected;
 
   if (!task) {
@@ -63,6 +65,22 @@ export function TaskContextPanel() {
         task={task}
         onUpdate={(patch) => t.update({ id: task.id, ...patch })}
       />
+
+      {task.status !== "completed" ? (
+        <Button
+          onClick={() =>
+            focusLauncher.startFocusOnTask(task.id, {
+              ...(task.projectId ? { projectId: task.projectId } : {}),
+              ...(task.estimatedMinutes ? { plannedMinutes: task.estimatedMinutes } : {}),
+            })
+          }
+          disabled={focusLauncher.pending}
+          leftIcon={<Play size={14} aria-hidden />}
+          className="w-full"
+        >
+          Start focus session
+        </Button>
+      ) : null}
 
       <Section label="Progress">
         <Progress value={progress.completionPercent} />

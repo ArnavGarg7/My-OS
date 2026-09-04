@@ -210,20 +210,38 @@ describe("StartPanel", () => {
     render(<StartPanel onStart={onStart} pending={false} />);
     await userEvent.click(screen.getByText("25m"));
     await userEvent.click(screen.getByText("Start Deep Work"));
-    expect(onStart).toHaveBeenCalledWith("deep_work", 25);
+    expect(onStart).toHaveBeenCalledWith({ type: "deep_work", minutes: 25 });
   });
   it("switches session type", async () => {
     const onStart = vi.fn();
     render(<StartPanel onStart={onStart} pending={false} />);
     await userEvent.click(screen.getByText("Review"));
     await userEvent.click(screen.getByText("Start Review"));
-    expect(onStart).toHaveBeenCalledWith("review", 50);
+    expect(onStart).toHaveBeenCalledWith({ type: "review", minutes: 50 });
   });
   it("defaults to deep work at 50m", async () => {
     const onStart = vi.fn();
     render(<StartPanel onStart={onStart} pending={false} />);
     await userEvent.click(screen.getByText("Start Deep Work"));
-    expect(onStart).toHaveBeenCalledWith("deep_work", 50);
+    expect(onStart).toHaveBeenCalledWith({ type: "deep_work", minutes: 50 });
+  });
+  it("anchors the session to a chosen task", async () => {
+    const onStart = vi.fn();
+    render(
+      <StartPanel
+        onStart={onStart}
+        pending={false}
+        tasks={[{ id: "task-1", title: "Finish the report" }]}
+      />,
+    );
+    await userEvent.click(screen.getByRole("combobox", { name: "Focus on a task" }));
+    await userEvent.click(screen.getByText("Finish the report"));
+    await userEvent.click(screen.getByText("Start Deep Work"));
+    expect(onStart).toHaveBeenCalledWith({ type: "deep_work", minutes: 50, taskId: "task-1" });
+  });
+  it("hides the task picker when there are no open tasks", () => {
+    render(<StartPanel onStart={vi.fn()} pending={false} tasks={[]} />);
+    expect(screen.queryByRole("combobox", { name: "Focus on a task" })).not.toBeInTheDocument();
   });
   it("excludes meetings and breaks from startable types", () => {
     render(<StartPanel onStart={vi.fn()} pending={false} />);
