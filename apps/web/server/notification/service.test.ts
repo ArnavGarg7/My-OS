@@ -22,6 +22,9 @@ const h = vi.hoisted(() => ({
 vi.mock("server-only", () => ({}));
 vi.mock("./repository", () => h);
 vi.mock("./signals", () => ({ gatherRuleContext: h.gatherRuleContext }));
+// Stage 6: the proactive draft source has its own tests; isolate notification generation
+// from the real intelligence chain here (it would otherwise run against the stub db).
+vi.mock("../proactive/gather", () => ({ proactiveDrafts: async () => [] }));
 
 import * as service from "./service";
 

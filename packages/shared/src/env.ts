@@ -61,6 +61,15 @@ export const serverEnvSchema = z.object({
    * When absent, a deterministic dev key derives from it so offline connectors still work in CI.
    */
   MYOS_CONNECTOR_SECRET: z.string().optional(),
+  /**
+   * Shared secret authorizing the worker's always-on proactive evaluation tick to call the
+   * web app's internal endpoint (Stage 6). When absent, the internal route is disabled (503)
+   * and the worker does NOT schedule the cron — proactivity then runs only via the in-app
+   * `proactive.evaluate` trigger. Set it (plus MYOS_APP_URL) to enable true always-on.
+   */
+  MYOS_INTERNAL_SECRET: z.string().optional(),
+  /** Cron for the always-on proactive evaluation tick (default every 15 minutes). */
+  PROACTIVE_EVAL_CRON: z.string().default("*/15 * * * *"),
 
   // Web Push / VAPID (optional until Stage 4). The public key is also exposed to
   // the browser (NEXT_PUBLIC_) so the client can create a push subscription.

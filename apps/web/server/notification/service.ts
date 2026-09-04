@@ -20,6 +20,10 @@ import * as repo from "./repository";
 import { gatherRuleContext } from "./signals";
 import { scheduleNotification } from "./scheduler";
 import { dispatch, type DispatchResult } from "./dispatcher";
+import { proactiveDrafts } from "../proactive/gather";
+
+/** Fallback working-hours when the caller has no identity prefs (proactive workload realism). */
+const DEFAULT_DAY_PREFS = { preferredStartOfDay: "09:00", preferredEndOfDay: "17:00" };
 
 /**
  * NotificationService (Sprint 3.3). Orchestrates the pure NotificationEngine over
@@ -66,14 +70,19 @@ export async function generate(
   db: Database,
   tz: string,
   now = new Date(),
+  dayPrefs: { preferredStartOfDay: string; preferredEndOfDay: string } = DEFAULT_DAY_PREFS,
 ): Promise<{ created: number; delivered: number; suppressed: number }> {
-  const [ctx, existing, prefs] = await Promise.all([
+  const [ctx, existing, prefs, proactive] = await Promise.all([
     gatherRuleContext(db, tz, now),
     repo.listActive(db),
     repo.getPreferences(db),
+    // Stage 6: the proactive OS folds its grounded interventions into the same engine,
+    // so they share one dedup/schedule/deliver/lifecycle path. Guarded → [] on any failure.
+    proactiveDrafts(db, tz, dayPrefs, now).catch(() => []),
   ]);
 
-  const drafts = generateDrafts(ctx);
+  // Rule-based reminders + proactive interventions, deduped together by the engine.
+  const drafts = [...generateDrafts(ctx), ...proactive];
   const { created, refreshed } = engine.reconcile(drafts, existing);
 
   // Persist refreshed (dedup) notifications' updated content.

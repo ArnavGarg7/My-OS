@@ -81,6 +81,7 @@ describe("notification mappers", () => {
       weekendSuppression: false,
       muted: true,
       categories: [],
+      proactiveEnabled: true,
       updatedAt: new Date(),
     };
     const prefs = rowToPreferences(prow);

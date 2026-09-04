@@ -21,6 +21,7 @@ import {
   PrioritiesColumn,
 } from "./command-center-panels";
 import { SystemPulse } from "./system-pulse";
+import { OsRecommendsCard } from "@/components/proactive/OsRecommendsCard";
 
 /**
  * Command Center (V2 Stage 1) — the primary home experience. Its job is
@@ -114,6 +115,10 @@ export function CommandCenter() {
               <ChiefInsight data={nowData} />
             </>
           ) : null}
+
+          {/* Proactive OS (Stage 6) — the one thing that deserves attention right now.
+              Renders only when the OS is not clear; complements the Next Action above. */}
+          <OsRecommendsCard />
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
             <ScheduleColumn />
