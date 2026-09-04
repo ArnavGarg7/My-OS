@@ -6,83 +6,115 @@ import type {
   HabitObservation,
   Observation,
 } from "@myos/core/adaptation";
+import { focusMinutesAt } from "@myos/core/focus";
+import * as focusService from "../focus/service";
+import * as taskService from "../task/service";
+import * as goalService from "../goal/service";
 import { listFeedback } from "./repository";
 
 /**
- * Adaptation input gathering (Sprint 6.5). Assembles the deterministic `AdaptationInput` the engine
- * consumes: REAL recommendation feedback from the DB plus behavioral observations. Observations
- * eventually accrue from module read models via watchers; until that history exists this returns a
- * conservative, DETERMINISTIC offline observation set (mirroring the AI Local provider / connector
- * offline feed) so the profile/insights/reviews are exercisable end-to-end without invented history.
- * READ-ONLY — nothing here mutates user data. All time is injected.
+ * Adaptation input gathering (Sprint 6.5; REAL behavioural learning added in Stage 5).
+ *
+ * Assembles the deterministic `AdaptationInput` the engine consumes from the user's
+ * OWN frozen records — completed focus sessions, completed tasks, and real habit
+ * completion series — plus real recommendation feedback. Nothing is invented: an
+ * observation exists only because a real record exists. When there is little
+ * history the engine's confidence bands report "not enough evidence yet" — which
+ * is the correct, honest result, not a fabricated pattern.
+ *
+ * READ-ONLY — nothing here mutates user data. All time is injected. Modules
+ * translate their frozen read models into `Observation`s; the engine never reads a
+ * module directly, keeping the personalization layer provider-agnostic.
  */
 
 const DAY = 86_400_000;
 
-/** A stable, deterministic observation seed (no randomness) representing recent behaviour. */
-function seedObservations(now: Date): Observation[] {
-  const daysAgo = (d: number) => new Date(now.getTime() - d * DAY).toISOString();
+/** Local hour (0..23) of an ISO instant. */
+function hourOf(iso: string): number {
+  return new Date(iso).getHours();
+}
+
+/**
+ * Behavioural observations derived from real records. Every emitted observation is
+ * backed by a concrete completed session/task — no seeds, no placeholders.
+ */
+async function realObservations(db: Database, now: Date): Promise<Observation[]> {
   const out: Observation[] = [];
-  // Focus block length: consistently 90 minutes.
-  for (let i = 0; i < 10; i += 1)
-    out.push({ category: "focus", key: "focus_block_length", value: 90, at: daysAgo(i * 2) });
-  // Study location: mostly the library.
-  for (let i = 0; i < 8; i += 1)
-    out.push({
-      category: "learning",
-      key: "study_location",
-      value: i < 6 ? "library" : "home",
-      at: daysAgo(i * 2 + 1),
-    });
-  // Preferred work hours: mostly mornings (numeric hour).
-  for (let i = 0; i < 9; i += 1)
+  const windowStart = now.getTime() - 90 * DAY;
+
+  // ── Focus sessions: block length + when the user actually does deep work ──────
+  const sessions = await focusService.history(db, 200).catch(() => []);
+  for (const s of sessions) {
+    if (!s.startedAt || !s.completed) continue;
+    const started = new Date(s.startedAt).getTime();
+    if (started < windowStart) continue;
+    const minutes = focusMinutesAt(s, s.endedAt ? new Date(s.endedAt) : now);
+    if (minutes > 0) {
+      out.push({
+        category: "focus",
+        key: "focus_block_length",
+        value: minutes,
+        at: s.endedAt ?? s.startedAt,
+      });
+    }
     out.push({
       category: "productivity",
       key: "preferred_work_hour",
-      value: 9,
-      at: daysAgo(i * 2),
+      value: hourOf(s.startedAt),
+      at: s.startedAt,
     });
-  // Focus hours metric: rising over time.
-  for (let i = 0; i < 6; i += 1)
+  }
+
+  // ── Completed tasks: when work gets finished (a second, independent signal) ───
+  const tasks = await taskService.list(db, {}).catch(() => []);
+  for (const t of tasks) {
+    if (t.status !== "completed" || !t.completedAt) continue;
+    if (new Date(t.completedAt).getTime() < windowStart) continue;
     out.push({
       category: "productivity",
-      key: "focus_hours",
-      value: 4 + i * 0.4,
-      at: daysAgo(30 - i * 4),
+      key: "preferred_work_hour",
+      value: hourOf(t.completedAt),
+      at: t.completedAt,
     });
-  // A weekly planning routine — 4 Mondays ~09:00 UTC.
-  for (const d of [0, 7, 14, 21])
-    out.push({
-      category: "planning",
-      key: "weekly_planning",
-      value: "done",
-      at: new Date(Date.UTC(2026, 5, 1 + d, 9, 0)).toISOString(),
-    });
+  }
+
   return out;
 }
 
-/** A deterministic habit completion series (morning workout, mostly kept). */
-function seedHabitSeries(now: Date): { key: string; series: HabitObservation[] }[] {
-  const workout: HabitObservation[] = Array.from({ length: 21 }, (_, i) => ({
-    date: new Date(now.getTime() - (20 - i) * DAY).toISOString().slice(0, 10),
-    completed: i % 3 !== 0,
-  }));
-  return [{ key: "morning_workout", series: workout }];
+/** Real habit completion series from the Goal engine (day-granularity, no synthesis). */
+async function realHabitSeries(
+  db: Database,
+): Promise<{ key: string; series: HabitObservation[] }[]> {
+  const habits = await goalService.habits(db).catch(() => []);
+  return habits
+    .filter((h) => h.history.length > 0)
+    .map((h) => {
+      const done = new Set(h.history);
+      const dates = [...h.history].sort();
+      const first = dates[0]!;
+      const last = dates[dates.length - 1]!;
+      // Dense daily series across the observed span so the engine can measure gaps.
+      const series: HabitObservation[] = [];
+      for (let t = new Date(first).getTime(); t <= new Date(last).getTime(); t += DAY) {
+        const date = new Date(t).toISOString().slice(0, 10);
+        series.push({ date, completed: done.has(date) });
+      }
+      return { key: h.title.toLowerCase().replace(/\s+/g, "_"), series };
+    });
 }
 
-/** Build the full deterministic adaptation input for one cycle. */
+/** Build the full adaptation input for one cycle — all from real data. */
 export async function gatherAdaptationInput(db: Database, now: Date): Promise<AdaptationInput> {
-  const feedbackRows = await listFeedback(db).catch(() => []);
+  const [observations, habitSeries, feedbackRows] = await Promise.all([
+    realObservations(db, now),
+    realHabitSeries(db),
+    listFeedback(db).catch(() => []),
+  ]);
   const feedback: FeedbackRecord[] = feedbackRows.map((f) => ({
     proposalId: f.proposalId,
     subject: f.subject,
     type: f.type as FeedbackRecord["type"],
     at: f.at,
   }));
-  return {
-    observations: seedObservations(now),
-    habitSeries: seedHabitSeries(now),
-    feedback,
-    now,
-  };
+  return { observations, habitSeries, feedback, now };
 }

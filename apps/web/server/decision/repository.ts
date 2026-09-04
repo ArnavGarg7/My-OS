@@ -1,5 +1,5 @@
 import "server-only";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, lt } from "drizzle-orm";
 import type { Database } from "@myos/db";
 import { decisionHistory, type DecisionHistoryRow } from "@myos/db/schema";
 import { decisionToColumns } from "./mapper";
@@ -30,6 +30,23 @@ export async function list(
 export async function getById(db: Database, id: string): Promise<DecisionHistoryRow | undefined> {
   const [row] = await db.select().from(decisionHistory).where(eq(decisionHistory.id, id)).limit(1);
   return row;
+}
+
+/**
+ * Expire every still-`pending` decision from a day before `today` (Stage 3). The
+ * engine only reconciles the current day's decisions, so without this prior-day
+ * pending rows accumulate forever and pollute the actionable set. A decision is
+ * only ever valid for the day it was generated, so any earlier pending row is
+ * definitionally stale. Returns the number of rows expired. History
+ * (accepted/completed/dismissed/deferred) is never touched.
+ */
+export async function expireStalePending(db: Database, today: string): Promise<number> {
+  const rows = await db
+    .update(decisionHistory)
+    .set({ status: "expired" })
+    .where(and(eq(decisionHistory.status, "pending"), lt(decisionHistory.date, today)))
+    .returning({ id: decisionHistory.id });
+  return rows.length;
 }
 
 export async function insertDecision(

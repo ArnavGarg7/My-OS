@@ -3,6 +3,11 @@
  * (03_Design_Requirements_Document.md §2). Dark is the reference theme; light is
  * the derived mapping. Nothing outside @myos/ui may define these values.
  *
+ * V2 · Stage 1 — "Kinetic Obsidian". The identity is dark, premium, restrained
+ * and slightly futuristic: stepped obsidian/graphite surfaces, hairline borders,
+ * and a single molten-amber kinetic accent reserved for intent and agency.
+ * Machine state (timers, shortcuts, telemetry) is carried by the mono scale.
+ *
  * These are raw CSS custom properties. styles/theme.css maps them into Tailwind
  * so utilities (bg-surface, text-fg, rounded-lg, shadow-e2, text-body-m, …) are
  * generated from them.
@@ -10,52 +15,54 @@
 
 :root,
 :root[data-theme="dark"] {
-  /* ── Surfaces ──────────────────────────────────────────────────────────── */
-  --bg-base: #0a0a0c;
-  --bg-surface: #111113;
-  --bg-elevated: #18181c;
-  --bg-overlay: #1f1f24;
-  --bg-inset: #0d0d10;
-  --bg-scrim: rgba(0, 0, 0, 0.6);
+  /* ── Surfaces — stepped obsidian, never pure-black OLED cutoff ──────────── */
+  --bg-base: #0c0d0e; /* Void — global viewport + sheet backdrops */
+  --bg-surface: #141618; /* Substrate — panels, sidebar, command deck */
+  --bg-elevated: #1a1d20; /* Elevation 1 — cards, columns, list tracks */
+  --bg-overlay: #22262b; /* Elevation 2/3 — popovers, menus, raised hover */
+  --bg-inset: #0a0b0c; /* Wells — inputs, recessed rows */
+  --bg-scrim: rgba(0, 0, 0, 0.66);
 
-  /* ── Borders ───────────────────────────────────────────────────────────── */
-  --border-subtle: #26262b;
-  --border-strong: #3a3a42;
+  /* ── Borders — precision-milled hairlines ──────────────────────────────── */
+  --border-subtle: #23262b;
+  --border-strong: #34383e;
 
-  /* ── Text ──────────────────────────────────────────────────────────────── */
-  --text-primary: #f4f4f5;
-  --text-secondary: #a1a1aa;
-  --text-tertiary: #6e6e78;
-  --text-disabled: #4a4a52;
-  --text-on-accent: #ffffff;
+  /* ── Text — off-white optical tint, cool-slate secondary ───────────────── */
+  --text-primary: #ededed;
+  --text-secondary: #9aa0a6;
+  --text-tertiary: #6b7178;
+  --text-disabled: #494d53;
+  --text-on-accent: #0c0d0e;
 
-  /* ── Accent ────────────────────────────────────────────────────────────── */
-  --accent: #6e7bff;
-  --accent-hover: #8089ff;
-  --accent-active: #5a67f0;
-  --accent-muted: rgba(110, 123, 255, 0.14);
-  --accent-border: rgba(110, 123, 255, 0.4);
+  /* ── Accent — primary kinetic amber (#FF7A1A). Intent + agency only. ───── */
+  --accent: #ff7a1a;
+  --accent-hover: #ff8d3b;
+  --accent-active: #e86e12;
+  --accent-muted: rgba(255, 122, 26, 0.14);
+  --accent-border: rgba(255, 122, 26, 0.4);
+  /* Softer amber for text/icons sitting on obsidian (Stitch "primary" tint). */
+  --accent-fg: #ffb68e;
 
   /* ── Semantic — foreground + subtle background ─────────────────────────── */
-  --success: #3ecf6e;
-  --success-subtle: rgba(62, 207, 110, 0.14);
-  --warning: #f5b83d;
-  --warning-subtle: rgba(245, 184, 61, 0.14);
-  --danger: #f4564a;
-  --danger-subtle: rgba(244, 86, 74, 0.14);
-  --info: #4cc3e8;
-  --info-subtle: rgba(76, 195, 232, 0.14);
-  --neutral: #a1a1aa;
-  --neutral-subtle: rgba(161, 161, 170, 0.12);
+  --success: #10b981; /* Sage/emerald — verified, synced, healthy */
+  --success-subtle: rgba(16, 185, 129, 0.14);
+  --warning: #fbbf24; /* Amber ramp — pending queue */
+  --warning-subtle: rgba(251, 191, 36, 0.14);
+  --danger: #f43f5e; /* Rose-crimson — blocking, strict deadline */
+  --danger-subtle: rgba(244, 63, 94, 0.14);
+  --info: #38bdf8; /* Arctic blue — sync, ambient AI, real-time */
+  --info-subtle: rgba(56, 189, 248, 0.14);
+  --neutral: #9aa0a6;
+  --neutral-subtle: rgba(154, 160, 166, 0.12);
 
   /* ── Priority scale (P0..P3) ───────────────────────────────────────────── */
-  --priority-0: #f4564a;
-  --priority-1: #f5a83d;
-  --priority-2: #6e7bff;
-  --priority-3: #6e6e78;
+  --priority-0: #f43f5e;
+  --priority-1: #ff7a1a;
+  --priority-2: #38bdf8;
+  --priority-3: #6b7178;
 
   /* ── Focus ring ────────────────────────────────────────────────────────── */
-  --ring: #6e7bff;
+  --ring: #ff7a1a;
 
   /* ── Motion durations (theme-independent; zeroed under reduced-motion) ──── */
   --dur-fast: 120ms;
@@ -65,51 +72,67 @@
   /* ── Opacity ───────────────────────────────────────────────────────────── */
   --opacity-disabled: 0.5;
 
-  /* ── Elevation (dark leans on border + scrim per 03 §2.3) ──────────────── */
-  --shadow-e1: 0 1px 2px 0 rgba(0, 0, 0, 0.28);
-  --shadow-e2: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-e3: 0 12px 40px rgba(0, 0, 0, 0.55);
+  /* ── Elevation — machined physical tiers (border + ambient, low spread) ── */
+  --shadow-e1: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-e2: 0 8px 24px -4px rgba(0, 0, 0, 0.46), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-e3: 0 24px 48px -12px rgba(0, 0, 0, 0.75);
+
+  /* ── Kinetic active aura — focused / running surfaces only ─────────────── */
+  --glow-kinetic: 0 0 0 1px rgba(255, 122, 26, 0.5), 0 0 24px -4px rgba(255, 122, 26, 0.28);
+  /* Ambient page glow behind hero surfaces. */
+  --glow-ambient: radial-gradient(60% 60% at 50% 0%, rgba(255, 122, 26, 0.09), transparent 70%);
 }
 
 :root[data-theme="light"] {
-  --bg-base: #fafafb;
+  /* Derived warm-paper light mapping. Kinetic amber is retained; obsidian
+     surfaces invert to a low-chroma warm neutral so the identity survives. */
+  --bg-base: #f6f5f3;
   --bg-surface: #ffffff;
   --bg-elevated: #ffffff;
   --bg-overlay: #ffffff;
-  --bg-inset: #f2f2f4;
-  --bg-scrim: rgba(20, 20, 28, 0.4);
+  --bg-inset: #efeeeb;
+  --bg-scrim: rgba(22, 20, 18, 0.4);
 
-  --border-subtle: #e4e4e9;
-  --border-strong: #c9c9d2;
+  --border-subtle: #e7e4df;
+  --border-strong: #cfcbc4;
 
-  --text-primary: #17171c;
-  --text-secondary: #565660;
-  --text-tertiary: #8a8a94;
-  --text-disabled: #b4b4bc;
+  --text-primary: #1b1a18;
+  --text-secondary: #5c5852;
+  --text-tertiary: #8a857d;
+  --text-disabled: #b6b1a8;
   --text-on-accent: #ffffff;
 
-  --accent: #5561f0;
-  --accent-hover: #4450e0;
-  --accent-active: #3b47d6;
-  --accent-muted: rgba(85, 97, 240, 0.12);
-  --accent-border: rgba(85, 97, 240, 0.4);
+  --accent: #e5620a;
+  --accent-hover: #cf560a;
+  --accent-active: #b94c09;
+  --accent-muted: rgba(229, 98, 10, 0.12);
+  --accent-border: rgba(229, 98, 10, 0.4);
+  --accent-fg: #b94c09;
 
-  --success: #23a655;
-  --success-subtle: rgba(35, 166, 85, 0.12);
-  --warning: #b8790f;
-  --warning-subtle: rgba(184, 121, 15, 0.12);
-  --danger: #dc3d31;
-  --danger-subtle: rgba(220, 61, 49, 0.1);
-  --info: #1f8fb8;
-  --info-subtle: rgba(31, 143, 184, 0.12);
-  --neutral: #565660;
-  --neutral-subtle: rgba(86, 86, 96, 0.1);
+  --success: #0f9d63;
+  --success-subtle: rgba(15, 157, 99, 0.12);
+  --warning: #b57d09;
+  --warning-subtle: rgba(181, 125, 9, 0.12);
+  --danger: #dc2f49;
+  --danger-subtle: rgba(220, 47, 73, 0.1);
+  --info: #0d8fc4;
+  --info-subtle: rgba(13, 143, 196, 0.12);
+  --neutral: #5c5852;
+  --neutral-subtle: rgba(92, 88, 82, 0.1);
 
-  --ring: #5561f0;
+  --priority-0: #dc2f49;
+  --priority-1: #e5620a;
+  --priority-2: #0d8fc4;
+  --priority-3: #8a857d;
 
-  --shadow-e1: 0 1px 2px 0 rgba(20, 20, 40, 0.08);
-  --shadow-e2: 0 4px 16px rgba(20, 20, 40, 0.1);
-  --shadow-e3: 0 12px 40px rgba(20, 20, 40, 0.16);
+  --ring: #e5620a;
+
+  --shadow-e1: 0 1px 2px 0 rgba(30, 25, 20, 0.08);
+  --shadow-e2: 0 4px 16px rgba(30, 25, 20, 0.1);
+  --shadow-e3: 0 12px 40px rgba(30, 25, 20, 0.16);
+
+  --glow-kinetic: 0 0 0 1px rgba(229, 98, 10, 0.45), 0 0 20px -4px rgba(229, 98, 10, 0.2);
+  --glow-ambient: radial-gradient(60% 60% at 50% 0%, rgba(229, 98, 10, 0.07), transparent 70%);
 }
 
 /* High-contrast friendly: strengthen hairlines when the OS asks for more contrast. */

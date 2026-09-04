@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Badge, Button, Card, Tabs, TabsContent, TabsList, TabsTrigger, Text } from "@myos/ui";
 import { PageContainer, PageContent, PageHeader, PageLoading } from "@/components/framework";
+import { useIntelligenceAction } from "@/lib/intelligence/use-intelligence-action";
 import { trpc, type RouterOutputs } from "@/lib/trpc/client";
 
 /**
@@ -97,6 +98,8 @@ function SignalCard({ signal }: { signal: Signal }) {
   const [open, setOpen] = useState(false);
   const ack = trpc.signals.acknowledge.useMutation();
   const utils = trpc.useUtils();
+  const intel = useIntelligenceAction();
+  const action = intel.forSignal(signal.relatedObjects);
   return (
     <Card className="flex flex-col gap-2 p-4">
       <div className="flex items-center justify-between gap-2">
@@ -108,7 +111,10 @@ function SignalCard({ signal }: { signal: Signal }) {
         </div>
         <SignalBadge signal={signal} />
       </div>
-      <div className="flex items-center gap-2">
+      <Text variant="body-s" className="text-fg-muted">
+        {signal.explanation.implication}
+      </Text>
+      <div className="flex flex-wrap items-center gap-2">
         <Text variant="body-s" className="text-fg-muted">
           {signal.window.replace("_", " ")} · confidence {Math.round(signal.confidence * 100)}%
           {signal.relatedObjects[0]?.label ? ` · ${signal.relatedObjects[0].label}` : ""}
@@ -116,6 +122,11 @@ function SignalCard({ signal }: { signal: Signal }) {
         <Button variant="ghost" size="sm" onClick={() => setOpen((o) => !o)}>
           {open ? "Hide" : "Why?"}
         </Button>
+        {action ? (
+          <Button variant="secondary" size="sm" disabled={intel.pending} onClick={action.run}>
+            {action.label}
+          </Button>
+        ) : null}
         <Button
           variant="ghost"
           size="sm"

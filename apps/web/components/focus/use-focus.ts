@@ -55,6 +55,10 @@ export function useFocus() {
     utils.focus.metrics.invalidate();
     utils.focus.recommendations.invalidate();
     utils.focus.history.invalidate();
+    // A session anchored to a task moves it to in_progress on start and credits
+    // its minutes on completion (focus/service) — keep Tasks in sync either way.
+    utils.task.list.invalidate();
+    utils.task.counts.invalidate();
   };
 
   const startM = trpc.focus.start.useMutation({

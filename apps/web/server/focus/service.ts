@@ -5,6 +5,7 @@ import {
   createFocusEngine,
   buildRecommendations,
   buildReadiness,
+  focusMinutesAt,
   type BreakType,
   type FocusRecommendation,
   type FocusSession,
@@ -16,6 +17,7 @@ import { todayInTimeZone } from "@myos/core/today";
 import type { Database } from "@myos/db";
 import { plannerBlocks } from "@myos/db/schema";
 import { buildSignals as buildHealthSignals } from "../health/summary";
+import * as taskService from "../task/service";
 import * as repo from "./repository";
 import { persistDailySummary } from "./summary";
 
@@ -53,6 +55,42 @@ async function markPlannerBlockComplete(db: Database, blockId: string): Promise<
     .catch(() => undefined);
 }
 
+/**
+ * Cross-module EXECUTE seam (Stage 2). Starting a focus session ON a task is the
+ * "I'm working on this now" signal — so a not-yet-started task becomes
+ * in_progress. Focus never OWNS the task; this only nudges its status, and any
+ * failure is swallowed so it can never break the session start. Mirrors the
+ * planner-block completion seam above.
+ */
+async function markTaskInProgress(db: Database, taskId: string): Promise<void> {
+  try {
+    const task = await taskService.get(db, taskId);
+    if (task.status === "not_started") {
+      await taskService.update(db, { id: taskId, status: "in_progress" });
+    }
+  } catch {
+    // Task may have been deleted, or belongs to nothing — the session still starts.
+  }
+}
+
+/**
+ * On completion, credit the focused minutes back to the linked task's
+ * actualMinutes so time spent in Focus is reflected in Tasks (EXECUTE → review).
+ * Guarded; a completed session is never rolled back if the task update fails.
+ */
+async function creditTaskMinutes(db: Database, taskId: string, minutes: number): Promise<void> {
+  if (minutes <= 0) return;
+  try {
+    const task = await taskService.get(db, taskId);
+    await taskService.update(db, {
+      id: taskId,
+      actualMinutes: (task.actualMinutes ?? 0) + minutes,
+    });
+  } catch {
+    // Non-fatal: the session is already completed.
+  }
+}
+
 export function active(db: Database): Promise<FocusSession | null> {
   return repo.getActive(db);
 }
@@ -70,6 +108,7 @@ export async function start(
   }
   const session = engine.start(input);
   const saved = await repo.insertSession(db, session, dateFor(tz));
+  if (saved.taskId) await markTaskInProgress(db, saved.taskId);
   await refreshSummary(db, tz);
   return saved;
 }
@@ -99,6 +138,7 @@ export async function complete(
   await repo.closeOpenBreaks(db, id, new Date());
   const saved = await repo.updateSession(db, session, dateFor(tz));
   if (saved.plannerBlockId) await markPlannerBlockComplete(db, saved.plannerBlockId);
+  if (saved.taskId) await creditTaskMinutes(db, saved.taskId, focusMinutesAt(saved, new Date()));
   await refreshSummary(db, tz);
   return saved;
 }

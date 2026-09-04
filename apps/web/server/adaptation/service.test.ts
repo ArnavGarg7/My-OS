@@ -2,19 +2,69 @@ import { describe, expect, it, vi } from "vitest";
 import type { Database } from "@myos/db";
 
 /**
- * Adaptation service tests (Sprint 6.5). The repository is mocked so the full adaptation cycle runs
- * without a DB: profile/preferences/insights are derived deterministically from the gather seed + real
- * feedback, user overrides disable/edit learned preferences, sensitive policies never go automatic,
- * feedback is recorded, and the Chief seam returns personalization prefs (never execution authority).
+ * Adaptation service tests (Sprint 6.5 + Stage 5). Both the repository and the gather layer are mocked
+ * so the full adaptation cycle runs without a DB. Stage 5 rebuilt `gather` to derive observations from
+ * REAL focus/task/goal data — untestable against an empty in-memory DB — so here we inject a
+ * deterministic `AdaptationInput` (mirroring representative activity) and keep feedback flowing through
+ * the shared repo store. These tests therefore validate the service's ORCHESTRATION: profile/preferences/
+ * insights derive deterministically, user overrides disable/edit learned preferences, sensitive policies
+ * never go automatic, feedback shapes personalization, and the Chief seam returns personalization prefs
+ * (never execution authority). The real-data derivation itself is covered by the pure engine's own tests.
  */
 
-// In-memory store for the mocked repository.
-const store: {
-  feedback: { proposalId: string; subject: string; type: string; at: string }[];
-  overrides: Record<string, { value?: string; enabled: boolean }>;
-  policies: { category: string; mode: string }[];
-  events: { kind: string; subject: string; detail: string; at: string }[];
-} = { feedback: [], overrides: {}, policies: [], events: [] };
+// Shared in-memory store, hoisted so both the `./repository` and `./gather` mocks reference it. The
+// gather mock returns fixed observations/habits (deterministic) but reads feedback from this store, so
+// `submitFeedback` still flows end-to-end into personalization exactly as it does against a real DB.
+const h = vi.hoisted(() => {
+  type Feedback = { proposalId: string; subject: string; type: string; at: string };
+  const store: {
+    feedback: Feedback[];
+    overrides: Record<string, { value?: string; enabled: boolean }>;
+    policies: { category: string; mode: string }[];
+    events: { kind: string; subject: string; detail: string; at: string }[];
+  } = { feedback: [], overrides: {}, policies: [], events: [] };
+
+  // A deterministic input mirroring representative activity (same shape the pure engine test uses).
+  const now = new Date("2026-07-20T10:00:00.000Z");
+  const series = (
+    key: string,
+    category: string,
+    value: string | number,
+    count: number,
+    startDay = 0,
+  ) =>
+    Array.from({ length: count }, (_, i) => ({
+      category,
+      key,
+      value,
+      at: new Date(now.getTime() - (startDay + i) * 86_400_000).toISOString(),
+    }));
+  const input = {
+    observations: [
+      ...series("focus_block_length", "focus", 90, 10),
+      ...series("study_location", "learning", "library", 8),
+      ...series("focus_hours", "productivity", 5, 6),
+      ...series("focus_hours", "productivity", 7, 6, 6),
+    ],
+    habitSeries: [
+      {
+        key: "morning_workout",
+        series: Array.from({ length: 14 }, (_, i) => ({
+          date: new Date(now.getTime() - (13 - i) * 86_400_000).toISOString().slice(0, 10),
+          completed: i % 4 !== 0,
+        })),
+      },
+    ],
+    now,
+  };
+  return { store, input };
+});
+const store = h.store;
+
+vi.mock("./gather", () => ({
+  // Deterministic observations/habits; feedback stays live from the shared repo store.
+  gatherAdaptationInput: vi.fn(async () => ({ ...h.input, feedback: h.store.feedback })),
+}));
 
 vi.mock("./repository", () => ({
   insertFeedback: vi.fn(async (_db, proposalId, subject, type) => {

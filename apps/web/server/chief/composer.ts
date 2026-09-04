@@ -2,6 +2,7 @@ import "server-only";
 import type { Database } from "@myos/db";
 import type { ChiefContext, PersonalProfile, ScoredTask } from "@myos/ai/chief";
 import { defaultProfile } from "@myos/ai/chief";
+import { selectActionable, type Decision } from "@myos/core/decision";
 import * as taskService from "../task/service";
 import * as calendarService from "../calendar/service";
 import * as goalService from "../goal/service";
@@ -74,7 +75,7 @@ export async function composeChiefContext(
     goalService.list(db).catch(() => []),
     healthSignals(db, date, now).catch(() => null),
     focusSignals(db, tz, now).catch(() => null),
-    decisionService.list(db, undefined, 50).catch(() => [] as unknown[]),
+    decisionService.list(db, undefined, 300).catch(() => [] as unknown[]),
     loadProfile(db).catch(() => null),
     // Sprint 6.1: the Chief's situational awareness now comes from the Event Intelligence Engine.
     signalDisruptions(db, tz, now).catch(() => []),
@@ -130,7 +131,11 @@ export async function composeChiefContext(
       .slice(0, 10)
       .map((g) => ({ id: g.id, title: g.title, progress: g.progress ?? 0, staleDays: 0 })),
     activeFocusSession: activeSession,
-    pendingDecisions: Array.isArray(decisions) ? decisions.length : 0,
+    // Only decisions genuinely waiting on the user — pending, unexpired, one per
+    // rule. The raw decision_history count (resolved + stale rows) is not it.
+    pendingDecisions: Array.isArray(decisions)
+      ? selectActionable(decisions as Decision[], now).length
+      : 0,
     disruptions,
     profile: resolvedProfile,
   };

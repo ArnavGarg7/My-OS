@@ -11,13 +11,14 @@ export const dynamic = "force-dynamic";
  * their landing page; everyone else sees the entry point. In local dev mode the
  * owner is always present, so this immediately forwards into the OS.
  *
- * As of Sprint 5.2 the AI Chief of Staff is the default homepage — opening My OS
- * answers "what should I be doing right now?" rather than dropping onto a module.
+ * As of V2 Stage 1 the Command Center is the default homepage — opening My OS
+ * answers "where am I, what matters, what's next?" before any single module. The
+ * conversational Chief of Staff lives at /chief.
  */
 export default async function LandingPage() {
   const identity = await getCurrentUser();
   if (identity) {
-    redirect(identity.isOnboarded ? "/chief" : "/onboarding");
+    redirect(identity.isOnboarded ? "/command-center" : "/onboarding");
   }
 
   return (
@@ -40,7 +41,7 @@ export default async function LandingPage() {
         </div>
       ) : (
         <Button asChild size="lg">
-          <Link href="/chief">Enter My OS</Link>
+          <Link href="/command-center">Enter My OS</Link>
         </Button>
       )}
     </main>

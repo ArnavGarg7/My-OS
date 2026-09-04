@@ -1,9 +1,10 @@
 "use client";
 
-import { Lock, LockOpen, ChevronUp, ChevronDown } from "lucide-react";
+import { Lock, LockOpen, ChevronUp, ChevronDown, Play } from "lucide-react";
 import { Button, Text, Spinner } from "@myos/ui";
 import type { PlannerBlock } from "@myos/core/planner";
 import { trpc } from "@/lib/trpc/client";
+import { useFocusLauncher } from "@/lib/focus/use-focus-launcher";
 import { BLOCK_LABEL } from "./planner-icons";
 import { PlannerBlockProject } from "./PlannerBlockProject";
 
@@ -29,6 +30,15 @@ export function PlannerInspector({
   pending: boolean;
 }) {
   const explanation = trpc.planner.explain.useQuery({ id: block.id }, { enabled: !!block.id });
+  const focusLauncher = useFocusLauncher();
+
+  // A task-backed block can be executed directly — start a focus session anchored
+  // to both the block and its task, then open Focus. Completing that session marks
+  // this planner block done (see focus/service), closing the plan → execute loop.
+  const durationMinutes = Math.max(
+    1,
+    Math.round((new Date(block.endTime).getTime() - new Date(block.startTime).getTime()) / 60000),
+  );
 
   return (
     <div className="flex flex-col gap-3">
@@ -41,6 +51,21 @@ export function PlannerInspector({
           <PlannerBlockProject taskId={block.taskId} />
         </div>
       </div>
+
+      {block.taskId ? (
+        <Button
+          onClick={() =>
+            focusLauncher.startFocusOnTask(block.taskId!, {
+              plannerBlockId: block.id,
+              plannedMinutes: durationMinutes,
+            })
+          }
+          disabled={focusLauncher.pending}
+          leftIcon={<Play size={14} aria-hidden />}
+        >
+          Start focus on this block
+        </Button>
+      ) : null}
 
       <div className="flex flex-wrap gap-2">
         {block.locked ? (

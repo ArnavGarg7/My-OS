@@ -16,6 +16,12 @@ const cardVariants = cva("rounded-lg text-fg", {
       section: "border border-border bg-surface/60",
       /** Ghost: no chrome, padding only. */
       ghost: "bg-transparent",
+      /** Hero: the dominant surface on a page (next-action, active session). */
+      hero: "border border-accent-border/40 bg-elevated shadow-e2",
+      /** Insight: intelligence / Chief-of-Staff surface — quiet, distinct. */
+      insight: "border border-border bg-overlay/60",
+      /** Kinetic: a running / focused surface, wrapped in the active aura. */
+      kinetic: "border border-accent/60 bg-elevated shadow-kinetic",
     },
     padding: {
       none: "",

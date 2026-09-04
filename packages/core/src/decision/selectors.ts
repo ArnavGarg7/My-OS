@@ -24,9 +24,30 @@ export function selectPending(decisions: Decision[]): Decision[] {
   return rankDecisions(selectByState(decisions, "pending"));
 }
 
-/** The single decision the OS is surfacing right now (top pending). */
-export function selectCurrentDecision(decisions: Decision[]): Decision | null {
-  return selectPending(decisions)[0] ?? null;
+/**
+ * Decisions genuinely waiting on the user *right now*: pending, not past their
+ * expiry, and de-duplicated by rule (older duplicates from previous days are
+ * dropped). This is the one count every surface should show — the raw
+ * `decision_history` row count includes resolved and stale rows.
+ */
+export function selectActionable(decisions: Decision[], now: Date): Decision[] {
+  const seen = new Set<string>();
+  const out: Decision[] = [];
+  for (const d of selectPending(decisions)) {
+    if (d.expiresAt && new Date(d.expiresAt).getTime() <= now.getTime()) continue;
+    if (seen.has(d.ruleId)) continue;
+    seen.add(d.ruleId);
+    out.push(d);
+  }
+  return out;
+}
+
+/** The single decision the OS is surfacing right now (top actionable). */
+export function selectCurrentDecision(
+  decisions: Decision[],
+  now: Date = new Date(),
+): Decision | null {
+  return selectActionable(decisions, now)[0] ?? selectPending(decisions)[0] ?? null;
 }
 
 /** Newest-first history. */

@@ -40,6 +40,7 @@ export function PersonalIntelligenceCenter() {
             <TabsTrigger value="preferences">Preferences</TabsTrigger>
             <TabsTrigger value="habits">Habits</TabsTrigger>
             <TabsTrigger value="routines">Routines</TabsTrigger>
+            <TabsTrigger value="estimation">Estimation</TabsTrigger>
             <TabsTrigger value="insights">Insights</TabsTrigger>
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -56,6 +57,9 @@ export function PersonalIntelligenceCenter() {
           </TabsContent>
           <TabsContent value="routines">
             <Routines />
+          </TabsContent>
+          <TabsContent value="estimation">
+            <Estimation />
           </TabsContent>
           <TabsContent value="insights">
             <Insights />
@@ -82,6 +86,65 @@ function Empty({ text }: { text: string }) {
         {text}
       </Text>
     </Card>
+  );
+}
+
+/**
+ * Estimate-vs-reality (Stage 5). Observed behaviour — how the user's own estimates
+ * compare to time actually recorded (via task-linked focus). Honest "not enough
+ * evidence yet" below the floor; never invents a bias.
+ */
+function Estimation() {
+  const q = trpc.adaptation.estimation.useQuery();
+  if (q.isLoading) return <PageLoading />;
+  const e = q.data;
+  if (!e || e.direction === "unknown") {
+    return (
+      <Empty
+        text={
+          e?.detail ??
+          "Not enough estimated-and-tracked tasks yet. Once you complete tasks that have an estimate and focus time, My OS learns how your estimates compare to reality."
+        }
+      />
+    );
+  }
+  return (
+    <div className="flex flex-col gap-3">
+      <Card className="flex flex-col gap-2 p-4">
+        <div className="flex items-center justify-between gap-2">
+          <Text variant="heading-s">{e.headline}</Text>
+          <ConfidenceBadge level={e.confidence.level} />
+        </div>
+        <Text variant="body-s" className="text-fg-muted">
+          Your recent activity shows: {e.detail}
+        </Text>
+        <div className="border-border mt-1 flex flex-wrap gap-4 border-t pt-3">
+          <Metric label="Sample" value={`${e.sampleSize} tasks`} />
+          <Metric label="Actual vs estimate" value={`${Math.round((e.biasRatio ?? 1) * 100)}%`} />
+          <Metric
+            label="Planning adjustment"
+            value={
+              e.adjustmentFactor === 1 ? "not yet applied" : `×${e.adjustmentFactor.toFixed(2)}`
+            }
+          />
+        </div>
+        <Text variant="caption" className="text-fg-subtle">
+          Based on {e.evidence.detail}. Your original estimates are never changed — My OS only
+          learns a bias to make planning realistic.
+        </Text>
+      </Card>
+    </div>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col">
+      <Text variant="caption" className="text-fg-subtle uppercase tracking-wide">
+        {label}
+      </Text>
+      <Text variant="body-m">{value}</Text>
+    </div>
   );
 }
 

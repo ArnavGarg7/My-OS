@@ -1,6 +1,7 @@
 "use client";
 
-import { Badge, Text } from "@myos/ui";
+import { History } from "lucide-react";
+import { Badge, EmptyState, Text } from "@myos/ui";
 import type { FocusSession } from "@myos/core/focus";
 import { SESSION_TYPE_LABEL, STATUS_LABEL } from "./focus-icons";
 import { formatMinutes } from "./format";
@@ -19,9 +20,12 @@ export function FocusHistory({ sessions }: { sessions: FocusSession[] }) {
   const finished = sessions.filter((s) => s.endedAt !== null);
   if (finished.length === 0) {
     return (
-      <Text variant="body-s" tone="subtle">
-        No sessions yet today. Start one to build your record.
-      </Text>
+      <EmptyState
+        icon={History}
+        title="No sessions logged yet"
+        description="Finished focus sessions land here — length, interruptions, and outcome. Start one above and it becomes part of today's record."
+        className="border-border rounded-lg border border-dashed py-8"
+      />
     );
   }
   return (

@@ -15,6 +15,7 @@ export function TaskList({
   now,
   onSelect,
   onToggle,
+  onFocus,
   emptyLabel,
 }: {
   tasks: Task[];
@@ -22,6 +23,7 @@ export function TaskList({
   now: Date;
   onSelect: (id: string) => void;
   onToggle: (task: Task) => void;
+  onFocus?: ((task: Task) => void) | undefined;
   emptyLabel?: string | undefined;
 }) {
   if (tasks.length === 0) {
@@ -29,8 +31,11 @@ export function TaskList({
       <div className="p-10">
         <EmptyState
           icon={ListChecks}
-          title="No tasks"
-          description={emptyLabel ?? "Create a task or convert something from your inbox."}
+          title="No tasks yet"
+          description={
+            emptyLabel ??
+            "Your task list is clear. Capture something with Quick Add (Q) or the Omni Launcher (⌘K), or convert an item from your Inbox."
+          }
         />
       </div>
     );
@@ -53,6 +58,7 @@ export function TaskList({
             blocked={task.status === "blocked"}
             onSelect={() => onSelect(task.id)}
             onToggle={() => onToggle(task)}
+            onFocus={onFocus ? () => onFocus(task) : undefined}
           />
         );
       })}

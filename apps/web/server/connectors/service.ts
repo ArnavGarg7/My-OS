@@ -14,6 +14,8 @@ import {
 import * as signalsService from "../signals/service";
 import { fetchRaw, type LiveFetch } from "./feed";
 import { encryptSecret, secretHint } from "./vault";
+import { providerLiveAvailable, capabilities as deriveCapabilities } from "./capabilities";
+import { writeExternal, writeCapability, type ExternalWriteAction, type LiveWrite } from "./write";
 import * as repo from "./repository";
 
 /**
@@ -36,26 +38,39 @@ export async function list(db: Database) {
     arr.push(a);
     byProvider.set(a.providerId, arr);
   }
-  const providers = CONNECTOR_PROVIDERS.map((p) => ({
-    id: p.id,
-    provider: p.provider,
-    name: p.name,
-    category: p.category,
-    auth: p.auth,
-    syncStrategy: p.syncStrategy,
-    webhookCapable: p.webhookCapable,
-    readOnly: p.readOnly,
-    permissions: p.permissions,
-    supportedEvents: p.supportedEvents,
-    accounts: (byProvider.get(p.id) ?? []).map((a) => ({
-      id: a.id,
-      label: a.label,
-      state: a.state,
-      lastSyncAt: a.lastSyncAt,
-    })),
-    connected: (byProvider.get(p.id) ?? []).length > 0,
-  }));
-  return { providers, connectedCount: accounts.length };
+  const providers = CONNECTOR_PROVIDERS.map((p) => {
+    const connected = (byProvider.get(p.id) ?? []).length > 0;
+    const liveAvailable = providerLiveAvailable(p.id);
+    return {
+      id: p.id,
+      provider: p.provider,
+      name: p.name,
+      category: p.category,
+      auth: p.auth,
+      syncStrategy: p.syncStrategy,
+      webhookCapable: p.webhookCapable,
+      readOnly: p.readOnly,
+      permissions: p.permissions,
+      supportedEvents: p.supportedEvents,
+      accounts: (byProvider.get(p.id) ?? []).map((a) => ({
+        id: a.id,
+        label: a.label,
+        state: a.state,
+        lastSyncAt: a.lastSyncAt,
+      })),
+      connected,
+      // Honest live/sample labelling: a connection with no configured provider
+      // credentials runs against the labelled SAMPLE feed, never real data.
+      liveAvailable,
+      sample: connected && !liveAvailable,
+      canWrite: writeCapability(p.id).supportsWrite,
+    };
+  });
+  return {
+    providers,
+    connectedCount: accounts.length,
+    anyLive: providers.some((p) => p.liveAvailable),
+  };
 }
 
 /**
@@ -230,9 +245,10 @@ export async function health(db: Database) {
   return { items };
 }
 
-/** connectors.events — recent normalized events (optionally by account). */
+/** connectors.events — recent normalized events (optionally by account), sample-tagged. */
 export async function events(db: Database, accountId?: string) {
-  return { events: await repo.listEvents(db, accountId).catch(() => []) };
+  const rows = await repo.listEvents(db, accountId).catch(() => []);
+  return { events: rows.map((r) => ({ ...r, sample: !providerLiveAvailable(r.providerKey) })) };
 }
 
 /** connectors.permissions — granted scopes for an account. */
@@ -266,15 +282,89 @@ export async function metrics(db: Database) {
   return { totals: { ...totals, avgSyncMs }, recent: rows };
 }
 
-/** connectors.settings — registry-level configuration surface (read-only in 6.4). */
+/** connectors.settings — registry-level configuration surface. */
 export async function settings(db: Database) {
   const accounts = await repo.listAccounts(db).catch(() => []);
+  const caps = deriveCapabilities();
   return {
     providers: CONNECTOR_PROVIDERS.length,
     connected: accounts.length,
     readOnly: true,
-    offlineDefault: true,
+    // Honest: are any providers configured for a real (live) connection?
+    liveConfigured: caps.filter((c) => c.liveAvailable).length,
   };
+}
+
+/** connectors.capabilities — per-provider live availability + what a live connection needs. */
+export function capabilities() {
+  return { providers: deriveCapabilities() };
+}
+
+/**
+ * EXTERNAL → OS calendar bridge (Stage 4). Surfaces the normalized calendar
+ * change-events from connected calendar accounts so external calendar activity
+ * participates in the operating model (Calendar shows it; Chief/Signals already
+ * consume the same events via the sync seam). Read-only, source-tagged, and
+ * marked `sample` when the account has no live credentials — never presented as a
+ * real schedule it isn't. Honest empty when no calendar is connected.
+ */
+export async function calendarActivity(db: Database, limit = 20) {
+  const accounts = await repo.listAccounts(db).catch(() => []);
+  const calendarProviderIds = new Set(
+    CONNECTOR_PROVIDERS.filter((p) => p.category === "calendar").map((p) => p.id),
+  );
+  const connectedCalendar = accounts.filter((a) => calendarProviderIds.has(a.providerId));
+  if (connectedCalendar.length === 0)
+    return { connected: false, items: [] as CalendarActivityItem[] };
+
+  const rows = await repo.listEvents(db, undefined, 100).catch(() => []);
+  const items: CalendarActivityItem[] = rows
+    .filter((r) => r.kind.startsWith("calendar."))
+    .slice(0, limit)
+    .map((r) => ({
+      externalId: r.externalId,
+      kind: r.kind,
+      label: String(r.payload.label ?? r.kind),
+      occurredAt: new Date(r.occurredAt).toISOString(),
+      providerKey: r.providerKey,
+      sample: !providerLiveAvailable(r.providerKey),
+    }));
+  return { connected: true, items };
+}
+
+export interface CalendarActivityItem {
+  externalId: string;
+  kind: string;
+  label: string;
+  occurredAt: string;
+  providerKey: string;
+  sample: boolean;
+}
+
+/**
+ * MY OS → EXTERNAL: create a calendar event on a connected provider. Goes through
+ * the permission-gated write seam; with no live credentials the honest result is
+ * `{ ok:false, reason:"no_live_credentials" }` — never a fabricated success.
+ */
+export async function createCalendarEvent(
+  db: Database,
+  input: {
+    providerId?: string | undefined;
+    title: string;
+    startAt: string;
+    endAt?: string | undefined;
+  },
+  liveWrite?: LiveWrite,
+) {
+  const providerId = input.providerId ?? "google-calendar";
+  const action: ExternalWriteAction = "calendar.create";
+  return writeExternal(
+    db,
+    providerId,
+    action,
+    { title: input.title, startAt: input.startAt, endAt: input.endAt ?? null },
+    liveWrite,
+  );
 }
 
 /**
