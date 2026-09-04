@@ -36,3 +36,4 @@ export * from "./prediction";
 export * from "./autopilot";
 export * from "./connectors";
 export * from "./adaptation";
+export * from "./collaboration";

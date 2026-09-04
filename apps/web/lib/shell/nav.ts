@@ -6,6 +6,7 @@ import {
   Briefcase,
   CalendarClock,
   FolderKanban,
+  Users2,
   GraduationCap,
   CalendarDays,
   HeartPulse,
@@ -131,6 +132,12 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/projects",
         icon: FolderKanban,
         description: "Goals, milestones, and momentum.",
+      },
+      {
+        label: "Collaboration",
+        href: "/collaboration",
+        icon: Users2,
+        description: "People, shared work, and discussions.",
       },
       {
         label: "College",

@@ -41,6 +41,8 @@ export const tasks = pgTable("tasks", {
   projectId: uuid("project_id"),
   milestoneId: uuid("milestone_id"),
   objectiveId: uuid("objective_id"),
+  /** Stage 7: the collaborator this task is assigned to (null = the owner / unassigned). */
+  assigneeCollaboratorId: uuid("assignee_collaborator_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
