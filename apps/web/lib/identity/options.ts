@@ -53,9 +53,16 @@ export const TIME_FORMATS: { value: "12h" | "24h"; label: string }[] = [
 
 /** Landing pages a user may choose to open on load. Mirrors the shell nav. */
 export const LANDING_PAGES: { value: string; label: string }[] = [
+  { value: "/command-center", label: "Command Center" },
   { value: "/today", label: "Today" },
+  { value: "/chief", label: "Chief of Staff" },
   { value: "/planner", label: "Planner" },
+  { value: "/calendar", label: "Calendar" },
   { value: "/inbox", label: "Inbox" },
+  { value: "/tasks", label: "Tasks" },
   { value: "/projects", label: "Projects" },
   { value: "/goals", label: "Goals" },
 ];
+
+/** The default surface a brand-new user opens on (the operational home). */
+export const DEFAULT_LANDING_PAGE = "/command-center";

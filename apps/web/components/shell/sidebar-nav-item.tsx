@@ -25,6 +25,7 @@ export function SidebarNavItem({ item, collapsed, onNavigate }: SidebarNavItemPr
       icon={item.icon}
       active={active}
       collapsed={collapsed}
+      className={item.secondary && !active ? "opacity-65 hover:opacity-100" : undefined}
       onClick={() => {
         router.push(item.href);
         onNavigate?.();

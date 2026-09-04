@@ -40,27 +40,35 @@ import {
  * Single source of truth for the sidebar sections, routes, per-page
  * icons/descriptions and the Command Center (⌘K) list. No business logic.
  *
- * V2 Stage 1 information architecture (PROJECT_STATE §"Global Application Shell"):
- * PRIMARY · WORK · LIFE · INTELLIGENCE · SYSTEM. Routes the Stitch redesign did
- * not name are folded into their nearest section rather than dropped — every V1
- * capability stays one click away. `primary: true` marks the routes shown first
- * in a section and kept open by default.
+ * The five sections mirror how My OS is meant to be understood:
+ *   PRIMARY       the surfaces you operate from every day
+ *   WORK / LIFE   where your information and activity actually live
+ *   INTELLIGENCE  what My OS does to interpret it all and help you
+ *   SYSTEM        where My OS is configured and operated
+ *
+ * Routes the Stitch redesign did not name are kept and folded into their
+ * nearest section as `secondary: true` — visually quieter, still one click away.
  */
 export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
   description: string;
+  /** Folded-in V1 route — rendered below the section's core destinations, dimmer. */
+  secondary?: boolean;
 }
 
 export interface NavSection {
   label: string;
+  /** One line on what this section is for — shown on the section header. */
+  blurb: string;
   items: NavItem[];
 }
 
 export const NAV_SECTIONS: NavSection[] = [
   {
     label: "Primary",
+    blurb: "The surfaces you operate from every day.",
     items: [
       {
         label: "Command Center",
@@ -103,17 +111,20 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/planner",
         icon: CalendarClock,
         description: "Design your day on a visual timeline.",
+        secondary: true,
       },
       {
         label: "Inbox",
         href: "/inbox",
         icon: Inbox,
         description: "Capture anything now, organize it later.",
+        secondary: true,
       },
     ],
   },
   {
     label: "Work",
+    blurb: "Your commitments and the projects behind them.",
     items: [
       {
         label: "Projects",
@@ -137,6 +148,7 @@ export const NAV_SECTIONS: NavSection[] = [
   },
   {
     label: "Life",
+    blurb: "Where your information and activity live.",
     items: [
       {
         label: "Journal",
@@ -173,17 +185,20 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/health",
         icon: HeartPulse,
         description: "Workouts, sleep, water, and weight.",
+        secondary: true,
       },
       {
         label: "Resources",
         href: "/resources",
         icon: Boxes,
         description: "Investments, assets, documents, and the people who matter.",
+        secondary: true,
       },
     ],
   },
   {
     label: "Intelligence",
+    blurb: "What My OS notices, predicts, and understands about you.",
     items: [
       {
         label: "Chief of Staff",
@@ -220,17 +235,20 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/timeline",
         icon: Milestone,
         description: "The story of your progress.",
+        secondary: true,
       },
       {
         label: "Life Dashboard",
         href: "/dashboard",
         icon: LayoutDashboard,
         description: "The executive view — how your whole life is progressing.",
+        secondary: true,
       },
     ],
   },
   {
     label: "System",
+    blurb: "Where My OS is configured and operated.",
     items: [
       {
         label: "Connectors",
@@ -262,6 +280,7 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/notifications",
         icon: Bell,
         description: "Every reminder and alert your OS surfaces — in one place.",
+        secondary: true,
       },
       {
         label: "Autopilot",
@@ -269,18 +288,21 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: Rocket,
         description:
           "Proposal-first automation — safe, reversible work you approve before it runs.",
+        secondary: true,
       },
       {
         label: "Orchestration",
         href: "/orchestration",
         icon: Workflow,
         description: "Every engine cooperating — one operating system, not twenty apps.",
+        secondary: true,
       },
       {
         label: "AI Platform",
         href: "/ai",
         icon: Cpu,
         description: "The AI Core Platform — providers, prompts, context, telemetry, and cost.",
+        secondary: true,
       },
     ],
   },

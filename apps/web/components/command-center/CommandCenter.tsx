@@ -2,22 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { MonoLabel, Text } from "@myos/ui";
-import { PageContainer, PageContent, PageLoading } from "@/components/framework";
+import { PageContainer, PageContent } from "@/components/framework";
 import { trpc } from "@/lib/trpc/client";
 import {
   NextActionHero,
+  NextActionHeroSkeleton,
   ChiefInsight,
   ScheduleColumn,
   PrioritiesColumn,
 } from "./command-center-panels";
-import { LifePulse } from "./life-pulse";
+import { SystemPulse } from "./system-pulse";
 
 /**
  * Command Center (V2 Stage 1) — the primary home experience. Its job is
  * "understand my life": current context, the single next action, today's
  * important state, one restrained Chief-of-Staff recommendation, and a quiet
- * life/system pulse. Everything is real data from the deterministic engines and
- * the grounded Chief — nothing is invented to fill space.
+ * system pulse. Everything is real data from the deterministic engines and the
+ * grounded Chief — nothing is invented to fill space.
+ *
+ * The page never blocks on its slowest query: the header, pulse and columns
+ * paint immediately; the Chief hero fills in behind a skeleton.
  */
 export function CommandCenter() {
   const now = trpc.chief.now.useQuery(undefined, { refetchInterval: 120_000 });
@@ -40,8 +44,6 @@ export function CommandCenter() {
     return () => window.clearInterval(id);
   }, []);
 
-  if (now.isLoading) return <PageLoading label="Reading your day…" />;
-
   const nowData = now.data;
   const m = morning.data?.morning ?? null;
   const greeting = m?.greeting ?? "Welcome back";
@@ -49,7 +51,7 @@ export function CommandCenter() {
     m?.opportunity ??
     (m?.biggestRisk
       ? `Today's biggest risk — ${m.biggestRisk}`
-      : "No urgent deadlines. Here is where things stand right now.");
+      : "Here is where things stand right now. Everything below is live.");
 
   return (
     <PageContainer width="content">
@@ -64,7 +66,7 @@ export function CommandCenter() {
         <div className="flex flex-col gap-8 pb-16">
           {/* Contextual header */}
           <header className="flex flex-col gap-3">
-            <MonoLabel tone="subtle" suppressHydrationWarning>
+            <MonoLabel tone="subtle" bead suppressHydrationWarning>
               {clock ?? "—"}
             </MonoLabel>
             <div className="flex flex-col gap-1">
@@ -77,10 +79,16 @@ export function CommandCenter() {
             </div>
           </header>
 
-          <LifePulse mission={m?.mission ?? []} readiness={m?.readiness ?? null} />
+          <SystemPulse readiness={m?.readiness ?? null} missionCount={m?.mission.length ?? 0} />
 
-          {nowData ? <NextActionHero data={nowData} /> : null}
-          {nowData ? <ChiefInsight data={nowData} /> : null}
+          {now.isLoading ? (
+            <NextActionHeroSkeleton />
+          ) : nowData ? (
+            <>
+              <NextActionHero data={nowData} />
+              <ChiefInsight data={nowData} />
+            </>
+          ) : null}
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
             <ScheduleColumn />

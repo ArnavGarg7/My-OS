@@ -88,6 +88,7 @@ export function SidebarContent({ collapsed, onNavigate }: SidebarContentProps) {
               type="button"
               onClick={() => toggle(section.label)}
               aria-expanded={isOpen}
+              title={section.blurb}
               className="text-fg-subtle hover:text-fg-muted flex w-full items-center justify-between rounded-sm px-2.5 py-1.5"
             >
               <MonoLabel tone="subtle" aria-hidden>
@@ -101,14 +102,18 @@ export function SidebarContent({ collapsed, onNavigate }: SidebarContentProps) {
             </button>
             {isOpen ? (
               <div className="space-y-0.5">
-                {section.items.map((item) => (
-                  <SidebarNavItem
-                    key={item.href}
-                    item={item}
-                    collapsed={false}
-                    onNavigate={onNavigate}
-                  />
-                ))}
+                {section.items.map((item, i) => {
+                  const firstSecondary =
+                    item.secondary === true && section.items[i - 1]?.secondary !== true;
+                  return (
+                    <div key={item.href}>
+                      {firstSecondary ? (
+                        <div aria-hidden className="bg-border mx-2.5 my-1.5 h-px" />
+                      ) : null}
+                      <SidebarNavItem item={item} collapsed={false} onNavigate={onNavigate} />
+                    </div>
+                  );
+                })}
               </div>
             ) : null}
           </div>

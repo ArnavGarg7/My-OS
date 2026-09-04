@@ -5,13 +5,14 @@ import Link from "next/link";
 import {
   ArrowRight,
   CalendarDays,
+  CalendarPlus,
   CheckCircle2,
   ChevronRight,
   ListChecks,
   Sparkles,
   Timer,
 } from "lucide-react";
-import { Badge, Button, Card, MonoLabel, Text } from "@myos/ui";
+import { Badge, Button, Card, EmptyState, MonoLabel, Skeleton, Text } from "@myos/ui";
 import { PRIORITY_WEIGHT, parseTask, type TaskPriority } from "@myos/core/task";
 import { trpc, type RouterOutputs } from "@/lib/trpc/client";
 
@@ -122,6 +123,30 @@ export function NextActionHero({ data }: { data: NowData }) {
   );
 }
 
+/** The hero's loading state — the Chief takes a moment to compose your day. */
+export function NextActionHeroSkeleton() {
+  return (
+    <Card variant="hero" padding="lg" className="relative overflow-hidden">
+      <div className="flex flex-col gap-5">
+        <div className="flex items-center gap-2">
+          <span className="bg-accent-muted text-accent-fg rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em]">
+            Next action
+          </span>
+          <MonoLabel tone="subtle" bead>
+            the Chief is reading your day
+          </MonoLabel>
+        </div>
+        <Skeleton className="h-7 w-2/3" />
+        <Skeleton className="h-4 w-full max-w-md" />
+        <div className="flex gap-2 pt-1">
+          <Skeleton className="h-9 w-40 rounded-md" />
+          <Skeleton className="h-9 w-24 rounded-md" />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 function ExplRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5">
@@ -131,14 +156,21 @@ function ExplRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** One restrained Chief-of-Staff observation, tied to an action. */
+/**
+ * One restrained Chief-of-Staff observation — the "why" behind the next action.
+ * Prefers a proactive notification; otherwise the grounded situation + the cost
+ * of ignoring it. Skips itself when it would only echo the hero.
+ */
 export function ChiefInsight({ data }: { data: NowData }) {
   const [dismissed, setDismissed] = useState(false);
   const rec = data.recommendation;
-  const note = data.notifications[0];
-  const body = note?.body ?? rec.explanation.situation;
-  const heading = note?.title ?? "On your day right now";
-  if (dismissed || !body) return null;
+  const note = data.notifications.find((n) => n.action) ?? data.notifications[0];
+
+  const heading = note?.title ?? rec.explanation.situation;
+  const body = note?.body ?? rec.explanation.costOfIgnoring;
+
+  // Nothing to add beyond the hero.
+  if (dismissed || !body || body === rec.explanation.recommendation) return null;
 
   return (
     <Card variant="insight" padding="lg">
@@ -148,14 +180,13 @@ export function ChiefInsight({ data }: { data: NowData }) {
             <Sparkles size={15} aria-hidden />
           </span>
           <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <MonoLabel tone="accent">Chief of Staff</MonoLabel>
-              <span className="text-fg-disabled" aria-hidden>
-                ·
-              </span>
-              <MonoLabel tone="subtle">{heading}</MonoLabel>
-            </div>
-            <Text variant="body-m">{body}</Text>
+            <MonoLabel tone="accent">Chief of Staff</MonoLabel>
+            <Text variant="body-m" className="font-medium">
+              {heading}
+            </Text>
+            <Text variant="body-s" tone="muted">
+              {body}
+            </Text>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2 self-end sm:self-center">
@@ -163,7 +194,7 @@ export function ChiefInsight({ data }: { data: NowData }) {
             Dismiss
           </Button>
           <Button asChild variant="secondary" size="sm">
-            <Link href="/chief">Open Chief</Link>
+            <Link href="/chief">Ask the Chief</Link>
           </Button>
         </div>
       </div>
@@ -211,16 +242,35 @@ export function ScheduleColumn() {
       </div>
 
       {events.isLoading ? (
-        <Card padding="md">
-          <Text variant="body-s" tone="subtle">
-            Loading your day…
+        <div className="flex flex-col gap-1.5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-[58px] rounded-lg" />
+          ))}
+        </div>
+      ) : events.isError ? (
+        <Card padding="md" className="border-danger/40">
+          <Text variant="body-s" tone="danger">
+            Couldn't load your calendar. It'll retry automatically.
           </Text>
         </Card>
       ) : upcoming.length === 0 ? (
-        <Card padding="md" className="border-dashed">
-          <Text variant="body-s" tone="subtle">
-            Nothing left on the calendar today. The rest of your time is yours.
-          </Text>
+        <Card padding="none" className="border-dashed">
+          <EmptyState
+            icon={CalendarDays}
+            title="Nothing scheduled ahead"
+            description="The rest of today is open. Block time for what matters before it fills up."
+            className="py-8"
+            action={
+              <Button
+                asChild
+                size="sm"
+                variant="secondary"
+                leftIcon={<CalendarPlus size={14} aria-hidden />}
+              >
+                <Link href="/calendar">Add to calendar</Link>
+              </Button>
+            }
+          />
         </Card>
       ) : (
         <div className="flex flex-col gap-1.5">
@@ -329,16 +379,23 @@ export function PrioritiesColumn() {
 
       <div className="flex flex-col gap-1.5">
         {list.isLoading ? (
-          <Card padding="md">
-            <Text variant="body-s" tone="subtle">
-              Loading priorities…
+          Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-[52px] rounded-lg" />
+          ))
+        ) : list.isError ? (
+          <Card padding="md" className="border-danger/40">
+            <Text variant="body-s" tone="danger">
+              Couldn't load your tasks. It'll retry automatically.
             </Text>
           </Card>
         ) : top.length === 0 ? (
-          <Card padding="md" className="border-dashed">
-            <Text variant="body-s" tone="subtle">
-              No open tasks. Capture the next thing on your mind below.
-            </Text>
+          <Card padding="none" className="border-dashed">
+            <EmptyState
+              icon={ListChecks}
+              title="No open priorities"
+              description="Nothing is waiting on you. Capture the next thing on your mind below and it becomes a task."
+              className="py-8"
+            />
           </Card>
         ) : (
           top.map((t) => (

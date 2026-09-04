@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, Menu, PanelRight, Plus, Search } from "lucide-react";
 import {
@@ -13,7 +14,8 @@ import {
 } from "@myos/ui";
 import { resolveActive } from "@/lib/shell/nav";
 import { useShellStore } from "@/lib/shell/store";
-import { useConnection } from "@/lib/platform";
+import { trpc } from "@/lib/trpc/client";
+import { SystemStatusPopover } from "./system-status";
 import { ProfileMenu } from "@/components/identity/profile-menu";
 
 /** Application header. UI only — no functionality beyond opening shell overlays. */
@@ -27,7 +29,8 @@ export function TopBar() {
   const setMobileNavOpen = useShellStore((state) => state.setMobileNavOpen);
   const toggleContextPanel = useShellStore((state) => state.toggleContextPanel);
 
-  const connection = useConnection();
+  const notifications = trpc.notification.active.useQuery(undefined, { refetchInterval: 60_000 });
+  const unread = notifications.data?.length ?? 0;
 
   const crumbs: BreadcrumbItemData[] = active
     ? [
@@ -62,13 +65,9 @@ export function TopBar() {
 
       {/* Right: actions */}
       <div className="flex shrink-0 items-center gap-1.5">
-        <span className="border-border text-fg-subtle mr-1 hidden items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] lg:inline-flex">
-          <span
-            aria-hidden
-            className={`size-1.5 rounded-full ${connection.online ? "bg-success" : "bg-danger"}`}
-          />
-          {connection.online ? "Connected" : "Offline"}
-        </span>
+        <div className="mr-1 hidden lg:block">
+          <SystemStatusPopover />
+        </div>
         <Button
           variant="secondary"
           size="sm"
@@ -116,19 +115,28 @@ export function TopBar() {
 
         <ThemeToggle />
 
-        <SimpleTooltip content="Notifications">
-          <IconButton
-            aria-label="Notifications"
+        <SimpleTooltip
+          content={
+            unread > 0 ? `${unread} notification${unread === 1 ? "" : "s"}` : "Notifications"
+          }
+        >
+          <Button
+            asChild
+            aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
             size="icon-sm"
             variant="ghost"
             className="relative"
           >
-            <Bell size={18} aria-hidden />
-            <span
-              aria-hidden
-              className="bg-accent ring-base absolute right-1.5 top-1.5 size-1.5 rounded-full ring-2"
-            />
-          </IconButton>
+            <Link href="/notifications">
+              <Bell size={18} aria-hidden />
+              {unread > 0 ? (
+                <span
+                  aria-hidden
+                  className="bg-accent ring-base absolute right-1 top-1 size-1.5 rounded-full ring-2"
+                />
+              ) : null}
+            </Link>
+          </Button>
         </SimpleTooltip>
 
         <ProfileMenu />

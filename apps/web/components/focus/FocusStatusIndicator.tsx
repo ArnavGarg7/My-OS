@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { trpc } from "@/lib/trpc/client";
 import { STATUS_LABEL } from "./focus-icons";
 import { formatMinutes } from "./format";
@@ -15,7 +16,10 @@ export function FocusStatusIndicator() {
   if (!s) return null;
 
   return (
-    <div className="flex items-center gap-1.5">
+    <Link
+      href="/focus"
+      className="hover:text-fg focus-visible:ring-ring flex items-center gap-1.5 rounded-sm outline-none transition-colors focus-visible:ring-1"
+    >
       <span
         aria-hidden
         className={`size-1.5 rounded-full ${
@@ -35,6 +39,6 @@ export function FocusStatusIndicator() {
       ) : (
         <span className="text-fg-muted">· {formatMinutes(s.deepWorkMinutesToday)} deep work</span>
       )}
-    </div>
+    </Link>
   );
 }

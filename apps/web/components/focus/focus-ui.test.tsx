@@ -200,7 +200,7 @@ describe("FocusHistory", () => {
   });
   it("shows an empty message when nothing finished", () => {
     render(<FocusHistory sessions={[makeSession({ status: "running", endedAt: null })]} />);
-    expect(screen.getByText(/No sessions yet/)).toBeInTheDocument();
+    expect(screen.getByText(/No sessions logged yet/)).toBeInTheDocument();
   });
 });
 
