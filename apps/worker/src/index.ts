@@ -36,6 +36,36 @@ async function main(): Promise<void> {
     logger.info({ ts: new Date().toISOString() }, "worker heartbeat");
   }, HEARTBEAT_MS);
 
+  // 3b. Always-on proactive evaluation (Stage 6). A real pg-boss cron drives the OS to
+  // evaluate meaningful state without the user opening a page. It calls the web app's
+  // internal endpoint (where the evaluation services live). Honest about the environment:
+  // it only schedules when the shared secret is configured — otherwise it says so, and
+  // proactivity runs solely via the in-app `proactive.evaluate` trigger.
+  const PROACTIVE_QUEUE = "proactive-eval";
+  if (env.MYOS_INTERNAL_SECRET) {
+    await boss.createQueue(PROACTIVE_QUEUE).catch(() => {});
+    await boss.work(PROACTIVE_QUEUE, async () => {
+      try {
+        const res = await fetch(`${env.MYOS_APP_URL}/api/internal/proactive`, {
+          method: "POST",
+          headers: { "x-internal-secret": env.MYOS_INTERNAL_SECRET as string },
+        });
+        logger.info({ status: res.status }, "proactive evaluation tick");
+      } catch (error) {
+        logger.error({ err: error }, "proactive evaluation tick failed");
+      }
+    });
+    await boss.schedule(PROACTIVE_QUEUE, env.PROACTIVE_EVAL_CRON);
+    logger.info(
+      { cron: env.PROACTIVE_EVAL_CRON, url: env.MYOS_APP_URL },
+      "proactive evaluation scheduled (always-on active)",
+    );
+  } else {
+    logger.info(
+      "proactive evaluation NOT scheduled — set MYOS_INTERNAL_SECRET (+ MYOS_APP_URL) to enable always-on",
+    );
+  }
+
   logger.info("worker ready");
 
   // 4. Graceful shutdown.

@@ -38,7 +38,10 @@ export const notificationRouter = router({
   preferences: protectedProcedure.query(({ ctx }) => service.preferences(ctx.db)),
 
   generate: protectedProcedure.mutation(({ ctx }) =>
-    service.generate(ctx.db, ctx.identity.preferences.timezone),
+    service.generate(ctx.db, ctx.identity.preferences.timezone, new Date(), {
+      preferredStartOfDay: ctx.identity.preferences.preferredStartOfDay,
+      preferredEndOfDay: ctx.identity.preferences.preferredEndOfDay,
+    }),
   ),
   dismiss: protectedProcedure
     .input(notificationIdSchema)

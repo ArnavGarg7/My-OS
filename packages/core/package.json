@@ -32,7 +32,8 @@
     "./prediction": "./src/prediction/index.ts",
     "./autopilot": "./src/autopilot/index.ts",
     "./connectors": "./src/connectors/index.ts",
-    "./adaptation": "./src/adaptation/index.ts"
+    "./adaptation": "./src/adaptation/index.ts",
+    "./proactive": "./src/proactive/index.ts"
   },
   "types": "./src/index.ts",
   "scripts": {
