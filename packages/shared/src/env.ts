@@ -52,6 +52,8 @@ export const serverEnvSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
   GROQ_API_KEY: z.string().optional(),
+  /** OpenWeather API key (Stage 9). Server-side only — powers the Weather connector's live fetch. */
+  OPENWEATHER_API_KEY: z.string().optional(),
   VOYAGE_API_KEY: z.string().optional(),
   /** Secret used to encrypt provider_credentials at rest (Sprint 5.3). */
   MYOS_AI_CREDENTIALS_SECRET: z.string().optional(),

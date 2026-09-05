@@ -3,6 +3,7 @@ import { z } from "zod";
 import { connectSchema, disconnectSchema, syncInputSchema } from "@myos/core/connectors";
 import { protectedProcedure, router } from "../trpc";
 import * as service from "./service";
+import { currentWeather } from "./weather";
 
 /**
  * Connectors router (Sprint 6.4). The Connector Platform's surface: list/connect/disconnect external
@@ -15,6 +16,10 @@ const optionalAccount = z.object({ accountId: z.string().optional() }).optional(
 
 export const connectorsRouter = router({
   list: protectedProcedure.query(({ ctx }) => service.list(ctx.db)),
+  /** Stage 9: real current weather via OpenWeather (server-side key, honest states). */
+  weather: protectedProcedure
+    .input(z.object({ location: z.string().max(120).nullable().optional() }))
+    .query(({ input }) => currentWeather(input.location ?? null)),
   connect: protectedProcedure
     .input(connectSchema)
     .mutation(({ ctx, input }) =>

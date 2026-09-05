@@ -22,6 +22,7 @@ import {
 } from "./command-center-panels";
 import { SystemPulse } from "./system-pulse";
 import { OsRecommendsCard } from "@/components/proactive/OsRecommendsCard";
+import { widgetsForSurface } from "@/lib/widgets/registry";
 
 /**
  * Command Center (V2 Stage 1) — the primary home experience. Its job is
@@ -119,6 +120,16 @@ export function CommandCenter() {
           {/* Proactive OS (Stage 6) — the one thing that deserves attention right now.
               Renders only when the OS is not clear; complements the Next Action above. */}
           <OsRecommendsCard />
+
+          {/* Widgets (Stage 9) — data-driven, contextual. Each owns its query + honest states. */}
+          {widgetsForSurface("command_center").length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {widgetsForSurface("command_center").map((w) => {
+                const W = w.component;
+                return <W key={w.id} />;
+              })}
+            </div>
+          ) : null}
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
             <ScheduleColumn />
