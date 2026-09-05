@@ -11,7 +11,7 @@
  * Update flow: install does NOT auto-activate; the client is notified of a
  * waiting worker and calls postMessage({type:'SKIP_WAITING'}) to apply it.
  */
-const VERSION = "1.7.0";
+const VERSION = "1.8.0";
 const CACHE = `myos-shell-v${VERSION}`;
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [

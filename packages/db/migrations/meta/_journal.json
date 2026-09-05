@@ -302,6 +302,13 @@
       "when": 1788543833922,
       "tag": "0042_luxuriant_nighthawk",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1788546581879,
+      "tag": "0043_hot_molly_hayes",
+      "breakpoints": true
     }
   ]
 }

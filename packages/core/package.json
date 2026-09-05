@@ -34,7 +34,8 @@
     "./connectors": "./src/connectors/index.ts",
     "./adaptation": "./src/adaptation/index.ts",
     "./proactive": "./src/proactive/index.ts",
-    "./collaboration": "./src/collaboration/index.ts"
+    "./collaboration": "./src/collaboration/index.ts",
+    "./sync": "./src/sync/index.ts"
   },
   "types": "./src/index.ts",
   "scripts": {

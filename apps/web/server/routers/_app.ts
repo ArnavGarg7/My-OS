@@ -32,6 +32,7 @@ import { connectorsRouter } from "../connectors/router";
 import { adaptationRouter } from "../adaptation/router";
 import { proactiveRouter } from "../proactive/router";
 import { collaborationRouter } from "../collaboration/router";
+import { syncRouter } from "../sync/router";
 
 /**
  * Root tRPC router (04 §5). Feature routers (tasks, planner, health, …) mount
@@ -71,6 +72,7 @@ export const appRouter = router({
   adaptation: adaptationRouter,
   proactive: proactiveRouter,
   collaboration: collaborationRouter,
+  sync: syncRouter,
   system: router({
     health: publicProcedure.query(async ({ ctx }) => {
       let db = false;

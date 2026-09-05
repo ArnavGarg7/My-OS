@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useConnection, useNotifications, usePlatform, useUpdates } from "@/lib/platform";
 import { useBackgroundSync } from "@/lib/platform";
+import { useOptionalOffline } from "@/lib/offline";
+import type { OutboxEntry, SyncStatus } from "@myos/core/sync";
 import { trpc } from "@/lib/trpc/client";
 import { MorningFlashStatus } from "@/components/morning/MorningFlashStatus";
 import { DecisionStatusIndicator } from "@/components/decision/DecisionStatusIndicator";
@@ -72,8 +74,35 @@ function StatusItem({
  * genuinely useful at-a-glance items (tasks, inbox, today's decision, focus, notifications) remain;
  * per-module state lives on each module's own page.
  */
+const SYNC_DISPLAY: Record<string, { value: string; tone: Tone }> = {
+  offline: { value: "Offline", tone: "warning" },
+  syncing: { value: "Syncing…", tone: "muted" },
+  error: { value: "Sync error", tone: "danger" },
+  pending: { value: "Pending", tone: "warning" },
+  synced: { value: "Synced", tone: "success" },
+};
+
+/** Truthful, human tooltip for the sync pill — names pending changes, last sync, and the action. */
+function syncDetail(status: SyncStatus, entries: readonly OutboxEntry[]): string {
+  const lines: string[] = [];
+  if (status.state === "offline") lines.push("Offline — your changes are queued locally and safe.");
+  else if (status.state === "syncing") lines.push("Syncing queued changes…");
+  else if (status.state === "error") lines.push("A change failed to sync. Click to retry.");
+  else if (status.state === "pending")
+    lines.push(`${status.pending} change(s) waiting. Click to sync now.`);
+  else lines.push("All changes synced.");
+  const queued = entries.filter((e) => e.status !== "succeeded");
+  for (const e of queued.slice(0, 5)) {
+    lines.push(`• ${e.label ?? e.op}${e.status === "failed" ? " (failed)" : ""}`);
+  }
+  if (status.lastSyncAt)
+    lines.push(`Last synced ${new Date(status.lastSyncAt).toLocaleTimeString()}`);
+  return lines.join("\n");
+}
+
 export function StatusBar() {
   const connection = useConnection();
+  const offline = useOptionalOffline();
   const notifications = useNotifications();
   const updates = useUpdates();
   const platform = usePlatform();
@@ -104,12 +133,26 @@ export function StatusBar() {
   return (
     <footer className="border-border bg-surface text-caption flex h-7 shrink-0 items-center justify-between gap-4 border-t px-3 tabular-nums sm:px-4">
       <div className="flex items-center gap-3 overflow-hidden sm:gap-4">
-        <StatusItem
-          label="System"
-          value={connection.online ? "Online" : "Offline"}
-          tone={connection.online ? "success" : "danger"}
-          title={systemDetail}
-        />
+        {offline ? (
+          <StatusItem
+            label="Sync"
+            value={
+              offline.status.pending > 0 && offline.status.state === "pending"
+                ? `${offline.status.pending} pending`
+                : (SYNC_DISPLAY[offline.status.state]?.value ?? "Online")
+            }
+            tone={SYNC_DISPLAY[offline.status.state]?.tone ?? "success"}
+            title={syncDetail(offline.status, offline.entries)}
+            onClick={offline.status.state === "error" ? offline.retry : offline.syncNow}
+          />
+        ) : (
+          <StatusItem
+            label="System"
+            value={connection.online ? "Online" : "Offline"}
+            tone={connection.online ? "success" : "danger"}
+            title={systemDetail}
+          />
+        )}
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4">
