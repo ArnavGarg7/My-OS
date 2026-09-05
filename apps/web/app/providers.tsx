@@ -9,6 +9,7 @@ import { AppProvider } from "@/lib/framework";
 import { AuthShellProvider, IdentityBridge } from "@/lib/identity";
 import { CommandCenterProvider } from "@/lib/command-center";
 import { PlatformProvider } from "@/lib/platform";
+import { OfflineProvider, QueryPersistence } from "@/lib/offline";
 import { TimelineProvider } from "@/lib/timeline";
 import { AnalyticsProvider } from "@/lib/analytics";
 import { HealthProviderBridge } from "@/components/health/HealthProviderBridge";
@@ -35,21 +36,25 @@ export function Providers({ children }: { children: ReactNode }) {
           <ToastProvider>
             <trpc.Provider client={trpcClient} queryClient={queryClient}>
               <QueryClientProvider client={queryClient}>
-                <AppProvider>
-                  <PlatformProvider>
-                    <TimelineProvider>
-                      <TimelinePersistenceBridge>
-                        <AnalyticsProvider>
-                          <HealthProviderBridge>
-                            <CommandCenterProvider>
-                              <IdentityBridge>{children}</IdentityBridge>
-                            </CommandCenterProvider>
-                          </HealthProviderBridge>
-                        </AnalyticsProvider>
-                      </TimelinePersistenceBridge>
-                    </TimelineProvider>
-                  </PlatformProvider>
-                </AppProvider>
+                <QueryPersistence>
+                  <OfflineProvider>
+                    <AppProvider>
+                      <PlatformProvider>
+                        <TimelineProvider>
+                          <TimelinePersistenceBridge>
+                            <AnalyticsProvider>
+                              <HealthProviderBridge>
+                                <CommandCenterProvider>
+                                  <IdentityBridge>{children}</IdentityBridge>
+                                </CommandCenterProvider>
+                              </HealthProviderBridge>
+                            </AnalyticsProvider>
+                          </TimelinePersistenceBridge>
+                        </TimelineProvider>
+                      </PlatformProvider>
+                    </AppProvider>
+                  </OfflineProvider>
+                </QueryPersistence>
               </QueryClientProvider>
             </trpc.Provider>
           </ToastProvider>

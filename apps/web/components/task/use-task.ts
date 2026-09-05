@@ -15,6 +15,7 @@ import { useShellStore } from "@/lib/shell/store";
 import { trpc } from "@/lib/trpc/client";
 import { useOptionalTimeline } from "@/lib/timeline";
 import { useOptionalAnalytics } from "@/lib/analytics";
+import { useOptionalOffline } from "@/lib/offline";
 
 /**
  * Client task controller (Sprint 2.5). Fetches all tasks once and derives the
@@ -25,6 +26,7 @@ import { useOptionalAnalytics } from "@/lib/analytics";
 export function useTask() {
   const utils = trpc.useUtils();
   const toaster = useToaster();
+  const offline = useOptionalOffline();
   const timeline = useOptionalTimeline();
   const analytics = useOptionalAnalytics();
   const selectedId = useShellStore((s) => s.selectedTaskId);
@@ -150,7 +152,17 @@ export function useTask() {
       priority?: TaskPriority;
       dueAt?: string | null;
       estimatedMinutes?: number | null;
-    }) => createM.mutate(input),
+    }) => {
+      // Offline (Stage 8): queue the create durably instead of a fake success. The outbox
+      // survives refresh and replays idempotently on reconnect; the task lands on the server
+      // exactly once. Honest — never claims "created" while the server is unreachable.
+      if (offline && !offline.status.online) {
+        offline.enqueue("task.create", input, { label: input.title });
+        toaster.success("Saved locally", "Will sync when you're back online.");
+        return;
+      }
+      createM.mutate(input);
+    },
     update: (input: Parameters<typeof updateM.mutate>[0]) => updateM.mutate(input),
     complete: (id: string) => completeM.mutate({ id }),
     archive: (id: string) => archiveM.mutate({ id }),

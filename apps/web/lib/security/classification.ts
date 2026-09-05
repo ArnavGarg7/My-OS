@@ -299,6 +299,13 @@ export const DOMAIN_CLASSIFICATION: DomainClassification[] = [
       decision_participants: "internal",
     },
   },
+  {
+    file: "sync.ts",
+    level: "sensitive",
+    rawAiSafe: false,
+    rationale:
+      "Offline sync ledger (Stage 8) — the idempotency record for replayed offline mutations. Keyed by a client-generated mutation id; stores the op + its result so a retry reconciles to the same server row instead of duplicating (task/inbox/journal creates, focus/task transitions). Results may embed the personal entity that was created, so raw rows are sensitive. NO secrets are ever stored here (credentials/tokens/keys stay server-side per Stage 4); the client outbox likewise never persists secrets. NO AI reads this.",
+  },
 ];
 
 /**

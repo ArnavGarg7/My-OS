@@ -10,6 +10,7 @@ import {
 } from "@myos/core/inbox";
 import { useToaster } from "@/lib/framework";
 import { useShellStore } from "@/lib/shell/store";
+import { useOptionalOffline } from "@/lib/offline";
 import { trpc } from "@/lib/trpc/client";
 
 /**
@@ -21,6 +22,7 @@ import { trpc } from "@/lib/trpc/client";
 export function useInbox() {
   const utils = trpc.useUtils();
   const toaster = useToaster();
+  const offline = useOptionalOffline();
   const selectedId = useShellStore((s) => s.selectedInboxId);
   const setSelectedId = useShellStore((s) => s.setSelectedInboxId);
 
@@ -113,7 +115,19 @@ export function useInbox() {
       content: string;
       title?: string;
       source?: CaptureSource;
-    }) => captureM.mutate({ source: "quick_add", ...input }),
+    }) => {
+      const payload = { source: "quick_add" as CaptureSource, ...input };
+      // Offline (Stage 8): queue the capture durably; it replays idempotently on reconnect
+      // (the sync ledger prevents a duplicate inbox item). Honest — "saved locally", not "captured".
+      if (offline && !offline.status.online) {
+        offline.enqueue("inbox.capture", payload, {
+          label: `Inbox: ${input.content.slice(0, 40)}`,
+        });
+        toaster.success("Saved locally", "Will sync to your Inbox when you're back online.");
+        return;
+      }
+      captureM.mutate(payload);
+    },
     archive: (id: string) => archiveM.mutate({ id }),
     remove: (id: string) => deleteM.mutate({ id }),
     restore: (id: string) => restoreM.mutate({ id }),

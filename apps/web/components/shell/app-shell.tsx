@@ -9,6 +9,7 @@ import { TopBar } from "./top-bar";
 import { StatusBar } from "./status-bar";
 import { ContextPanel } from "./context-panel";
 import { MobileNav } from "./mobile-nav";
+import { MobileBottomNav } from "./mobile-bottom-nav";
 import { QuickAddDialog } from "./quick-add-dialog";
 import { CommandPalette } from "@/components/command-center/command-palette";
 import { BuiltinCommands } from "@/lib/command-center/commands/builtin";
@@ -70,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <PlatformBanners />
           <div className="flex min-h-0 flex-1">
             <main
-              className="animate-slide-up-fade min-w-0 flex-1 overflow-y-auto [animation-fill-mode:both]"
+              className="animate-slide-up-fade min-w-0 flex-1 overflow-y-auto pb-16 [animation-fill-mode:both] md:pb-0"
               style={{ animationDelay: "120ms" }}
             >
               {children}
@@ -94,6 +95,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <NotificationBanner />
       <PaletteModuleCommands />
       <CommandPalette />
+
+      {/* Mobile: intentional bottom nav (primary destinations + Quick Add). Below md only. */}
+      <MobileBottomNav />
 
       {/* Overlays */}
       <MobileNav />
