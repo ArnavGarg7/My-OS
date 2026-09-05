@@ -39,7 +39,7 @@ export function FocusPage() {
       />
       <div className="flex flex-col gap-8">
         <FocusWorkspace focus={focus} />
-        <PomodoroCard />
+        <PomodoroCard focus={focus} />
         {metrics ? <SessionSummary metrics={metrics} /> : null}
         <section className="flex flex-col gap-2">
           <MonoLabel tone="subtle">Recent sessions</MonoLabel>

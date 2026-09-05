@@ -13,6 +13,7 @@ import {
 } from "@myos/core/interaction";
 import { trpc } from "@/lib/trpc/client";
 import { useToaster } from "@/lib/framework";
+import type { UseFocus } from "./use-focus";
 
 /**
  * Pomodoro (Stage 9). Extends the EXISTING Focus engine — it does NOT add a second timer.
@@ -20,10 +21,15 @@ import { useToaster } from "@/lib/framework";
  * session data + task actual-minutes; breaks are local countdowns (not sessions). The
  * countdown is timestamp-based (deadline − now), so it stays accurate across tab
  * backgrounding/sleep/offline, matching the Focus engine's own semantics.
+ *
+ * Because /focus also renders the manual FocusWorkspace and the OS allows only ONE active
+ * session at a time, both surfaces share the same `focus` controller: the Pomodoro refuses
+ * to start over a session it doesn't own (no silent abandon), keeps the workspace in sync
+ * (invalidate on start), and resets itself if its session is ended from the workspace.
  */
 const config = DEFAULT_POMODORO;
 
-export function PomodoroCard() {
+export function PomodoroCard({ focus }: { focus: UseFocus }) {
   const toaster = useToaster();
   const utils = trpc.useUtils();
   const [pomo, setPomo] = useState<PomodoroState>(startState);
@@ -38,6 +44,23 @@ export function PomodoroCard() {
   const resumeM = trpc.focus.resume.useMutation();
 
   const running = deadline !== null && pausedRemaining === null;
+
+  // A session started (or now owned) by the manual workspace — not this card.
+  const externalActive = focus.active != null && focus.active.id !== sessionIdRef.current;
+
+  // If our work session is ended/replaced from the workspace, stop our countdown so the two
+  // surfaces never disagree (we'd otherwise tick against a completed session and error on complete).
+  useEffect(() => {
+    const ours = sessionIdRef.current;
+    if (!ours || pomo.phase !== "work") return;
+    if (focus.active?.id === ours) return; // still ours
+    sessionIdRef.current = null;
+    setDeadline(null);
+    setPausedRemaining(null);
+    setRemaining(phaseMinutes(pomo.phase, config) * 60_000);
+    toaster.info("Pomodoro paused", "The focus session was ended from the workspace.");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focus.active?.id]);
 
   // Timestamp-based tick — display only; truth is the deadline.
   useEffect(() => {
@@ -64,6 +87,9 @@ export function PomodoroCard() {
           onSuccess: (session) => {
             sessionIdRef.current = session.id;
             setDeadline(Date.now() + ms);
+            // Keep the manual workspace in sync — it now shows THIS session as active
+            // instead of a second, conflicting "start" surface.
+            void utils.focus.invalidate();
           },
           onError: (e) => toaster.error("Couldn't start focus", e.message),
         },
@@ -140,7 +166,7 @@ export function PomodoroCard() {
             size="sm"
             variant="primary"
             onClick={() => beginPhase(pomo)}
-            disabled={start.isPending}
+            disabled={start.isPending || externalActive}
             leftIcon={<Play size={13} aria-hidden />}
           >
             Start {phaseLabel(pomo.phase)}
@@ -175,7 +201,9 @@ export function PomodoroCard() {
         </Button>
       </div>
       <Text variant="caption" tone="subtle">
-        Work phases record real Focus sessions. Breaks are local.
+        {externalActive
+          ? "A focus session is already running above — finish it before starting a Pomodoro."
+          : "Work phases record real Focus sessions. Breaks are local."}
       </Text>
     </Card>
   );

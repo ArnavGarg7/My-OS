@@ -50,6 +50,22 @@ export function UpdatesProvider({ children }: { children: ReactNode }) {
     if (!isServiceWorkerSupported()) return;
     let cancelled = false;
 
+    // Readiness fix (Stage 10): the service worker caches hashed static assets cache-first,
+    // which is correct in production but serves STALE chunks in development (Next rebuilds
+    // change modules without new hashes under HMR). So we never run the SW in dev — and we
+    // actively unregister any previously-installed one + purge its caches, so a developer
+    // isn't stuck on an old build. Production behaviour is unchanged.
+    if (process.env.NODE_ENV !== "production") {
+      void navigator.serviceWorker.getRegistrations().then((regs) => {
+        for (const r of regs) void r.unregister();
+      });
+      if (typeof caches !== "undefined") {
+        void caches.keys().then((keys) => keys.forEach((k) => void caches.delete(k)));
+      }
+      setStatus("unsupported");
+      return;
+    }
+
     const markWaiting = () => {
       setUpdateAvailable(true);
       setStatus("waiting");
