@@ -6,6 +6,7 @@ import {
   type IntentPreview,
   type IntentSource,
 } from "@myos/core/interaction";
+import { parseTask } from "@myos/core/task";
 import * as taskService from "../task/service";
 import * as inboxService from "../inbox/service";
 import * as focusService from "../focus/service";
@@ -198,6 +199,21 @@ export async function interpret(
     if (ai) {
       intent = ai;
       source = "ai";
+      // The AI classifies the KIND but its strict schema drops structured details
+      // (it always returns dueAt:null). For task creation, re-run the deterministic
+      // task parser on the ORIGINAL text so "buy groceries tomorrow" keeps its due
+      // date / priority / estimate — parseTask stays the source of truth for task NL,
+      // while we keep the AI's cleaner title.
+      if (intent.kind === "create_task") {
+        const draft = parseTask(text, new Date());
+        intent = {
+          kind: "create_task",
+          title: intent.title || draft.title,
+          dueAt: intent.dueAt ?? draft.dueAt ?? null,
+          priority: draft.priority !== "medium" ? draft.priority : intent.priority,
+          estimatedMinutes: intent.estimatedMinutes ?? draft.estimatedMinutes ?? null,
+        };
+      }
     } else {
       intent = { kind: "unknown", text };
       source = "none";
