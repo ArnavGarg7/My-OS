@@ -20,7 +20,7 @@ const LIVE_ENV: Record<string, string> = {
   "google-drive": "MYOS_GOOGLE_CLIENT_ID",
   github: "MYOS_GITHUB_CLIENT_ID",
   slack: "MYOS_SLACK_CLIENT_ID",
-  weather: "MYOS_OPENWEATHER_API_KEY",
+  weather: "OPENWEATHER_API_KEY",
 };
 
 export interface ProviderCapability {
