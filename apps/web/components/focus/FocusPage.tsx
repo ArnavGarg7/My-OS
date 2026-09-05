@@ -5,6 +5,7 @@ import { PageContainer, PageLoading } from "@/components/framework";
 import { trpc } from "@/lib/trpc/client";
 import { useFocus } from "./use-focus";
 import { FocusWorkspace } from "./FocusWorkspace";
+import { PomodoroCard } from "./PomodoroCard";
 import { FocusOverlay } from "./FocusOverlay";
 import { SessionSummary } from "./SessionSummary";
 import { FocusHistory } from "./FocusHistory";
@@ -38,6 +39,7 @@ export function FocusPage() {
       />
       <div className="flex flex-col gap-8">
         <FocusWorkspace focus={focus} />
+        <PomodoroCard />
         {metrics ? <SessionSummary metrics={metrics} /> : null}
         <section className="flex flex-col gap-2">
           <MonoLabel tone="subtle">Recent sessions</MonoLabel>

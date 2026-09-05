@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Inbox, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, Kbd, Spinner, cn } from "@myos/ui";
-import { useToaster } from "@/lib/framework";
-import { trpc } from "@/lib/trpc/client";
 import { highlightMatch, useCommandPalette, type PaletteItem } from "@/lib/command-center";
+import { PaletteInterpret } from "./palette-interpret";
+import { PaletteVoiceButton } from "./palette-voice-button";
 
 /**
  * Command Palette (Sprint 1.6; V2 polish). The ⌘K interface over the Command
@@ -59,6 +59,7 @@ export function CommandPalette() {
             aria-controls="command-palette-list"
             className="text-body-m text-fg placeholder:text-fg-subtle h-full min-w-0 flex-1 bg-transparent outline-none"
           />
+          <PaletteVoiceButton onTranscript={(t) => palette.setQuery(t)} />
           <Kbd size="sm" aria-hidden>
             Esc
           </Kbd>
@@ -77,10 +78,9 @@ export function CommandPalette() {
               <span className="text-body-s text-fg-subtle">Loading commands…</span>
             </div>
           ) : palette.isEmpty ? (
-            <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <p className="text-body-m text-fg">No commands match “{palette.query}”.</p>
+            <div className="flex flex-col gap-3 py-4">
               {canCapture ? (
-                <PaletteInlineCapture
+                <PaletteInterpret
                   query={trimmed}
                   onClose={() => {
                     palette.setOpen(false);
@@ -91,7 +91,7 @@ export function CommandPalette() {
                   }}
                 />
               ) : (
-                <p className="text-body-s text-fg-subtle">Keep typing, or press Esc.</p>
+                <p className="text-body-s text-fg-subtle text-center">Keep typing, or press Esc.</p>
               )}
             </div>
           ) : (
@@ -139,57 +139,6 @@ export function CommandPalette() {
         </div>
       </DialogContent>
     </Dialog>
-  );
-}
-
-/**
- * The "nothing matched" affordance: capture the query straight to the Inbox.
- * Isolated so the tRPC / toast hooks only mount when the empty state renders —
- * the palette itself stays dependency-light and unit-testable.
- */
-function PaletteInlineCapture({
-  query,
-  onClose,
-  register,
-}: {
-  query: string;
-  onClose: () => void;
-  register: (fn: (() => void) | null) => void;
-}) {
-  const toaster = useToaster();
-  const utils = trpc.useUtils();
-  const capture = trpc.inbox.capture.useMutation({
-    onSuccess: () => {
-      void utils.inbox.countNew.invalidate();
-      toaster.success("Captured to Inbox");
-    },
-    onError: () => toaster.error("Couldn't capture that"),
-  });
-
-  const run = () => {
-    if (capture.isPending || query.length < 2) return;
-    onClose();
-    capture.mutate({ type: "text", content: query, source: "quick_add" });
-  };
-
-  useEffect(() => {
-    register(run);
-    return () => register(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, capture.isPending]);
-
-  return (
-    <button
-      type="button"
-      onClick={run}
-      disabled={capture.isPending}
-      className="border-border bg-elevated hover:bg-overlay hover:border-border-strong text-fg flex items-center gap-2 rounded-md border px-3 py-2 outline-none disabled:opacity-50"
-    >
-      <Inbox size={15} className="text-accent-fg" aria-hidden />
-      <span className="text-body-s">
-        Capture <span className="text-fg font-medium">“{query}”</span> to Inbox
-      </span>
-    </button>
   );
 }
 
