@@ -34,8 +34,10 @@ Audited from code across all 41 page routes.
 - **Empty states: good.** Primary surfaces have thoughtful empty copy (verified 10 in the sweep + analytics now covered). The remaining `return null`-on-empty cases are optional cards / `*StatusIndicator` badges where rendering nothing is correct.
 - No route shows a blank white screen: the shell chrome renders immediately (client-fetched content is guarded beneath it).
 
-## Workstream 3 — Accessibility (WCAG AA)
-Keyboard nav (⌘K palette, tab order, modal focus traps), visible focus rings, aria labels on icon-only controls, screen-reader pass on the daily loop, contrast audit of muted-on-dark text.
+## Workstream 3 — Accessibility (WCAG AA) ✅ complete
+- **Contrast: one real AA failure found + fixed.** Computed ratios for every text/bg token pair. `fg` and `fg-muted` pass comfortably; **`fg-subtle`/`text-tertiary` failed 4.5:1 for normal text in BOTH themes** (dark `#6b7178` = 3.4–3.9:1; light `#8a857d` = 3.2–3.7:1) — and it's used widely for captions/labels/timestamps. Bumped the token: dark → `#868d93` (5.0–5.8:1 on base/surface/elevated, 4.52:1 on overlay), light → `#6d685f` (4.8–5.5:1). Verified in both themes: legible, visual hierarchy intact. Disabled-text failing is WCAG-exempt (1.4.3); accent/semantic colors pass on dark. (Minor follow-up: light-mode `accent` #e5620a is 3.45:1 — fine for large/non-text/badges, but should not be used as small body text; `accent-fg` is the text tint.)
+- **Icon-only controls:** all `IconButton` usages carry an `aria-label` (audited every occurrence).
+- **Focus + keyboard:** `focus-visible:ring-ring` applied across interactive elements; Radix Dialog/DropdownMenu provide focus traps + roving focus; the ⌘K palette has custom arrow/Enter nav.
 
 ## Workstream 4 — Responsive audit
 All surfaces at 375 / 768 / desktop: no horizontal scroll, tap targets ≥ 44 px, bottom-nav present, modals→sheets on mobile, wide content scrolls inside its container.
