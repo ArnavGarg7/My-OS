@@ -105,6 +105,19 @@ export async function insertCredential(
   });
 }
 
+/** Replace an account's sealed credential in place (used after an OAuth token refresh). */
+export async function updateCredential(
+  db: Database,
+  accountId: string,
+  sealed: Sealed,
+  hint: string,
+): Promise<void> {
+  await db
+    .update(connectorCredentials)
+    .set({ ciphertext: sealed.ciphertext, iv: sealed.iv, tag: sealed.tag, hint })
+    .where(eq(connectorCredentials.accountId, accountId));
+}
+
 /** Load a sealed credential for the SYNC path only. Returns ciphertext, never plaintext. */
 export async function loadCredential(
   db: Database,
