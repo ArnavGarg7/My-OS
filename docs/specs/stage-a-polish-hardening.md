@@ -1,6 +1,6 @@
 # Stage A — Polish & Hardening (Charter)
 
-> **Status:** in progress · **Branch:** `stage-a/polish-hardening` (off `readiness/daily-use`)
+> **Status:** ✅ all 6 workstreams complete · **Branch:** `stage-a/polish-hardening` (off `readiness/daily-use`)
 > **Principle:** the app must feel shippable to someone who has never seen the code. No feature work. No shortcuts.
 
 Stage A closes the "not ready for daily use" gap. It is the polish/hardening pass over the assembled app (Stages 1–9). It does **not** add capabilities.
@@ -54,8 +54,13 @@ The responsive foundation (Stage 8 mobile shell + the design-system breakpoints)
 - **Push/notification failure — non-blocking by design** (behind the platform provider; the app never depends on delivery).
 - **Expired/invalid OAuth — Stage B** (connectors aren't live yet; the sample path already degrades honestly).
 
-## Workstream 6 — Performance (last, light)
-Prod-build measurement: dashboard first paint, the batched Command Center query load (split critical vs deferred), search + AI latency, bundle size. Set budgets, fix regressions.
+## Workstream 6 — Performance ✅ complete (pass — healthy, no fixes needed)
+Measured from a fresh production build (which also served as the Stage-A build gate — it passed clean after all WS1–5 changes).
+- **Bundle: lean.** Shared First Load JS **103 KB**; every route **245–347 KB** (heaviest: command-center 347, settings 336, profile 317, sign-in 300 — Clerk's weight). No route is bloated; no heavy charting/3D/editor libraries (framer-motion is the only notable dep; charts, the knowledge graph, and the Wheel are custom lightweight SVG/canvas, and the Wheel is already `next/dynamic`-split).
+- **Budgets (documented):** shared baseline ≤ ~110 KB; per-route First Load JS ≤ ~350 KB. All routes currently within budget.
+- **First paint is instant** — the shell chrome renders immediately; page content is client-fetched beneath it with loading states (never a blank screen).
+- **Data load:** the Command Center fires ~15 queries in a single `httpBatchLink` round-trip (optimal for round-trips). Full content lands in ~600 ms, gated by the slowest query (`chief.now` ~590 ms), with tile skeletons meanwhile. **Known characteristic, deliberately not changed:** the shell paints instantly and skeletons cover the wait, so the perceptual cost is small; splitting the slow Chief query into a deferred batch is a possible future optimization but adds complexity disproportionate to the gain here.
+- Server query durations observed 40–590 ms (dev logs) — reasonable.
 
 ## Execution order
 1. Reproduce-clean baseline (prod build, healthy DB) — separates real bugs from cold-start noise (settles A1.1/A1.6 scope).
