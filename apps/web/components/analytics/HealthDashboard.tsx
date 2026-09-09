@@ -1,13 +1,14 @@
 "use client";
 
 import { trpc } from "@/lib/trpc/client";
+import { DashboardState } from "./DashboardState";
 import { MetricBar, ScoreTile } from "./AnalyticsCharts";
 
 /** HealthDashboard (Sprint 2.14). Wellness score from the Health engine. */
 export function HealthDashboard() {
   const q = trpc.analytics.health.useQuery();
   const h = q.data;
-  if (!h) return null;
+  if (!h) return <DashboardState loading={q.isLoading} />;
   return (
     <div className="flex flex-col gap-3">
       <ScoreTile label="Health score" score={h.score} />

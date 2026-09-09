@@ -2,13 +2,14 @@
 
 import type { ReportType } from "@myos/core/analytics";
 import { trpc } from "@/lib/trpc/client";
+import { DashboardState } from "./DashboardState";
 import { MetricBar } from "./AnalyticsCharts";
 
 /** CalendarDashboard (Sprint 2.14). Meeting vs focus vs free time. */
 export function CalendarDashboard({ period }: { period: ReportType }) {
   const q = trpc.analytics.calendar.useQuery({ type: period });
   const c = q.data;
-  if (!c) return null;
+  if (!c) return <DashboardState loading={q.isLoading} />;
   return (
     <div className="flex flex-col gap-3">
       <MetricBar label="Meeting hours" value={c.meetingHours} suffix="h" />

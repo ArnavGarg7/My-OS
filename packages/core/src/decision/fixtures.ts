@@ -4,7 +4,9 @@ import type { Decision, DecisionContext } from "./types";
 
 /** Test fixtures for the decision engine (imported by *.test.ts). */
 export const WH: WorkingHours = { start: "09:00", end: "18:00" };
-export const at = (h: number, m = 0) => new Date(2026, 6, 7, h, m, 0);
+// UTC instant so the hour reads literally in the fixture's `timezone: "UTC"`
+// (day-phase + working-hours math are timezone-aware) and stays machine-independent.
+export const at = (h: number, m = 0) => new Date(Date.UTC(2026, 6, 7, h, m, 0));
 
 export function makeState(over: Partial<DailyState> = {}): DailyState {
   return {
@@ -53,11 +55,12 @@ export function makeContext(
   over: Partial<Omit<DecisionContext, "snapshot">> = {},
 ): DecisionContext {
   const now = over.now ?? at(10);
+  const tz = over.timezone ?? "UTC";
   const workingHours = over.workingHours ?? WH;
   const state = over.state !== undefined ? over.state : makeState();
   const focus = over.focus !== undefined ? over.focus : makeFocus();
   const metrics = over.metrics !== undefined ? over.metrics : makeMetrics();
-  const snapshot = planToday({ date: "2026-07-07", now, workingHours });
+  const snapshot = planToday({ date: "2026-07-07", now, workingHours, timezone: tz });
   return {
     now,
     timezone: over.timezone ?? "UTC",

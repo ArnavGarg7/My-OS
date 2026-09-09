@@ -18,14 +18,14 @@ export interface DecisionRule {
 }
 
 export function withinWorkingHours(ctx: DecisionContext): boolean {
-  const nowMin = minutesOfDay(ctx.now);
+  const nowMin = minutesOfDay(ctx.now, ctx.timezone);
   return (
     nowMin >= timeToMinutes(ctx.workingHours.start) && nowMin < timeToMinutes(ctx.workingHours.end)
   );
 }
 
 export function beforeWorkingHours(ctx: DecisionContext): boolean {
-  return minutesOfDay(ctx.now) < timeToMinutes(ctx.workingHours.start);
+  return minutesOfDay(ctx.now, ctx.timezone) < timeToMinutes(ctx.workingHours.start);
 }
 
 export const DECISION_RULES: DecisionRule[] = [

@@ -19,7 +19,11 @@ export function InboxRow({
   onSelect: () => void;
 }) {
   const Icon = CAPTURE_ICON[item.type];
-  const preview = item.content.replace(/\s+/g, " ").trim();
+  const title = item.title.replace(/\s+/g, " ").trim();
+  const previewText = item.content.replace(/\s+/g, " ").trim();
+  // Hide the preview when it just repeats the title (e.g. a plain text capture
+  // whose title is derived from its content) — otherwise the row reads twice.
+  const preview = previewText && previewText !== title ? previewText : "";
 
   return (
     <button

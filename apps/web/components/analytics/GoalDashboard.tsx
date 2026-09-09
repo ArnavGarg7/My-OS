@@ -2,13 +2,14 @@
 
 import type { ReportType } from "@myos/core/analytics";
 import { trpc } from "@/lib/trpc/client";
+import { DashboardState } from "./DashboardState";
 import { MetricBar, ScoreTile } from "./AnalyticsCharts";
 
 /** GoalDashboard (Sprint 2.14). Goal velocity + progress + habit consistency. */
 export function GoalDashboard({ period }: { period: ReportType }) {
   const q = trpc.analytics.goals.useQuery({ type: period });
   const g = q.data;
-  if (!g) return null;
+  if (!g) return <DashboardState loading={q.isLoading} />;
   return (
     <div className="flex flex-col gap-3">
       <ScoreTile label="Goal score" score={g.score} />

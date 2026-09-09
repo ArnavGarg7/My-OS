@@ -17,7 +17,7 @@ export const RECOMMENDATION_RULES: RecommendationRule[] = [
   {
     id: "before-working-hours",
     priority: 100,
-    matches: (ctx) => minutesOfDay(ctx.now) < timeToMinutes(ctx.workingHours.start),
+    matches: (ctx) => minutesOfDay(ctx.now, ctx.timezone) < timeToMinutes(ctx.workingHours.start),
     build: () => ({
       decision: "Working hours haven't started.",
       reason: "Use this time to prepare and set your mission before the day begins.",
