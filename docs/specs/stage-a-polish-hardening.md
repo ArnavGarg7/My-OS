@@ -27,8 +27,12 @@ Verified in a **production build**, all must hold:
 
 Already landed on `readiness/daily-use` (Stage A's first commits): dev SW staleness, Pomodoro/Workspace session conflict, NL due-date loss.
 
-## Workstream 2 — State completeness audit
-Every route (PRIMARY/WORK/LIFE/INTELLIGENCE/SYSTEM) gets loading + empty/first-run + error states and an error boundary. Tracked with a per-route checklist.
+## Workstream 2 — State completeness audit ✅ complete
+Audited from code across all 41 page routes.
+- **Error boundaries: solid** (pre-existing, Phase 4.5). `(shell)/error.tsx` (design-system native, reports via the client reporter, `reset()` recovery) covers every shell route; `global-error.tsx` self-contained fallback; on-brand root `not-found.tsx`. No dead-ends.
+- **Loading: one real gap found + fixed.** Broad component-level coverage (87 files use `PageLoading`/`isLoading`/`Spinner`). The 9 analytics sub-dashboards each fetch their own slice on tab-switch and rendered `null` while in flight → a tab flashed blank. Added a shared `analytics/DashboardState` (spinner while loading, "not enough data" when empty) and applied it to all 9. Verified: Finance tab renders cleanly, no blank flash.
+- **Empty states: good.** Primary surfaces have thoughtful empty copy (verified 10 in the sweep + analytics now covered). The remaining `return null`-on-empty cases are optional cards / `*StatusIndicator` badges where rendering nothing is correct.
+- No route shows a blank white screen: the shell chrome renders immediately (client-fetched content is guarded beneath it).
 
 ## Workstream 3 — Accessibility (WCAG AA)
 Keyboard nav (⌘K palette, tab order, modal focus traps), visible focus rings, aria labels on icon-only controls, screen-reader pass on the daily loop, contrast audit of muted-on-dark text.
