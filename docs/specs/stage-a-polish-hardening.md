@@ -15,15 +15,15 @@ Verified in a **production build**, all must hold:
 - Gates green: typecheck, lint 0/0, build, repository-audit 8/8, tests.
 
 ## Workstream 1 — Correctness bugs (sweep findings, 2026-09-09)
-| ID | Finding | Anchor files |
-|----|---------|--------------|
-| A1.1 | Systematic hydration `useId` drift across all Radix components | `apps/web/app/providers.tsx`, `apps/web/components/shell/app-shell.tsx` |
-| A1.2 | Chief greeting "Good morning" at 7 PM (Command Center is correct) | `apps/web/components/chief/chief-intelligence.tsx`, `apps/web/server/chief/composer.ts` |
-| A1.3 | Connectors header "Live credentials configured" contradicts sample cards | `apps/web/components/connectors/ConnectorCenter.tsx` |
-| A1.4 | Inbox row shows title + identical description | `apps/web/components/inbox/InboxRow.tsx` |
-| A1.5 | Calendar external-calendar chip garbled label | `apps/web/components/calendar/CalendarExternal.tsx` |
-| A1.6 | Recurring 500 / SyntaxError in console (likely cold-start DB-down; confirm) | server logs, offending Server Component read |
-| A1.7 | "1 issue" badge — identify + make actionable or remove | `apps/web/components/platform/platform-banners.tsx`, `app-shell.tsx` |
+| ID | Finding | Status | Anchor files |
+|----|---------|--------|--------------|
+| A1.1 | Systematic hydration `useId` drift across all Radix components | open — needs prod-build determination (dev Strict-Mode vs real) | `apps/web/app/providers.tsx`, `apps/web/components/shell/{app-shell,sidebar,sidebar-content}.tsx` |
+| A1.2 | Chief greeting "Good morning" at 7 PM — was a **systemic timezone bug** (day-phase/working-hours read the server clock, UTC in prod) | ✅ **done** (`b091a87`), browser-verified | `packages/core/today/planner.ts`, `packages/ai/chief/morning.ts`, +threading |
+| A1.3 | Connectors header "Live credentials configured" contradicts sample cards | open | `apps/web/components/connectors/ConnectorCenter.tsx` |
+| A1.4 | Inbox row shows title + identical description | open | `apps/web/components/inbox/InboxRow.tsx` |
+| A1.5 | Calendar external-calendar chip garbled label | open | `apps/web/components/calendar/CalendarExternal.tsx` |
+| A1.6 | Recurring 500 / SyntaxError in console | ✅ **settled — stale cold-start (DB-down) artifact**; server log clean once Postgres healthy. (Graceful cold-start UX tracked under WS5) | — |
+| A1.7 | "1 issue" badge — identify + make actionable or remove | open | `apps/web/components/platform/platform-banners.tsx`, `app-shell.tsx` |
 
 Already landed on `readiness/daily-use` (Stage A's first commits): dev SW staleness, Pomodoro/Workspace session conflict, NL due-date loss.
 
