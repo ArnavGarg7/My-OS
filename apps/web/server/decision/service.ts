@@ -102,7 +102,7 @@ async function buildContext(
     focus,
     metrics,
     workingHours,
-    snapshot: planToday({ date, now, workingHours }),
+    snapshot: planToday({ date, now, workingHours, timezone: tz }),
     inboxCount,
     project: {
       topProjectName: project.topProjectName,

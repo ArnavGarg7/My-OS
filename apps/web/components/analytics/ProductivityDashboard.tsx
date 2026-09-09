@@ -2,13 +2,14 @@
 
 import type { ReportType } from "@myos/core/analytics";
 import { trpc } from "@/lib/trpc/client";
+import { DashboardState } from "./DashboardState";
 import { MetricBar, ScoreTile } from "./AnalyticsCharts";
 
 /** ProductivityDashboard (Sprint 2.14). Deterministic productivity metrics. */
 export function ProductivityDashboard({ period }: { period: ReportType }) {
   const q = trpc.analytics.productivity.useQuery({ type: period });
   const p = q.data;
-  if (!p) return null;
+  if (!p) return <DashboardState loading={q.isLoading} />;
   return (
     <div className="flex flex-col gap-3">
       <ScoreTile label="Productivity score" score={p.score} />

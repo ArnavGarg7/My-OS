@@ -24,7 +24,12 @@ import type { AssemblerInput, BriefingContext, MorningBriefing } from "./types";
  */
 export function assembleMorningBriefing(input: AssemblerInput): MorningBriefing {
   const date = input.state?.date ?? todayInTimeZone(input.timezone, input.now);
-  const snapshot = planToday({ date, now: input.now, workingHours: input.workingHours });
+  const snapshot = planToday({
+    date,
+    now: input.now,
+    workingHours: input.workingHours,
+    timezone: input.timezone,
+  });
   const ctx: BriefingContext = { ...input, snapshot, phase: snapshot.phase };
 
   return {

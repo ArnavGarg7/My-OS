@@ -30,7 +30,10 @@
   /* ── Text — off-white optical tint, cool-slate secondary ───────────────── */
   --text-primary: #ededed;
   --text-secondary: #9aa0a6;
-  --text-tertiary: #6b7178;
+  /* WCAG AA (Stage A/WS3): tertiary was #6b7178 (3.4–3.9:1 — fails 4.5:1 for normal
+     text). #868d93 clears AA on base/surface/elevated/overlay while staying below
+     secondary so the hierarchy holds. */
+  --text-tertiary: #868d93;
   --text-disabled: #494d53;
   --text-on-accent: #0c0d0e;
 
@@ -98,7 +101,9 @@
 
   --text-primary: #1b1a18;
   --text-secondary: #5c5852;
-  --text-tertiary: #8a857d;
+  /* WCAG AA (Stage A/WS3): tertiary was #8a857d (3.2–3.7:1 — fails 4.5:1). #6d685f
+     clears AA on base/surface/inset while staying above secondary in lightness. */
+  --text-tertiary: #6d685f;
   --text-disabled: #b6b1a8;
   --text-on-accent: #ffffff;
 

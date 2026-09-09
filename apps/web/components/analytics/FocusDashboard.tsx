@@ -2,13 +2,14 @@
 
 import type { ReportType } from "@myos/core/analytics";
 import { trpc } from "@/lib/trpc/client";
+import { DashboardState } from "./DashboardState";
 import { MetricBar, ScoreTile } from "./AnalyticsCharts";
 
 /** FocusDashboard (Sprint 2.14). Deep-work volume, blocks + continuity. */
 export function FocusDashboard({ period }: { period: ReportType }) {
   const q = trpc.analytics.focus.useQuery({ type: period });
   const f = q.data;
-  if (!f) return null;
+  if (!f) return <DashboardState loading={q.isLoading} />;
   return (
     <div className="flex flex-col gap-3">
       <ScoreTile label="Focus score" score={f.score} />

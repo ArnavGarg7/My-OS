@@ -42,9 +42,32 @@ export function minutesToTime(minutes: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
-/** Minutes since local midnight for a Date. */
-export function minutesOfDay(now: Date): number {
-  return now.getHours() * 60 + now.getMinutes();
+/**
+ * Wall-clock minutes since midnight, evaluated in an IANA time zone when one is
+ * given (otherwise the host's local time). Everything day-phase / working-hours
+ * related must be computed in the USER's zone, not the server process's — in
+ * production the server runs UTC, so `Date#getHours` would bucket the day wrong.
+ */
+function wallClockMinutes(now: Date, timeZone?: string): number {
+  if (!timeZone) return now.getHours() * 60 + now.getMinutes();
+  try {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone,
+      hourCycle: "h23",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).formatToParts(now);
+    const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
+    const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
+    return (hour % 24) * 60 + minute;
+  } catch {
+    return now.getHours() * 60 + now.getMinutes();
+  }
+}
+
+/** Minutes since midnight for a Date, in the user's time zone when provided. */
+export function minutesOfDay(now: Date, timeZone?: string): number {
+  return wallClockMinutes(now, timeZone);
 }
 
 /** The local calendar date (YYYY-MM-DD) in a given IANA time zone. */
@@ -66,9 +89,9 @@ export function todayInTimeZone(timeZone: string, now: Date = new Date()): strin
   }
 }
 
-/** Bucket the current clock time into a coarse phase of day. */
-export function getDayPhase(now: Date = new Date()): DayPhase {
-  const hour = now.getHours();
+/** Bucket the current clock time into a coarse phase of day (in the user's zone). */
+export function getDayPhase(now: Date = new Date(), timeZone?: string): DayPhase {
+  const hour = Math.floor(wallClockMinutes(now, timeZone) / 60);
   if (hour < PHASE_BOUNDARIES.morningEnd) return "morning";
   if (hour < PHASE_BOUNDARIES.afternoonEnd) return "afternoon";
   if (hour < PHASE_BOUNDARIES.eveningEnd) return "evening";
@@ -79,11 +102,12 @@ export function getDayPhase(now: Date = new Date()): DayPhase {
 export function calculateRemainingDay(
   now: Date = new Date(),
   workingHours: WorkingHours = DEFAULT_WORKING_HOURS,
+  timeZone?: string,
 ): RemainingDay {
   const start = timeToMinutes(workingHours.start);
   const end = timeToMinutes(workingHours.end);
   const total = Math.max(0, end - start);
-  const nowMin = minutesOfDay(now);
+  const nowMin = minutesOfDay(now, timeZone);
   const elapsed = Math.max(0, Math.min(total, nowMin - start));
   const remaining = Math.max(0, total - elapsed);
   return {
@@ -98,10 +122,11 @@ export function calculateRemainingDay(
 export function calculateDayProgress(
   now: Date = new Date(),
   workingHours: WorkingHours = DEFAULT_WORKING_HOURS,
+  timeZone?: string,
 ): DayProgress {
-  const { totalMinutes, elapsedMinutes } = calculateRemainingDay(now, workingHours);
+  const { totalMinutes, elapsedMinutes } = calculateRemainingDay(now, workingHours, timeZone);
   const percent = totalMinutes === 0 ? 0 : Math.round((elapsedMinutes / totalMinutes) * 100);
-  return { phase: getDayPhase(now), percent };
+  return { phase: getDayPhase(now, timeZone), percent };
 }
 
 /**
@@ -113,10 +138,11 @@ export function calculateProductiveWindow(
   now: Date = new Date(),
   workingHours: WorkingHours = DEFAULT_WORKING_HOURS,
   blockMinutes: number = DEFAULT_FOCUS_BLOCK_MINUTES,
+  timeZone?: string,
 ): ProductiveWindow {
   const start = timeToMinutes(workingHours.start);
   const end = timeToMinutes(workingHours.end);
-  const nowMin = minutesOfDay(now);
+  const nowMin = minutesOfDay(now, timeZone);
   const inHours = nowMin >= start && nowMin < end;
 
   const roundedNow = Math.ceil(nowMin / 30) * 30;
@@ -135,11 +161,12 @@ export function calculateProductiveWindow(
 export function calculateNextCheckpoint(
   now: Date = new Date(),
   workingHours: WorkingHours = DEFAULT_WORKING_HOURS,
+  timeZone?: string,
 ): Checkpoint | null {
   const start = timeToMinutes(workingHours.start);
   const end = timeToMinutes(workingHours.end);
   const midday = Math.round((start + end) / 2);
-  const nowMin = minutesOfDay(now);
+  const nowMin = minutesOfDay(now, timeZone);
 
   const checkpoints: Checkpoint[] = [
     { label: "Start of work", at: minutesToTime(start), minutesUntil: start - nowMin },
@@ -195,17 +222,20 @@ export function planToday(params: {
   now?: Date;
   workingHours?: WorkingHours;
   focusBlockMinutes?: number;
+  /** The user's IANA zone. Day phase + working-hours math are computed in it. */
+  timezone?: string;
 }): TodaySnapshot {
   const now = params.now ?? new Date();
   const workingHours = params.workingHours ?? DEFAULT_WORKING_HOURS;
+  const tz = params.timezone;
   return {
     date: params.date,
     now: now.toISOString(),
     workingHours,
-    phase: getDayPhase(now),
-    remainingDay: calculateRemainingDay(now, workingHours),
-    progress: calculateDayProgress(now, workingHours),
-    productiveWindow: calculateProductiveWindow(now, workingHours, params.focusBlockMinutes),
-    nextCheckpoint: calculateNextCheckpoint(now, workingHours),
+    phase: getDayPhase(now, tz),
+    remainingDay: calculateRemainingDay(now, workingHours, tz),
+    progress: calculateDayProgress(now, workingHours, tz),
+    productiveWindow: calculateProductiveWindow(now, workingHours, params.focusBlockMinutes, tz),
+    nextCheckpoint: calculateNextCheckpoint(now, workingHours, tz),
   };
 }

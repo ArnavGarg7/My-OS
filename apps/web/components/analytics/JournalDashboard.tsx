@@ -2,13 +2,14 @@
 
 import type { ReportType } from "@myos/core/analytics";
 import { trpc } from "@/lib/trpc/client";
+import { DashboardState } from "./DashboardState";
 import { MetricBar, ScoreTile } from "./AnalyticsCharts";
 
 /** JournalDashboard (Sprint 2.14). Writing consistency + mood trend. */
 export function JournalDashboard({ period }: { period: ReportType }) {
   const q = trpc.analytics.journal.useQuery({ type: period });
   const j = q.data;
-  if (!j) return null;
+  if (!j) return <DashboardState loading={q.isLoading} />;
   return (
     <div className="flex flex-col gap-3">
       <ScoreTile label="Journal score" score={j.score} />

@@ -8,8 +8,9 @@ import type { AssemblerInput, BriefingContext } from "./types";
  */
 export const WH: WorkingHours = { start: "09:00", end: "18:00" };
 
-// Local Date so `getHours()` (used by the planner) is machine-tz-independent.
-export const at = (h: number, m = 0) => new Date(2026, 6, 7, h, m, 0);
+// UTC instant so the hour is read literally in the fixture's `timezone: "UTC"`
+// (the planner is timezone-aware now) and stays machine-tz-independent.
+export const at = (h: number, m = 0) => new Date(Date.UTC(2026, 6, 7, h, m, 0));
 
 export function makeState(over: Partial<DailyState> = {}): DailyState {
   return {
@@ -75,6 +76,7 @@ export function makeContext(over: Partial<AssemblerInput> = {}): BriefingContext
     date: input.state?.date ?? "2026-07-07",
     now: input.now,
     workingHours: input.workingHours,
+    timezone: input.timezone,
   });
   return { ...input, snapshot, phase: snapshot.phase };
 }

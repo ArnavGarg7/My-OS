@@ -3,6 +3,7 @@
 import type { ReportType } from "@myos/core/analytics";
 import { Badge } from "@myos/ui";
 import { trpc } from "@/lib/trpc/client";
+import { DashboardState } from "./DashboardState";
 import { MetricBar } from "./AnalyticsCharts";
 
 const TREND_VARIANT = { improving: "success", flat: "neutral", worsening: "warning" } as const;
@@ -11,7 +12,7 @@ const TREND_VARIANT = { improving: "success", flat: "neutral", worsening: "warni
 export function ProjectDashboard({ period }: { period: ReportType }) {
   const q = trpc.analytics.projects.useQuery({ type: period });
   const p = q.data;
-  if (!p) return null;
+  if (!p) return <DashboardState loading={q.isLoading} />;
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
