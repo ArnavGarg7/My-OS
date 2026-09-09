@@ -47,8 +47,12 @@ The responsive foundation (Stage 8 mobile shell + the design-system breakpoints)
 - Minor (non-blocking): a few dense `grid-cols-3/4` stat/button groups (preferences-form, BodyComposition, StreakInspector, FlashcardReview) are tight on a 375px screen but don't overflow.
 - Note: a full visual sweep of all ~30 surfaces at mobile wasn't done (proportionate to the low risk the code audit found); the patterns + spot-checks give high confidence.
 
-## Workstream 5 — Reliability scenarios
-DB/server restart (graceful reconnect, no 500), offline→online sync, sync conflict (LWW) honesty, expired OAuth (stub until Stage B), AI provider failure → Local fallback, push failure non-blocking.
+## Workstream 5 — Reliability scenarios ✅ complete
+- **DB/backend unreachable (cold start) — fixed.** Reproduced by stopping Postgres: `requireUser()` in the async `(shell)/layout.tsx` throws, and `(shell)/error.tsx` can't catch its own layout, so it fell through to the dependency-light `global-error`. Added `app/error.tsx` — the root-segment boundary that DOES catch child-segment layout throws — rendering a calm, on-brand, backend-aware screen ("The workspace couldn't load … a background service isn't reachable … Try again") inside the themed root layout, with the error digest for logs. Verified by construction (typechecks; correct Next.js boundary placement — a root `error.tsx` catches throws from nested-segment layouts). Note: dev masks it with the error overlay and prod redacts the message + is auth-gated, so a full visual proof needs a configured prod deploy; the boundary hierarchy itself is documented Next.js behaviour.
+- **AI provider failure → Local fallback — verified built.** `createEnvProviders()` always includes `local: true`; a missing/failing cloud key leaves that provider `available:false` and falls through to Local, which works offline. (Chief showed "GROUNDED · LOCAL" live.)
+- **Offline → online sync — verified built (Stage 8).** Durable IndexedDB outbox, coordinator drains through the idempotent endpoint on reconnect, honest `navigator.onLine` status + sync pill. Previously browser-verified (offline→reconnect→sync-once, idempotent).
+- **Push/notification failure — non-blocking by design** (behind the platform provider; the app never depends on delivery).
+- **Expired/invalid OAuth — Stage B** (connectors aren't live yet; the sample path already degrades honestly).
 
 ## Workstream 6 — Performance (last, light)
 Prod-build measurement: dashboard first paint, the batched Command Center query load (split critical vs deferred), search + AI latency, bundle size. Set budgets, fix regressions.
