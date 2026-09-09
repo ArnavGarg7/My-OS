@@ -17,7 +17,7 @@ Verified in a **production build**, all must hold:
 ## Workstream 1 — Correctness bugs (sweep findings, 2026-09-09)
 | ID | Finding | Status | Anchor files |
 |----|---------|--------|--------------|
-| A1.1 | Systematic hydration `useId` drift across all Radix components | open — needs prod-build determination (dev Strict-Mode vs real) | `apps/web/app/providers.tsx`, `apps/web/components/shell/{app-shell,sidebar,sidebar-content}.tsx` |
+| A1.1 | Hydration `useId` drift on Radix components | **investigated — CONFIRMED REAL** (persists with `reactStrictMode:false`, so not dev-only); **low-severity** (self-corrects post-hydration, all UI works). Root cause narrowed: on the server the shell emits exactly ONE `useId` (account menu) and it's the FIRST — a root-level fiber-count difference vs first client render; every provider/bridge/sidebar renders children unconditionally, so the cause is not app-code but the async RSC shell layout (`force-dynamic` + `await requireUser()`) shifting Radix's `useId`. **Open** — clean fix needs a shell async-boundary restructure (risky); deferred to a dedicated pass, not rushed. | `apps/web/app/(shell)/layout.tsx`, `apps/web/components/shell/app-shell.tsx` |
 | A1.2 | Chief greeting "Good morning" at 7 PM — was a **systemic timezone bug** (day-phase/working-hours read the server clock, UTC in prod) | ✅ **done** (`b091a87`), browser-verified | `packages/core/today/planner.ts`, `packages/ai/chief/morning.ts`, +threading |
 | A1.3 | Connectors header "Live credentials configured" contradicts sample cards | open | `apps/web/components/connectors/ConnectorCenter.tsx` |
 | A1.4 | Inbox row shows title + identical description | open | `apps/web/components/inbox/InboxRow.tsx` |
