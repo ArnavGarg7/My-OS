@@ -199,9 +199,15 @@ function Services() {
     <div className="flex flex-col gap-2">
       <Text variant="body-s" className="text-fg-muted">
         {q.data.connectedCount} connected · {q.data.providers.length} available.
-        {q.data.anyLive
-          ? " Live credentials are configured — connections sync real data."
-          : " No live provider credentials are configured, so a connection runs against a clearly-labelled sample feed. Sample data is never presented as real."}
+        {(() => {
+          const total = q.data.providers.length;
+          const live = q.data.providers.filter((p) => p.liveAvailable).length;
+          if (live === 0)
+            return " No live provider credentials are configured, so a connection runs against a clearly-labelled sample feed. Sample data is never presented as real.";
+          if (live === total)
+            return " Live credentials are configured — connections sync real data.";
+          return ` ${live} of ${total} providers have live credentials; the rest run against clearly-labelled sample feeds, never presented as real.`;
+        })()}
       </Text>
       {q.data.providers.map((p) => (
         <ConnectorCard key={p.id} p={p} onDone={refresh} />

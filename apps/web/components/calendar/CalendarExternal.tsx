@@ -74,7 +74,7 @@ export function CalendarExternal() {
             items.slice(0, 5).map((e) => (
               <div
                 key={e.externalId}
-                className="border-border bg-elevated flex items-center justify-between gap-2 rounded-md border px-3 py-2"
+                className="border-border bg-elevated flex flex-col gap-1 rounded-md border px-3 py-2"
               >
                 <div className="flex min-w-0 items-center gap-2">
                   <CalendarClock size={13} aria-hidden className="text-fg-subtle shrink-0" />
@@ -82,12 +82,14 @@ export function CalendarExternal() {
                     {e.label}
                   </Text>
                   {e.sample ? (
-                    <Badge variant="warning" size="sm">
+                    <Badge variant="warning" size="sm" className="shrink-0">
                       sample
                     </Badge>
                   ) : null}
                 </div>
-                <MonoLabel tone="subtle">{e.kind.replace("calendar.", "")}</MonoLabel>
+                <MonoLabel tone="subtle" className="pl-5">
+                  {e.kind.replace("calendar.", "")}
+                </MonoLabel>
               </div>
             ))
           )}
