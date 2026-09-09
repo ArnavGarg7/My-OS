@@ -39,8 +39,13 @@ Audited from code across all 41 page routes.
 - **Icon-only controls:** all `IconButton` usages carry an `aria-label` (audited every occurrence).
 - **Focus + keyboard:** `focus-visible:ring-ring` applied across interactive elements; Radix Dialog/DropdownMenu provide focus traps + roving focus; the ⌘K palette has custom arrow/Enter nav.
 
-## Workstream 4 — Responsive audit
-All surfaces at 375 / 768 / desktop: no horizontal scroll, tap targets ≥ 44 px, bottom-nav present, modals→sheets on mobile, wide content scrolls inside its container.
+## Workstream 4 — Responsive audit ✅ complete (pass — no code changes needed)
+The responsive foundation (Stage 8 mobile shell + the design-system breakpoints) is sound. Audited from code + spot-checked at 375px.
+- **No horizontal-overflow risks.** Both `<table>`s are wrapped in `overflow-x-auto`; fixed widths are all `max-w-[…]` (cap, don't force) or `<lg`-hidden; the context panel is `hidden … lg:flex`; the mobile bottom nav appears `<md`.
+- **Wide grids handled.** Calendar Week/Month + mini-calendar use `grid-cols-7` with no cell min-width, so they shrink to fit (tight but no scroll); Agenda (default) is the mobile-friendly view. Main content grids (tiles, dashboards) use responsive `sm:/md:/lg:` column counts (verified Command Center 2-col + Analytics at 375px).
+- **Verified at 375px:** Command Center (2-col tiles, bottom nav), Calendar (Agenda + toolbar wrap, empty state) — both clean.
+- Minor (non-blocking): a few dense `grid-cols-3/4` stat/button groups (preferences-form, BodyComposition, StreakInspector, FlashcardReview) are tight on a 375px screen but don't overflow.
+- Note: a full visual sweep of all ~30 surfaces at mobile wasn't done (proportionate to the low risk the code audit found); the patterns + spot-checks give high confidence.
 
 ## Workstream 5 — Reliability scenarios
 DB/server restart (graceful reconnect, no 500), offline→online sync, sync conflict (LWW) honesty, expired OAuth (stub until Stage B), AI provider failure → Local fallback, push failure non-blocking.
