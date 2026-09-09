@@ -53,7 +53,7 @@ async function buildContext(
     preferredStartOfDay: prefs.preferredStartOfDay,
     preferredEndOfDay: prefs.preferredEndOfDay,
   });
-  const snapshot = planToday({ date, now, workingHours });
+  const snapshot = planToday({ date, now, workingHours, timezone: tz });
   const dependencies: TaskDependency[] = tasks.flatMap((t) =>
     t.dependencies.map((dependsOnTaskId) => ({ taskId: t.id, dependsOnTaskId })),
   );
