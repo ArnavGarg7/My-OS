@@ -142,12 +142,85 @@ interface GitHubThread {
   repository?: { full_name?: string };
 }
 
+/** Gmail: important + unread messages (last 14 days) newer than the checkpoint → email payloads. */
+async function fetchGmail(token: string, checkpoint: string | null): Promise<RawPayload[]> {
+  const auth = { authorization: `Bearer ${token}` };
+  const list = await fetch(
+    "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10&q=" +
+      encodeURIComponent("is:important is:unread newer_than:14d"),
+    { headers: auth },
+  );
+  if (!list.ok) return [];
+  const ids = ((await list.json()) as { messages?: { id: string }[] }).messages ?? [];
+  const out: RawPayload[] = [];
+  for (const { id } of ids.slice(0, 10)) {
+    const res = await fetch(
+      `https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=Subject&metadataHeaders=From`,
+      { headers: auth },
+    );
+    if (!res.ok) continue;
+    const msg = (await res.json()) as GmailMessage;
+    const at = msg.internalDate
+      ? new Date(Number(msg.internalDate)).toISOString()
+      : new Date().toISOString();
+    if (checkpoint && at <= checkpoint) continue; // idempotent across syncs
+    const headers = msg.payload?.headers ?? [];
+    const header = (name: string) => headers.find((h) => h.name === name)?.value;
+    out.push({
+      type: "message.important",
+      externalId: id,
+      at,
+      fields: { label: header("Subject") ?? "(no subject)", from: header("From") ?? "" },
+    });
+  }
+  return out;
+}
+
+interface GmailMessage {
+  internalDate?: string;
+  payload?: { headers?: { name?: string; value?: string }[] };
+}
+
+/** Google Drive: recently-modified files newer than the checkpoint → document-updated payloads. */
+async function fetchGoogleDrive(token: string, checkpoint: string | null): Promise<RawPayload[]> {
+  const params = new URLSearchParams({
+    orderBy: "modifiedTime desc",
+    pageSize: "15",
+    fields: "files(id,name,modifiedTime)",
+  });
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files?${params.toString()}`, {
+    headers: { authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return [];
+  const files = ((await res.json()) as { files?: DriveFile[] }).files ?? [];
+  return files.flatMap((f) => {
+    if (!f.id || !f.modifiedTime) return [];
+    if (checkpoint && f.modifiedTime <= checkpoint) return []; // idempotent across syncs
+    return [
+      {
+        type: "file.updated",
+        externalId: f.id,
+        at: f.modifiedTime,
+        fields: { label: f.name ?? "(untitled file)" },
+      } satisfies RawPayload,
+    ];
+  });
+}
+
+interface DriveFile {
+  id?: string;
+  name?: string;
+  modifiedTime?: string;
+}
+
 const FETCHERS: Record<
   string,
   (token: string, checkpoint: string | null) => Promise<RawPayload[]>
 > = {
   "google-calendar": fetchGoogleCalendar,
   github: fetchGitHub,
+  gmail: fetchGmail,
+  "google-drive": fetchGoogleDrive,
 };
 
 /** Whether a real (non-sample) live fetcher is implemented for this provider. */
