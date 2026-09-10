@@ -84,6 +84,8 @@ export const serverEnvSchema = z.object({
   MYOS_INTERNAL_SECRET: z.string().optional(),
   /** Cron for the always-on proactive evaluation tick (default every 15 minutes). */
   PROACTIVE_EVAL_CRON: z.string().default("*/15 * * * *"),
+  /** Cron for background sync of live connectors (Stage B; default every 15 minutes). */
+  CONNECTOR_SYNC_CRON: z.string().default("*/15 * * * *"),
 
   // Web Push / VAPID (optional until Stage 4). The public key is also exposed to
   // the browser (NEXT_PUBLIC_) so the client can create a push subscription.
