@@ -5,6 +5,7 @@
  * user_id on domain tables).
  */
 import { jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { encryptedText } from "../crypto";
 
 export const captureType = pgEnum("capture_type", [
   "text",
@@ -39,7 +40,7 @@ export const inboxItems = pgTable("inbox_items", {
   id: uuid("id").defaultRandom().primaryKey(),
   type: captureType("type").notNull().default("text"),
   title: text("title").notNull(),
-  content: text("content").notNull().default(""),
+  content: encryptedText("content").notNull().default(""),
   metadata: jsonb("metadata").$type<Record<string, unknown>>().notNull().default({}),
   status: captureStatus("status").notNull().default("new"),
   source: captureSource("source").notNull().default("quick_add"),

@@ -48,6 +48,13 @@ export interface DomainClassification {
  */
 export const DOMAIN_CLASSIFICATION: DomainClassification[] = [
   {
+    file: "vault.ts",
+    level: "private",
+    rawAiSafe: false,
+    rationale:
+      "Secure Vault: true E2EE. Stores ONLY client-encrypted ciphertext + wrapped keys — the server never sees plaintext, the passphrase, or the DEK. Never AI-reachable by construction.",
+  },
+  {
     file: "identity.ts",
     level: "private",
     rawAiSafe: false,
