@@ -17,6 +17,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import { encryptedText } from "../crypto";
 
 export const knowledgeType = pgEnum("knowledge_type", [
   "note",
@@ -77,7 +78,7 @@ export const knowledgeNotes = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     title: text("title").notNull().default("Untitled"),
-    content: text("content").notNull().default(""),
+    content: encryptedText("content").notNull().default(""),
     tags: jsonb("tags").$type<string[]>().notNull().default([]),
     linkedTitles: jsonb("linked_titles").$type<string[]>().notNull().default([]),
     archived: boolean("archived").notNull().default(false),
@@ -96,7 +97,7 @@ export const wikiPages = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     title: text("title").notNull(),
     slug: text("slug").notNull().unique(),
-    content: text("content").notNull().default(""),
+    content: encryptedText("content").notNull().default(""),
     tags: jsonb("tags").$type<string[]>().notNull().default([]),
     linkedTitles: jsonb("linked_titles").$type<string[]>().notNull().default([]),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

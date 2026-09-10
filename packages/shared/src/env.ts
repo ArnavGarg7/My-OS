@@ -64,6 +64,14 @@ export const serverEnvSchema = z.object({
    */
   MYOS_CONNECTOR_SECRET: z.string().optional(),
   /**
+   * Data-at-rest encryption key (Stage C, Tier 1). Encrypts `private` free-text bodies
+   * (journal/notes/inbox/messages/memories) at rest via the `encryptedText` column type —
+   * distinct from the credential secrets. ⚠️ Back this up SEPARATELY from the database: lose
+   * it and the encrypted bodies are unrecoverable. When absent, a deterministic dev key keeps
+   * local/CI working (never a real secret).
+   */
+  MYOS_DATA_ENCRYPTION_KEY: z.string().optional(),
+  /**
    * Live connector OAuth app credentials (Stage B). Server-side ONLY — never NEXT_PUBLIC_.
    * Presence of a CLIENT_ID flips that provider to live-available (see connectors/capabilities);
    * the CLIENT_SECRET is used server-side in the token exchange/refresh. Blank = sample mode.

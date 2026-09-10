@@ -6,6 +6,9 @@ export * as schema from "./schema/index";
 export type Schema = typeof schema;
 export type Database = PostgresJsDatabase<Schema>;
 
+// Field-level encryption at rest (Stage C, Tier 1).
+export { encryptedText, sealField, openField, isSealed } from "./crypto";
+
 export interface DbHandle {
   readonly db: Database;
   readonly sql: Sql;

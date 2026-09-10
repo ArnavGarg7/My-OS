@@ -19,6 +19,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import { encryptedText } from "../crypto";
 
 export const membershipRole = pgEnum("membership_role", ["viewer", "commenter", "editor", "admin"]);
 
@@ -106,7 +107,7 @@ export const messages = pgTable(
       .notNull()
       .references(() => conversations.id, { onDelete: "cascade" }),
     authorCollaboratorId: uuid("author_collaborator_id"),
-    body: text("body").notNull().default(""),
+    body: encryptedText("body").notNull().default(""),
     mentions: jsonb("mentions").$type<string[]>().notNull().default([]),
     parentMessageId: uuid("parent_message_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "generate": "drizzle-kit generate",
     "migrate": "tsx src/migrate.ts",
+    "backfill:encryption": "tsx src/backfill-encryption.ts",
     "studio": "drizzle-kit studio",
     "check": "tsx src/check.ts",
     "seed": "tsx src/seed/index.ts"
