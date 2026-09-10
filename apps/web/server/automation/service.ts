@@ -153,7 +153,7 @@ export async function execute(
 
   const results = [];
   for (const action of plan.actions) {
-    results.push(await dispatchAction(action, { db, tz: prefs.timezone, prefs }));
+    results.push(await dispatchAction(action, { db, tz: prefs.timezone, prefs, payload }));
   }
   record = completeRecord(record, new Date(), results);
   await repo.recordExecution(db, record);
@@ -180,6 +180,35 @@ export async function fire(
     records.push(await execute(db, rule.id, prefs, event.payload, now));
   }
   return records;
+}
+
+/**
+ * Fire enabled `connector`-triggered rules for a batch of normalized connector events (Stage B).
+ * Called from the connector sync so a real external event (e.g. a GitHub CI failure) can drive an
+ * automation. Cheap no-op when no connector rule is enabled — the common case — so it never taxes a
+ * normal sync. Fully guarded by the caller; automation still only calls existing services.
+ */
+export async function fireForConnectorEvents(
+  db: Database,
+  tz: string,
+  events: { kind: string; payload: Record<string, unknown> }[],
+  now = new Date(),
+): Promise<number> {
+  const rules = await repo.list(db).catch(() => []);
+  const hasConnectorRule = rules.some(
+    (r) => r.status === "enabled" && r.trigger.kind === "connector",
+  );
+  if (!hasConnectorRule || events.length === 0) return 0;
+  const prefs: Prefs = { preferredStartOfDay: "09:00", preferredEndOfDay: "18:00", timezone: tz };
+  let fired = 0;
+  for (const e of events) {
+    const event = makeTrigger(randomUUID(), "connector", e.kind, now, e.payload, {
+      origin: "connector",
+    });
+    const records = await fire(db, event, prefs, now).catch(() => []);
+    fired += records.length;
+  }
+  return fired;
 }
 
 export function history(db: Database, ruleId: string | undefined, limit = 100) {

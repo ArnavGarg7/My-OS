@@ -25,6 +25,7 @@ export const TRIGGER_KINDS = [
   "inbox",
   "manual",
   "time",
+  "connector",
 ] as const;
 export type TriggerKind = (typeof TRIGGER_KINDS)[number];
 
@@ -81,6 +82,7 @@ export const ACTION_KINDS = [
   "create_reminder",
   "complete_reminder",
   "run_custom_workflow",
+  "create_task",
   "noop",
 ] as const;
 export type ActionKind = (typeof ACTION_KINDS)[number];

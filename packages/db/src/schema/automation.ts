@@ -42,6 +42,7 @@ export const triggerKind = pgEnum("trigger_kind", [
   "inbox",
   "manual",
   "time",
+  "connector",
 ]);
 
 export const actionKind = pgEnum("action_kind", [
@@ -62,6 +63,7 @@ export const actionKind = pgEnum("action_kind", [
   "create_reminder",
   "complete_reminder",
   "run_custom_workflow",
+  "create_task",
   "noop",
 ]);
 

@@ -12,8 +12,11 @@ import {
   type NormalizedEvent,
 } from "@myos/core/connectors";
 import * as signalsService from "../signals/service";
+import * as automationService from "../automation/service";
 import { fetchRaw, type LiveFetch } from "./feed";
 import { encryptSecret, secretHint } from "./vault";
+import { isOAuthProvider, oauthConfigured, type TokenBundle } from "./oauth";
+import { hasLiveFetcher, makeLiveFetch } from "./live";
 import { providerLiveAvailable, capabilities as deriveCapabilities } from "./capabilities";
 import { writeExternal, writeCapability, type ExternalWriteAction, type LiveWrite } from "./write";
 import * as repo from "./repository";
@@ -63,6 +66,8 @@ export async function list(db: Database) {
       // credentials runs against the labelled SAMPLE feed, never real data.
       liveAvailable,
       sample: connected && !liveAvailable,
+      // Whether connecting goes through the real OAuth flow (vs the sample/api-key path).
+      oauth: isOAuthProvider(p.id),
       canWrite: writeCapability(p.id).supportsWrite,
     };
   });
@@ -104,6 +109,43 @@ export async function connect(db: Database, providerId: string, label?: string, 
   return { ok: true as const, accountId, state: next, hint: secret ? secretHint(secret) : null };
 }
 
+/**
+ * Store a real OAuth token bundle for a provider (Stage B). Called by the OAuth callback after the
+ * code→token exchange. Replaces any existing account for that provider (a fresh consent supersedes
+ * the old grant), encrypts the bundle via the vault, and moves the lifecycle to connected. The
+ * plaintext tokens are sealed immediately and never returned or logged.
+ */
+export async function connectOAuth(
+  db: Database,
+  providerId: string,
+  bundle: TokenBundle,
+  label?: string,
+) {
+  const provider = getProvider(providerId);
+  if (!provider) return { ok: false as const, error: "unknown_provider" };
+
+  // One live grant per provider — drop any prior account so tokens don't accumulate.
+  const existing = (await repo.listAccounts(db).catch(() => [])).filter(
+    (a) => a.providerId === providerId,
+  );
+  for (const a of existing) await repo.deleteAccount(db, a.id).catch(() => {});
+
+  const accountId = await repo.insertAccount(
+    db,
+    providerId,
+    label ?? provider.name,
+    "authenticating",
+  );
+  const sealed = encryptSecret(JSON.stringify(bundle));
+  await repo
+    .insertCredential(db, accountId, sealed, "•••live", provider.permissions)
+    .catch(() => {});
+  await repo.insertPermissions(db, accountId, provider.permissions).catch(() => {});
+  const next: ConnectorState = transition("authenticating", "connected");
+  await repo.setAccountState(db, accountId, next);
+  return { ok: true as const, accountId, state: next };
+}
+
 /** connectors.disconnect — remove the account and its encrypted credential. */
 export async function disconnect(db: Database, accountId: string) {
   await repo.deleteAccount(db, accountId).catch(() => {});
@@ -135,9 +177,17 @@ export async function sync(
     .recordSyncJob(db, accountId, account.checkpoint ? "incremental" : "full", trigger, "running")
     .catch(() => {});
 
+  // Route to the REAL provider fetch when this account has live OAuth credentials + an implemented
+  // fetcher; otherwise fall through to the deterministic offline sample (like the AI Local default).
+  let effectiveLive = liveFetch;
+  if (!effectiveLive && oauthConfigured(account.providerId) && hasLiveFetcher(account.providerId)) {
+    const cred = await repo.loadCredential(db, accountId).catch(() => null);
+    if (cred) effectiveLive = makeLiveFetch(db, account) ?? undefined;
+  }
+
   try {
     const plan = planSync(accountId, account.checkpoint, trigger);
-    const raws = await fetchRaw(account.providerId, plan.fromCheckpoint, now, liveFetch);
+    const raws = await fetchRaw(account.providerId, plan.fromCheckpoint, now, effectiveLive);
     const result = resolveSync(account.providerId, raws, { newId, now }, account.checkpoint);
 
     await repo
@@ -198,6 +248,17 @@ export async function sync(
     // producing signals (and downstream predictions/automation) exactly as internal events do.
     await signalsService.run(db, tz, result.events, now).catch(() => {});
 
+    // Real-event automation (Stage B): let enabled `connector`-triggered rules react to these events
+    // (e.g. GitHub CI failure → task). No-op unless such a rule exists; guarded so it never breaks sync.
+    await automationService
+      .fireForConnectorEvents(
+        db,
+        tz,
+        result.events.map((e) => ({ kind: e.kind, payload: e.payload })),
+        now,
+      )
+      .catch(() => {});
+
     return {
       ok: true,
       events: result.events,
@@ -212,6 +273,33 @@ export async function sync(
     await repo.setAccountState(db, accountId, "warning").catch(() => {});
     return { ok: false, events: [], dropped: 0, checkpoint: account.checkpoint };
   }
+}
+
+/**
+ * Sync every connected account that can fetch real data (Stage B, background auto-sync). Called by
+ * the worker's pg-boss cron via the internal endpoint so live connectors stay fresh without the user
+ * clicking "Sync now". Skips sample-only accounts (no live fetcher / no credential). Fully guarded —
+ * one account's failure never aborts the rest.
+ */
+export async function syncAllConnected(
+  db: Database,
+  tz: string,
+  now = new Date(),
+): Promise<{ accounts: number; synced: number; events: number }> {
+  const accounts = await repo.listAccounts(db).catch(() => []);
+  let synced = 0;
+  let events = 0;
+  for (const a of accounts) {
+    if (!oauthConfigured(a.providerId) || !hasLiveFetcher(a.providerId)) continue;
+    const cred = await repo.loadCredential(db, a.id).catch(() => null);
+    if (!cred) continue;
+    const r = await sync(db, a.id, tz, "polling", now).catch(() => null);
+    if (r?.ok) {
+      synced++;
+      events += r.events.length;
+    }
+  }
+  return { accounts: accounts.length, synced, events };
 }
 
 /** connectors.health — the latest health per account, banded. */

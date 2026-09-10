@@ -82,8 +82,11 @@ export async function setAccountSync(
 }
 
 export async function deleteAccount(db: Database, id: string): Promise<void> {
-  // Delete credentials FIRST (secrets must not outlive the account), then the account.
+  // Delete credentials FIRST (secrets must not outlive the account), then this account's
+  // normalized events (so a disconnect/upgrade doesn't leave orphaned events lingering in
+  // the feed), then the account row itself.
   await db.delete(connectorCredentials).where(eq(connectorCredentials.accountId, id));
+  await db.delete(connectorEvents).where(eq(connectorEvents.accountId, id));
   await db.delete(connectorAccounts).where(eq(connectorAccounts.id, id));
 }
 
@@ -103,6 +106,19 @@ export async function insertCredential(
     hint,
     scopes,
   });
+}
+
+/** Replace an account's sealed credential in place (used after an OAuth token refresh). */
+export async function updateCredential(
+  db: Database,
+  accountId: string,
+  sealed: Sealed,
+  hint: string,
+): Promise<void> {
+  await db
+    .update(connectorCredentials)
+    .set({ ciphertext: sealed.ciphertext, iv: sealed.iv, tag: sealed.tag, hint })
+    .where(eq(connectorCredentials.accountId, accountId));
 }
 
 /** Load a sealed credential for the SYNC path only. Returns ciphertext, never plaintext. */
