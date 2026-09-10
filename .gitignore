@@ -41,3 +41,6 @@ Thumbs.db
 # Stage 1: local extraction of the Stitch design ZIPs (derived, not source)
 docs/design-stitch/_extracted/
 apps/web/.env.local
+
+# Caddy password-gate credential (bcrypt hash) — keep the .example, ignore the real one
+infra/conf.d/auth.caddy

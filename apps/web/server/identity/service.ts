@@ -2,7 +2,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import type { UserPreferencesRow } from "@myos/db/schema";
 import { getDb } from "../db";
-import { clerkEnabled, isProduction, signInUrl } from "./config";
+import { clerkEnabled, isProduction, signInUrl, singleOwnerMode } from "./config";
 import { getProviderIdentity, getProviderUserId } from "./clerk";
 import * as repo from "./repository";
 import type { OnboardingInput, PreferencesUpdate, ProfileUpdate } from "./schemas";
@@ -40,8 +40,10 @@ async function resolveProvider(): Promise<ResolvedProvider | null> {
     return { clerkId, provider };
   }
 
-  // Local single-owner dev mode — explicitly never in production.
-  if (isProduction()) return null;
+  // Local single-owner mode. Refused in production by default so an instance is never accidentally
+  // exposed unauthenticated — UNLESS `MYOS_SINGLE_OWNER=true` opts in behind an external gate
+  // (e.g. Cloudflare Access restricting the origin to the owner). See config.singleOwnerMode.
+  if (isProduction() && !singleOwnerMode()) return null;
   return {
     clerkId: DEV_OWNER_CLERK_ID,
     provider: {
