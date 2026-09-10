@@ -26,12 +26,34 @@ Edit `.env` and set at minimum:
 - `MYOS_APP_URL` — the externally-reachable origin **including the host port**: `http://localhost:8080`
   for local production (matching `MYOS_HTTP_PORT`; `web:3000` is internal). Use `https://<your-domain>`
   with remote access. Do **not** use `:3000` in production; keep the port in sync with `MYOS_HTTP_PORT`.
+- **Authentication (choose one — required in production):**
+  - **Cloudflare Access + single-owner (simplest, no Clerk).** Leave both Clerk keys blank and set
+    `MYOS_SINGLE_OWNER=true`. The app then trusts every request as the single owner; the security
+    boundary is Cloudflare Access at the edge, which restricts the origin to your email (see
+    [remote-access.md](remote-access.md)). Only valid behind such a gate — never expose this instance
+    directly to the internet. Without either an external gate or Clerk, production returns no owner and
+    the app is inaccessible (a deliberate safety default).
+  - **Clerk.** Set `CLERK_SECRET_KEY` + `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` (both or neither). The app
+    enforces sign-in itself; `MYOS_SINGLE_OWNER` is then ignored (real auth always wins).
 - **Optional (per feature):**
   - **Cloud AI:** `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`,
     `VOYAGE_API_KEY`, `MYOS_AI_CREDENTIALS_SECRET`. Consumed server-side by `web` only; the OS runs
     fully on the offline Local provider with none of them.
-  - **Connectors:** `MYOS_CONNECTOR_SECRET` (32+ chars — `openssl rand -base64 48`).
-  - **Auth:** `CLERK_SECRET_KEY` + `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` (both or neither).
+  - **Connectors (Sprint 6.4):** `MYOS_CONNECTOR_SECRET` (32+ chars — `openssl rand -base64 48`).
+  - **Live OAuth connectors (Stage B):** `MYOS_GOOGLE_CLIENT_ID` / `_SECRET` (covers Calendar + Gmail +
+    Drive), `MYOS_GITHUB_CLIENT_ID` / `_SECRET`, `MYOS_SLACK_CLIENT_ID` / `_SECRET`. Blank = that
+    provider stays in sample mode. **Register the prod callback in each provider's OAuth app:**
+    `https://<your-domain>/api/connectors/oauth/callback/<provider>` (`<provider>` = `google-calendar` |
+    `gmail` | `google-drive` | `github` | `slack`). Slack **requires** an HTTPS redirect, so it only
+    works once the tunnel domain is live.
+  - **Data-at-rest encryption (Stage C, Tier 1):** `MYOS_DATA_ENCRYPTION_KEY` (`openssl rand -base64 48`).
+    Encrypts private free-text bodies (journal/notes/inbox/messages). ⚠️ **Back it up SEPARATELY from the
+    database** — lose it and encrypted content is unrecoverable. The E2EE Secure Vault (`/vault`) needs no
+    server key; its passphrase/recovery code are yours alone and the server cannot reset them.
+  - **Always-on worker (Stage 6 / B):** `MYOS_INTERNAL_SECRET` (any long random string) enables the
+    worker's background ticks — proactive evaluation + live-connector auto-sync. Unset = both disabled
+    (the internal endpoints return 503). Crons default to every 15 min (`PROACTIVE_EVAL_CRON`,
+    `CONNECTOR_SYNC_CRON`).
   - **Notifications:** `MYOS_VAPID_PUBLIC_KEY`, `MYOS_VAPID_PRIVATE_KEY`, `MYOS_VAPID_SUBJECT`, and
     `NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY` (same value as the public key).
 
