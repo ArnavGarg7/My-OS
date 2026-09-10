@@ -6,6 +6,7 @@
  */
 import { relations } from "drizzle-orm";
 import { boolean, date, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { encryptedText } from "../crypto";
 
 export const entryType = pgEnum("entry_type", [
   "daily",
@@ -22,7 +23,7 @@ export const reviewPeriod = pgEnum("review_period", ["daily", "weekly", "monthly
 export const journalEntries = pgTable("journal_entries", {
   id: uuid("id").defaultRandom().primaryKey(),
   title: text("title").notNull().default(""),
-  content: text("content").notNull().default(""),
+  content: encryptedText("content").notNull().default(""),
   entryType: entryType("entry_type").notNull().default("daily"),
   mood: moodLevel("mood"),
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
@@ -46,7 +47,7 @@ export const dailyReflections = pgTable("daily_reflections", {
 export const journalReviews = pgTable("journal_reviews", {
   id: uuid("id").defaultRandom().primaryKey(),
   period: reviewPeriod("period").notNull(),
-  summary: text("summary").notNull().default(""),
+  summary: encryptedText("summary").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
