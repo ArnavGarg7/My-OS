@@ -12,6 +12,7 @@ import {
   type NormalizedEvent,
 } from "@myos/core/connectors";
 import * as signalsService from "../signals/service";
+import * as automationService from "../automation/service";
 import { fetchRaw, type LiveFetch } from "./feed";
 import { encryptSecret, secretHint } from "./vault";
 import { isOAuthProvider, oauthConfigured, type TokenBundle } from "./oauth";
@@ -246,6 +247,17 @@ export async function sync(
     // the intelligence stack — external events flow through the identical generate→rank→suppress path,
     // producing signals (and downstream predictions/automation) exactly as internal events do.
     await signalsService.run(db, tz, result.events, now).catch(() => {});
+
+    // Real-event automation (Stage B): let enabled `connector`-triggered rules react to these events
+    // (e.g. GitHub CI failure → task). No-op unless such a rule exists; guarded so it never breaks sync.
+    await automationService
+      .fireForConnectorEvents(
+        db,
+        tz,
+        result.events.map((e) => ({ kind: e.kind, payload: e.payload })),
+        now,
+      )
+      .catch(() => {});
 
     return {
       ok: true,

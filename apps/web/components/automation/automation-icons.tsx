@@ -9,6 +9,7 @@ import {
   Inbox,
   ListChecks,
   type LucideIcon,
+  Plug,
   Sparkles,
   Target,
   Timer,
@@ -46,6 +47,7 @@ export const TRIGGER_ICON: Record<TriggerKind, LucideIcon> = {
   inbox: Inbox,
   manual: Zap,
   time: Clock,
+  connector: Plug,
 };
 
 export const STATUS_BADGE: Record<AutomationStatus, "success" | "neutral" | "warning" | "danger"> =
