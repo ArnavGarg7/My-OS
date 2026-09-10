@@ -16,6 +16,7 @@ import {
   Milestone,
   MoonStar,
   Settings,
+  ShieldCheck,
   Bell,
   Sun,
   Target,
@@ -281,6 +282,12 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/settings",
         icon: Settings,
         description: "Preferences, data, and account.",
+      },
+      {
+        label: "Privacy & Security",
+        href: "/privacy",
+        icon: ShieldCheck,
+        description: "What's stored, how it's encrypted, and what the AI can see.",
       },
       {
         label: "Notifications",
