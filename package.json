@@ -29,7 +29,8 @@
     "audit:exports": "node scripts/export-validator.mjs",
     "audit:migrations": "node scripts/migration-validator.mjs",
     "audit:packages": "node scripts/package-health.mjs",
-    "audit:docs": "node scripts/docs-validator.mjs"
+    "audit:docs": "node scripts/docs-validator.mjs",
+    "audit:secrets": "node scripts/secret-scan.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",
