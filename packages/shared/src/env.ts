@@ -64,6 +64,18 @@ export const serverEnvSchema = z.object({
    */
   MYOS_CONNECTOR_SECRET: z.string().optional(),
   /**
+   * Live connector OAuth app credentials (Stage B). Server-side ONLY — never NEXT_PUBLIC_.
+   * Presence of a CLIENT_ID flips that provider to live-available (see connectors/capabilities);
+   * the CLIENT_SECRET is used server-side in the token exchange/refresh. Blank = sample mode.
+   * One Google app covers Calendar + Gmail + Drive.
+   */
+  MYOS_GOOGLE_CLIENT_ID: z.string().optional(),
+  MYOS_GOOGLE_CLIENT_SECRET: z.string().optional(),
+  MYOS_GITHUB_CLIENT_ID: z.string().optional(),
+  MYOS_GITHUB_CLIENT_SECRET: z.string().optional(),
+  MYOS_SLACK_CLIENT_ID: z.string().optional(),
+  MYOS_SLACK_CLIENT_SECRET: z.string().optional(),
+  /**
    * Shared secret authorizing the worker's always-on proactive evaluation tick to call the
    * web app's internal endpoint (Stage 6). When absent, the internal route is disabled (503)
    * and the worker does NOT schedule the cron — proactivity then runs only via the in-app
@@ -72,6 +84,8 @@ export const serverEnvSchema = z.object({
   MYOS_INTERNAL_SECRET: z.string().optional(),
   /** Cron for the always-on proactive evaluation tick (default every 15 minutes). */
   PROACTIVE_EVAL_CRON: z.string().default("*/15 * * * *"),
+  /** Cron for background sync of live connectors (Stage B; default every 15 minutes). */
+  CONNECTOR_SYNC_CRON: z.string().default("*/15 * * * *"),
 
   // Web Push / VAPID (optional until Stage 4). The public key is also exposed to
   // the browser (NEXT_PUBLIC_) so the client can create a push subscription.

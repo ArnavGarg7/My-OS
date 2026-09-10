@@ -1,9 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge, Button, Card, Tabs, TabsContent, TabsList, TabsTrigger, Text } from "@myos/ui";
 import { PageContainer, PageContent, PageHeader, PageLoading } from "@/components/framework";
 import { trpc, type RouterOutputs } from "@/lib/trpc/client";
+import { useToaster } from "@/lib/framework";
+
+/** Surface the OAuth callback result (?connected= / ?error=) as a toast, then clean the URL. */
+function useOAuthResult() {
+  const toaster = useToaster();
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const connected = params.get("connected");
+    const error = params.get("error");
+    if (!connected && !error) return;
+    if (connected) toaster.success("Connected", `${connected} is now syncing real data.`);
+    else toaster.error("Couldn't connect", `The connection didn't complete (${error}).`);
+    const url = new URL(window.location.href);
+    url.search = "";
+    window.history.replaceState({}, "", url.toString());
+  }, [toaster]);
+}
 
 /**
  * Connector Center (Sprint 6.4, Phase 6). The External Ecosystem surface: connect external services
@@ -36,6 +54,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 };
 
 export function ConnectorCenter() {
+  useOAuthResult();
   return (
     <PageContainer>
       <PageHeader
@@ -134,8 +153,21 @@ function ConnectorCard({ p, onDone }: { p: Provider; onDone: () => void }) {
         </Button>
         {p.connected && account ? (
           <>
+            {p.oauth && p.liveAvailable ? (
+              // OAuth is possible for this provider — offer the real consent flow. Works as an
+              // upgrade from a legacy/sample account and as a reconnect (connectOAuth replaces it).
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  window.location.href = `/api/connectors/oauth/start/${p.id}`;
+                }}
+              >
+                Connect live
+              </Button>
+            ) : null}
             <Button
-              variant="primary"
+              variant={p.oauth && p.liveAvailable ? "secondary" : "primary"}
               size="sm"
               disabled={busy}
               onClick={() =>
@@ -153,6 +185,17 @@ function ConnectorCard({ p, onDone }: { p: Provider; onDone: () => void }) {
               Disconnect
             </Button>
           </>
+        ) : p.oauth && p.liveAvailable ? (
+          // Real OAuth: hand off to the provider's consent screen (full-page redirect).
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              window.location.href = `/api/connectors/oauth/start/${p.id}`;
+            }}
+          >
+            Connect {p.name}
+          </Button>
         ) : (
           <Button
             variant="primary"

@@ -66,6 +66,35 @@ async function main(): Promise<void> {
     );
   }
 
+  // 3c. Background connector sync (Stage B). A pg-boss cron keeps live connectors
+  // (Google Calendar/Gmail/Drive, GitHub) fresh without the user clicking "Sync now".
+  // Same guard + internal-endpoint pattern as the proactive tick; no-op for sample-only
+  // accounts. Only scheduled when the shared secret is configured.
+  const CONNECTOR_SYNC_QUEUE = "connector-sync";
+  if (env.MYOS_INTERNAL_SECRET) {
+    await boss.createQueue(CONNECTOR_SYNC_QUEUE).catch(() => {});
+    await boss.work(CONNECTOR_SYNC_QUEUE, async () => {
+      try {
+        const res = await fetch(`${env.MYOS_APP_URL}/api/internal/connectors/sync`, {
+          method: "POST",
+          headers: { "x-internal-secret": env.MYOS_INTERNAL_SECRET as string },
+        });
+        logger.info({ status: res.status }, "connector sync tick");
+      } catch (error) {
+        logger.error({ err: error }, "connector sync tick failed");
+      }
+    });
+    await boss.schedule(CONNECTOR_SYNC_QUEUE, env.CONNECTOR_SYNC_CRON);
+    logger.info(
+      { cron: env.CONNECTOR_SYNC_CRON, url: env.MYOS_APP_URL },
+      "connector sync scheduled (background auto-sync active)",
+    );
+  } else {
+    logger.info(
+      "connector sync NOT scheduled — set MYOS_INTERNAL_SECRET (+ MYOS_APP_URL) to enable background sync",
+    );
+  }
+
   logger.info("worker ready");
 
   // 4. Graceful shutdown.

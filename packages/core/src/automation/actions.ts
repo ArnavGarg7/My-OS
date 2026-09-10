@@ -52,6 +52,8 @@ export function summarizeAction(action: Action): string {
       return "Complete a reminder";
     case "run_custom_workflow":
       return `Run workflow ${String(action.params.workflow ?? "custom")}`;
+    case "create_task":
+      return `Create a task${action.params.title ? `: ${String(action.params.title)}` : ""}`;
     case "noop":
       return "Do nothing";
     default:
