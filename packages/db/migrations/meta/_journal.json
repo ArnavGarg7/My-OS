@@ -309,6 +309,13 @@
       "when": 1788546581879,
       "tag": "0043_hot_molly_hayes",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1789014884477,
+      "tag": "0044_giant_riptide",
+      "breakpoints": true
     }
   ]
 }

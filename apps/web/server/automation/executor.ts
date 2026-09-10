@@ -6,6 +6,7 @@ import * as focusService from "../focus/service";
 import * as plannerService from "../planner/service";
 import * as decisionService from "../decision/service";
 import * as timelineService from "../timeline/service";
+import * as taskService from "../task/service";
 
 /**
  * Server action executor (Sprint 3.4). Maps each pure ActionKind to a call on an
@@ -24,6 +25,8 @@ interface DispatchContext {
   db: Database;
   tz: string;
   prefs: { preferredStartOfDay: string; preferredEndOfDay: string };
+  /** The triggering event's payload — lets actions ground themselves in the real event. */
+  payload?: Record<string, unknown>;
 }
 
 export async function dispatchAction(action: Action, ctx: DispatchContext): Promise<ActionResult> {
@@ -42,6 +45,7 @@ export async function dispatchAction(action: Action, ctx: DispatchContext): Prom
 
 async function run(action: Action, ctx: DispatchContext): Promise<string | undefined> {
   const { db, tz, prefs } = ctx;
+  const payload = ctx.payload ?? {};
   switch (action.kind) {
     case "generate_notification":
     case "create_reminder": {
@@ -87,6 +91,25 @@ async function run(action: Action, ctx: DispatchContext): Promise<string | undef
         title: (action.params.title as string) ?? "Automation executed",
       });
       return "timeline logged";
+    }
+    case "create_task": {
+      // Ground the task in the triggering event (e.g. a GitHub CI failure), falling back to a
+      // static title from the rule. Dedup on the title so a burst of related events (or a
+      // re-fire) yields one task, not many — automation still calls only the existing task service.
+      const fromEvent = typeof payload.label === "string" ? payload.label : undefined;
+      const prefix = (action.params.titlePrefix as string) ?? "";
+      const base = (action.params.title as string) ?? fromEvent ?? "Follow up on an external event";
+      const title = `${prefix}${base}`.slice(0, 200);
+      const existing = await taskService.search(db, title).catch(() => []);
+      if (existing.some((t) => t.title === title && t.status !== "completed")) {
+        return `task exists: ${title}`;
+      }
+      const task = await taskService.create(db, {
+        title,
+        priority: (action.params.priority as never) ?? "medium",
+        ...(typeof payload.repo === "string" ? { description: `Source: ${payload.repo}` } : {}),
+      });
+      return `task created: ${task.title}`;
     }
     case "noop":
       return "noop";

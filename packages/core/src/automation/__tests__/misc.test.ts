@@ -17,9 +17,9 @@ import {
 import { makeEvent, makeRecord, makeRule } from "../fixtures";
 
 describe("constants", () => {
-  it("defines 17 trigger kinds, 18 action kinds, 9 policies", () => {
-    expect(TRIGGER_KINDS).toHaveLength(17);
-    expect(ACTION_KINDS).toHaveLength(18);
+  it("defines 18 trigger kinds, 19 action kinds, 9 policies", () => {
+    expect(TRIGGER_KINDS).toHaveLength(18);
+    expect(ACTION_KINDS).toHaveLength(19);
     expect(EXECUTION_POLICIES).toHaveLength(9);
   });
   it("priority rank orders critical highest", () => {
