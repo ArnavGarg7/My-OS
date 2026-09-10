@@ -44,6 +44,15 @@ export const serverEnvSchema = z.object({
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().optional(),
   NEXT_PUBLIC_CLERK_SIGN_IN_URL: z.string().default("/sign-in"),
   NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.string().default("/sign-up"),
+  /**
+   * Explicit opt-in to run the single-owner (no-Clerk) identity in PRODUCTION (O1 deployment).
+   * By default the app refuses the local owner when NODE_ENV=production so an instance can never be
+   * accidentally exposed without authentication. Set this to "true" ONLY when the origin is gated by an
+   * external access layer (e.g. Cloudflare Access restricting it to the owner's email) — then the app
+   * trusts every request as the single owner. Ignored whenever Clerk is configured (real auth always
+   * wins). Has no effect outside production, where single-owner is already the default.
+   */
+  MYOS_SINGLE_OWNER: z.string().optional(),
 
   // AI providers (optional). Server-side only — never exposed to the browser,
   // never logged. A provider activates only when its key is present; the Local
@@ -157,6 +166,20 @@ export function isClerkConfigured(
   env: Pick<ServerEnv, "CLERK_SECRET_KEY" | "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY">,
 ): boolean {
   return Boolean(env.CLERK_SECRET_KEY) && Boolean(env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+}
+
+/**
+ * Feature flag: is the app allowed to run the single-owner (no-Clerk) identity in production?
+ * True only when `MYOS_SINGLE_OWNER` is explicitly "true" AND Clerk is not configured — an instance
+ * gated by an external access layer (Cloudflare Access). Real Clerk auth always takes precedence.
+ */
+export function isSingleOwnerMode(
+  env: Pick<
+    ServerEnv,
+    "MYOS_SINGLE_OWNER" | "CLERK_SECRET_KEY" | "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+  >,
+): boolean {
+  return env.MYOS_SINGLE_OWNER === "true" && !isClerkConfigured(env);
 }
 
 /** Feature flag: is Web Push configured (VAPID keys present)? (Sprint 1.7) */

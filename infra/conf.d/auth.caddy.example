@@ -1,0 +1,6 @@
+# Copy to `auth.caddy` and replace the hash with your own (see README.md).
+# Generate the hash:  docker run --rm caddy:2-alpine caddy hash-password --plaintext 'your-password'
+# `owner` is the login username; the $2a$… value is the bcrypt hash of the password (never the plaintext).
+basic_auth {
+	owner $2a$14$REPLACE_WITH_YOUR_BCRYPT_HASH
+}

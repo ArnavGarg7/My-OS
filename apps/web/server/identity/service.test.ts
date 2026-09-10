@@ -10,6 +10,7 @@ const h = vi.hoisted(() => ({
   }),
   clerkEnabled: vi.fn(),
   isProduction: vi.fn(),
+  singleOwnerMode: vi.fn(),
   getProviderUserId: vi.fn(),
   getProviderIdentity: vi.fn(),
   ensureUser: vi.fn(),
@@ -22,6 +23,7 @@ vi.mock("next/navigation", () => ({ redirect: h.redirect }));
 vi.mock("./config", () => ({
   clerkEnabled: () => h.clerkEnabled(),
   isProduction: () => h.isProduction(),
+  singleOwnerMode: () => h.singleOwnerMode(),
   signInUrl: () => "/sign-in",
 }));
 vi.mock("./clerk", () => ({
@@ -41,6 +43,7 @@ const {
   redirect,
   clerkEnabled,
   isProduction,
+  singleOwnerMode,
   getProviderUserId,
   getProviderIdentity,
   ensureUser,
@@ -88,6 +91,7 @@ const authUser = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  singleOwnerMode.mockReturnValue(false);
   ensureUser.mockResolvedValue(authUser);
   getPreferences.mockResolvedValue(makeRow());
   updatePreferences.mockResolvedValue(makeRow());
@@ -108,12 +112,25 @@ describe("getCurrentUser — dev fallback", () => {
     expect(ensureUser).toHaveBeenCalledWith(expect.anything(), "dev-owner");
   });
 
-  it("returns null when Clerk is disabled in production (no dev owner)", async () => {
+  it("returns null when Clerk is disabled in production without the single-owner opt-in", async () => {
     clerkEnabled.mockReturnValue(false);
     isProduction.mockReturnValue(true);
+    singleOwnerMode.mockReturnValue(false);
 
     expect(await service.getCurrentUser()).toBeNull();
     expect(ensureUser).not.toHaveBeenCalled();
+  });
+
+  it("returns the local owner in production when the single-owner gate is opted in", async () => {
+    clerkEnabled.mockReturnValue(false);
+    isProduction.mockReturnValue(true);
+    singleOwnerMode.mockReturnValue(true);
+
+    const identity = await service.getCurrentUser();
+
+    expect(identity).not.toBeNull();
+    expect(identity!.role).toBe("owner");
+    expect(ensureUser).toHaveBeenCalledWith(expect.anything(), "dev-owner");
   });
 });
 
