@@ -15,6 +15,7 @@ import {
   ListChecks,
   Milestone,
   MoonStar,
+  KeyRound,
   Settings,
   ShieldCheck,
   Bell,
@@ -288,6 +289,12 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/privacy",
         icon: ShieldCheck,
         description: "What's stored, how it's encrypted, and what the AI can see.",
+      },
+      {
+        label: "Secure Vault",
+        href: "/vault",
+        icon: KeyRound,
+        description: "End-to-end encrypted notes only you can read.",
       },
       {
         label: "Notifications",
