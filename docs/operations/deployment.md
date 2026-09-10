@@ -27,12 +27,13 @@ Edit `.env` and set at minimum:
   for local production (matching `MYOS_HTTP_PORT`; `web:3000` is internal). Use `https://<your-domain>`
   with remote access. Do **not** use `:3000` in production; keep the port in sync with `MYOS_HTTP_PORT`.
 - **Authentication (choose one — required in production):**
-  - **Cloudflare Access + single-owner (simplest, no Clerk).** Leave both Clerk keys blank and set
-    `MYOS_SINGLE_OWNER=true`. The app then trusts every request as the single owner; the security
-    boundary is Cloudflare Access at the edge, which restricts the origin to your email (see
-    [remote-access.md](remote-access.md)). Only valid behind such a gate — never expose this instance
-    directly to the internet. Without either an external gate or Clerk, production returns no owner and
-    the app is inaccessible (a deliberate safety default).
+  - **Single-owner behind an external gate (simplest, no Clerk).** Leave both Clerk keys blank and set
+    `MYOS_SINGLE_OWNER=true`. The app then trusts every request as the single owner, so it is **only**
+    valid behind a gate that restricts who reaches the origin — either **Cloudflare Access** (email gate,
+    tunnel path) or a **Caddy password prompt** (public-VM / DuckDNS path; see
+    [remote-access.md](remote-access.md)). Never expose an `MYOS_SINGLE_OWNER=true` instance ungated.
+    Without either an external gate or Clerk, production returns no owner and the app is inaccessible (a
+    deliberate safety default).
   - **Clerk.** Set `CLERK_SECRET_KEY` + `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` (both or neither). The app
     enforces sign-in itself; `MYOS_SINGLE_OWNER` is then ignored (real auth always wins).
 - **Optional (per feature):**

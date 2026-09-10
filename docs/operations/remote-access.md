@@ -72,9 +72,10 @@ domain (no tunnel) Caddy issues its own certificate via ACME when `MYOS_DOMAIN` 
 ## Alternative: public VM + DuckDNS (Caddy owns TLS, $0, no Cloudflare)
 
 If you host on a public cloud VM (e.g. an Oracle Cloud Always-Free ARM instance) and want a strictly-
-free setup with **no Cloudflare**, Caddy can terminate TLS itself against a free DuckDNS hostname. This
-trades the Cloudflare Access email-gate for the app's own **Clerk** login, and it does require opening
-two ports (unlike the tunnel).
+free setup with **no Cloudflare**, Caddy can terminate TLS itself against a free DuckDNS hostname. The
+gate here is a Caddy **password prompt** in front of **single-owner mode** (Clerk's production instances
+need CNAME records DuckDNS can't provide, so Clerk is not used on this path). It does require opening two
+ports (unlike the tunnel).
 
 1. **DuckDNS.** Create `myos.duckdns.org` at <https://www.duckdns.org> and point it at the VM's public
    IP. Keep it current with the DuckDNS cron updater (their install page gives a one-liner) so the record
@@ -85,11 +86,18 @@ two ports (unlike the tunnel).
      ```
      sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 80 -j ACCEPT
      sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT
-     sudo netfilter-persistent save        # Ubuntu; on Oracle Linux use firewall-cmd instead
+     sudo apt install -y iptables-persistent && sudo netfilter-persistent save
      ```
-3. **Auth = Clerk** (there is no edge gate here, so the URL is public until Clerk challenges it). Create a
-   free app at <https://dashboard.clerk.com>, and set `CLERK_SECRET_KEY` + `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
-   in `.env`. Add `https://myos.duckdns.org` to Clerk's allowed origins. Leave `MYOS_SINGLE_OWNER` blank.
+     (On Oracle Linux use `firewall-cmd --add-service=http --add-service=https --permanent` instead.)
+3. **Auth = single-owner + a Caddy password gate** (there is no edge gate here, so the password is what
+   keeps the public URL private). Generate a bcrypt hash and drop it in `infra/conf.d/auth.caddy`:
+   ```
+   docker run --rm caddy:2-alpine caddy hash-password --plaintext 'your-strong-password'
+   # create infra/conf.d/auth.caddy with:
+   #   basic_auth { owner <the-hash> }
+   ```
+   See [`infra/conf.d/README.md`](../../infra/conf.d/README.md). Set `MYOS_SINGLE_OWNER=true` and leave
+   both Clerk keys blank.
 4. **Point Caddy at the hostname** in `.env`:
    ```
    MYOS_SITE_ADDRESS=myos.duckdns.org      # Caddy gets a Let's Encrypt cert automatically
@@ -97,13 +105,15 @@ two ports (unlike the tunnel).
    MYOS_HTTPS_PORT=443
    MYOS_DOMAIN=myos.duckdns.org
    MYOS_APP_URL=https://myos.duckdns.org
+   MYOS_SINGLE_OWNER=true                   # trusts the request once the password gate is cleared
    ```
 5. **Start (no tunnel profile):**
    ```
    docker compose --env-file .env -f infra/docker-compose.yml up -d --build
    ```
    Caddy obtains the certificate on first boot (needs 80/443 reachable) and renews it automatically; the
-   cert persists in the `caddy_data` volume. Open `https://myos.duckdns.org` from any device.
+   cert persists in the `caddy_data` volume. Open `https://myos.duckdns.org` from any device — enter the
+   password once and the browser (and the installed PWA) remembers it.
 
 ## DNS recommendation
 

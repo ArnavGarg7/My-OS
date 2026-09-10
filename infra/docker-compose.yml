@@ -135,6 +135,9 @@ services:
       MYOS_SITE_ADDRESS: ${MYOS_SITE_ADDRESS:-:80}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Optional drop-in directives (e.g. a basic_auth password gate for the public-VM path). Empty by
+      # default — the Caddyfile imports conf.d/*.caddy and an empty glob is a no-op. See conf.d/README.md.
+      - ./conf.d:/etc/caddy/conf.d:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:

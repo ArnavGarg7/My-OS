@@ -31,5 +31,12 @@
 		-Server
 	}
 
+	# Optional password gate for the public-VM path. When MYOS_SINGLE_OWNER=true (no Clerk), this
+	# basic_auth is the external gate the app trusts as the single owner — so on the DuckDNS/public
+	# topology drop a `*.caddy` file in infra/conf.d containing a `basic_auth { <user> <bcrypt-hash> }`
+	# block (see infra/conf.d/README.md). A glob that matches nothing raises no error, so the local +
+	# Cloudflare-Tunnel paths (where the gate lives elsewhere) leave conf.d empty and are unaffected.
+	import /etc/caddy/conf.d/*.caddy
+
 	reverse_proxy web:3000
 }
