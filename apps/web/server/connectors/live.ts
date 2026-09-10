@@ -97,11 +97,57 @@ interface GoogleEvent {
   end?: { dateTime?: string; date?: string };
 }
 
+/** GitHub notification `reason` → our raw event vocabulary (only the clearly-mapped ones). */
+const GITHUB_REASON_TO_TYPE: Record<string, string> = {
+  review_requested: "pull_request.review_requested",
+  assign: "issues.assigned",
+  ci_activity: "check_run.failed",
+};
+
+/** GitHub: unread notification threads since the checkpoint → PR/issue/CI change payloads. */
+async function fetchGitHub(token: string, checkpoint: string | null): Promise<RawPayload[]> {
+  const params = new URLSearchParams({ all: "false", per_page: "25" });
+  if (checkpoint) params.set("since", checkpoint);
+  const res = await fetch(`https://api.github.com/notifications?${params.toString()}`, {
+    headers: {
+      authorization: `Bearer ${token}`,
+      accept: "application/vnd.github+json",
+      "x-github-api-version": "2022-11-28",
+    },
+  });
+  if (!res.ok) return [];
+  const threads = (await res.json()) as GitHubThread[];
+  return (Array.isArray(threads) ? threads : []).flatMap((t) => {
+    const type = t.reason ? GITHUB_REASON_TO_TYPE[t.reason] : undefined;
+    if (!type || !t.id || !t.updated_at) return [];
+    return [
+      {
+        type,
+        externalId: t.id,
+        at: t.updated_at,
+        fields: {
+          label: t.subject?.title ?? t.reason ?? "GitHub update",
+          ...(t.repository?.full_name ? { repo: t.repository.full_name } : {}),
+        },
+      } satisfies RawPayload,
+    ];
+  });
+}
+
+interface GitHubThread {
+  id?: string;
+  reason?: string;
+  updated_at?: string;
+  subject?: { title?: string; type?: string };
+  repository?: { full_name?: string };
+}
+
 const FETCHERS: Record<
   string,
   (token: string, checkpoint: string | null) => Promise<RawPayload[]>
 > = {
   "google-calendar": fetchGoogleCalendar,
+  github: fetchGitHub,
 };
 
 /** Whether a real (non-sample) live fetcher is implemented for this provider. */
