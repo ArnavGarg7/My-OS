@@ -1,16 +1,19 @@
 # Reverse proxy for My OS (04 §1/§11).
 #
-# Serve plain HTTP on container :80 for ALL hosts. This is deterministic and correct for both paths:
-#   - Local production: browser → host ${MYOS_HTTP_PORT:-8080} → container :80 → here → web:3000.
-#     No local TLS, no certificate, and no HTTP→HTTPS redirect.
-#   - Remote: the Cloudflare Tunnel terminates TLS at Cloudflare's edge and forwards to caddy:80, so
-#     Caddy only ever needs to speak HTTP internally.
-# A ":80" site address (a PORT, not a hostname) makes Caddy bind and serve HTTP on :80 for any Host.
-# A hostname site (e.g. `localhost`) instead makes Caddy HTTPS-only on :443 and leaves :80 UNSERVED —
-# even with `auto_https disable_redirects` — which is why http://localhost:8080 returned "connection
-# closed" before this fix. Direct Caddy-terminated HTTPS is intentionally NOT configured here (remote
-# TLS is Cloudflare's job); to add it later, give this site a domain address + publish the HTTPS port.
-:80 {
+# The site address is env-driven via MYOS_SITE_ADDRESS (default `:80`), so one Caddyfile serves all
+# three deployment topologies:
+#   - Local / tunnel (default, MYOS_SITE_ADDRESS unset → `:80`): Caddy serves plain HTTP on :80 for any
+#     Host. Correct for local production (browser → host ${MYOS_HTTP_PORT:-8080} → container :80) and for
+#     the Cloudflare Tunnel path (Cloudflare terminates TLS at its edge and forwards to caddy:80).
+#   - Public VM with your own TLS (MYOS_SITE_ADDRESS=myos.example.com, e.g. a DuckDNS host): a HOSTNAME
+#     site makes Caddy obtain + renew a Let's Encrypt certificate automatically and serve HTTPS on :443,
+#     with an automatic 80→443 redirect. Requires host ports 80 AND 443 published + reachable from the
+#     internet (set MYOS_HTTP_PORT=80, MYOS_HTTPS_PORT=443) so the ACME challenge succeeds; the
+#     certificate persists in the caddy_data volume across restarts.
+# A ":80" site address (a PORT, not a hostname) serves HTTP for any Host. A hostname site is HTTPS-only
+# on :443 and leaves :80 to the auto-redirect — which is why a bare `localhost` site left :80 unserved;
+# keep the default `:80` for local/tunnel and set a real hostname only when Caddy owns TLS.
+{$MYOS_SITE_ADDRESS::80} {
 	encode zstd gzip
 
 	# Baseline security headers (v1.0.0 release hardening). Edge-only — no app change.
