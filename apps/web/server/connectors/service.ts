@@ -275,6 +275,33 @@ export async function sync(
   }
 }
 
+/**
+ * Sync every connected account that can fetch real data (Stage B, background auto-sync). Called by
+ * the worker's pg-boss cron via the internal endpoint so live connectors stay fresh without the user
+ * clicking "Sync now". Skips sample-only accounts (no live fetcher / no credential). Fully guarded —
+ * one account's failure never aborts the rest.
+ */
+export async function syncAllConnected(
+  db: Database,
+  tz: string,
+  now = new Date(),
+): Promise<{ accounts: number; synced: number; events: number }> {
+  const accounts = await repo.listAccounts(db).catch(() => []);
+  let synced = 0;
+  let events = 0;
+  for (const a of accounts) {
+    if (!oauthConfigured(a.providerId) || !hasLiveFetcher(a.providerId)) continue;
+    const cred = await repo.loadCredential(db, a.id).catch(() => null);
+    if (!cred) continue;
+    const r = await sync(db, a.id, tz, "polling", now).catch(() => null);
+    if (r?.ok) {
+      synced++;
+      events += r.events.length;
+    }
+  }
+  return { accounts: accounts.length, synced, events };
+}
+
 /** connectors.health — the latest health per account, banded. */
 export async function health(db: Database) {
   const accounts = await repo.listAccounts(db).catch(() => []);
