@@ -14,7 +14,7 @@ import { SubscriptionsCard } from "./SubscriptionsCard";
 import { CashFlowCard } from "./CashFlowCard";
 import { SavingsCard } from "./SavingsCard";
 import { ForecastCard } from "./ForecastCard";
-import { FinanceTimeline } from "./FinanceTimeline";
+import { SpendingAnalysis } from "./SpendingAnalysis";
 import { formatMoney } from "./finance-icons";
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
@@ -114,9 +114,14 @@ export function FinancePage() {
             <BudgetsCard budgets={summary?.budgets ?? []} />
           </Panel>
 
-          <Panel title="Spending breakdown">
-            <FinanceTimeline transactions={finance.transactions} />
-          </Panel>
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Spending analysis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SpendingAnalysis transactions={finance.transactions} />
+            </CardContent>
+          </Card>
 
           <Panel title="Subscriptions">
             <SubscriptionsCard
