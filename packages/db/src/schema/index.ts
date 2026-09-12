@@ -39,3 +39,4 @@ export * from "./adaptation";
 export * from "./collaboration";
 export * from "./sync";
 export * from "./vault";
+export * from "./education";
