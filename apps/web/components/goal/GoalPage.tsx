@@ -10,7 +10,6 @@ import { GoalDashboard } from "./GoalDashboard";
 import { GoalViewer } from "./GoalViewer";
 import { GoalCreatorDialog } from "./GoalCreatorDialog";
 import { GoalSearch } from "./GoalSearch";
-import { QuickGoal } from "./QuickGoal";
 import { HabitTracker } from "./HabitTracker";
 
 /**
@@ -77,10 +76,6 @@ export function GoalPage() {
               </div>
             )}
           </div>
-
-          <aside className="border-border hidden w-72 shrink-0 overflow-y-auto border-l p-4 lg:block">
-            <QuickGoal onCreate={goal.create} />
-          </aside>
         </div>
       </PageContent>
     </PageContainer>
