@@ -15,12 +15,14 @@ import { clerkConfigured, googleAuthConfigured } from "./config";
 function DevAuthNotice({ verb }: { verb: string }) {
   return (
     <Card className="w-full max-w-sm p-6 text-center">
-      <Text variant="heading-s" className="mb-1">
-        Authentication not configured
+      <Text asChild variant="heading-s" className="mb-1">
+        <h1>Authentication not configured</h1>
       </Text>
-      <Text variant="body-s" className="text-fg-subtle mb-4">
-        My OS is running in local single-owner mode, so there is no {verb} step. Configure Google
-        sign-in (or Clerk) to enable authenticated access.
+      <Text asChild variant="body-s" className="text-fg-subtle mb-4">
+        <p>
+          My OS is running in local single-owner mode, so there is no {verb} step. Configure Google
+          sign-in (or Clerk) to enable authenticated access.
+        </p>
       </Text>
       <Button asChild className="w-full">
         <Link href="/today">Continue to My OS</Link>
@@ -32,13 +34,13 @@ function DevAuthNotice({ verb }: { verb: string }) {
 function GoogleSignIn() {
   return (
     <Card className="w-full max-w-sm p-6 text-center">
-      <Text variant="heading-s" className="mb-1">
-        Welcome to My OS
+      <Text asChild variant="heading-s" className="mb-1">
+        <h1>Welcome to My OS</h1>
       </Text>
-      <Text variant="body-s" className="text-fg-subtle mb-5">
-        Sign in with your Google account to continue.
+      <Text asChild variant="body-s" className="text-fg-subtle mb-5">
+        <p>Sign in with your Google account to continue.</p>
       </Text>
-      <Button className="w-full" onClick={() => void signIn("google", { callbackUrl: "/today" })}>
+      <Button className="w-full" onClick={() => void signIn("google", { callbackUrl: "/home" })}>
         Continue with Google
       </Button>
     </Card>
