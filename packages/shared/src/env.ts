@@ -54,6 +54,22 @@ export const serverEnvSchema = z.object({
    */
   MYOS_SINGLE_OWNER: z.string().optional(),
 
+  /**
+   * Google sign-in (Auth.js) — the production identity backend for the self-hosted deploy (replaces
+   * single-owner). "true" enables it; requires AUTH_SECRET + MYOS_GOOGLE_CLIENT_ID/SECRET. Ignored when
+   * Clerk is configured (Clerk always wins). One Google OAuth app covers both sign-in and the Google
+   * connector (Calendar/Gmail/Drive).
+   */
+  MYOS_GOOGLE_AUTH: z.string().optional(),
+  /** Public mirror of MYOS_GOOGLE_AUTH, inlined into the client bundle at build time (like Clerk's key)
+   *  so the browser knows to render Google sign-in. Set to the SAME value ("true"). */
+  NEXT_PUBLIC_MYOS_GOOGLE_AUTH: z.string().optional(),
+  /** Auth.js session/JWT encryption secret (required when MYOS_GOOGLE_AUTH=true). openssl rand -base64 33. */
+  AUTH_SECRET: z.string().optional(),
+  /** Comma-separated allowlist of Google emails permitted to sign in. Single-user: just your address.
+   *  Empty while MYOS_GOOGLE_AUTH is on = nobody can sign in (fail-closed). */
+  MYOS_OWNER_EMAILS: z.string().optional(),
+
   // AI providers (optional). Server-side only — never exposed to the browser,
   // never logged. A provider activates only when its key is present; the Local
   // provider is always available as the offline fallback (Sprint 5.3).
@@ -150,6 +166,19 @@ export function parseServerEnv(
         "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, or neither.",
     );
   }
+  // Google sign-in enabled but missing its prerequisites — fail loudly rather than silently locking
+  // everyone out at first request.
+  if (parsed.data.MYOS_GOOGLE_AUTH === "true" && !secret) {
+    const missing: string[] = [];
+    if (!parsed.data.AUTH_SECRET) missing.push("AUTH_SECRET");
+    if (!parsed.data.MYOS_GOOGLE_CLIENT_ID) missing.push("MYOS_GOOGLE_CLIENT_ID");
+    if (!parsed.data.MYOS_GOOGLE_CLIENT_SECRET) missing.push("MYOS_GOOGLE_CLIENT_SECRET");
+    if (missing.length > 0) {
+      throw new Error(
+        `Invalid environment variables:\n  - Google sign-in (MYOS_GOOGLE_AUTH=true) requires: ${missing.join(", ")}.`,
+      );
+    }
+  }
   return parsed.data;
 }
 
@@ -180,6 +209,39 @@ export function isSingleOwnerMode(
   >,
 ): boolean {
   return env.MYOS_SINGLE_OWNER === "true" && !isClerkConfigured(env);
+}
+
+/**
+ * Feature flag: is Google (Auth.js) sign-in the active identity backend? True only when
+ * MYOS_GOOGLE_AUTH="true" with AUTH_SECRET + the Google OAuth app credentials present, and Clerk is not
+ * configured (Clerk always wins). This is the production gate for the self-hosted deploy.
+ */
+export function isGoogleAuthConfigured(
+  env: Pick<
+    ServerEnv,
+    | "MYOS_GOOGLE_AUTH"
+    | "AUTH_SECRET"
+    | "MYOS_GOOGLE_CLIENT_ID"
+    | "MYOS_GOOGLE_CLIENT_SECRET"
+    | "CLERK_SECRET_KEY"
+    | "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+  >,
+): boolean {
+  return (
+    env.MYOS_GOOGLE_AUTH === "true" &&
+    Boolean(env.AUTH_SECRET) &&
+    Boolean(env.MYOS_GOOGLE_CLIENT_ID) &&
+    Boolean(env.MYOS_GOOGLE_CLIENT_SECRET) &&
+    !isClerkConfigured(env)
+  );
+}
+
+/** The Google emails permitted to sign in (lower-cased, trimmed). Empty = nobody (fail-closed). */
+export function ownerEmailAllowlist(env: Pick<ServerEnv, "MYOS_OWNER_EMAILS">): string[] {
+  return (env.MYOS_OWNER_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
 }
 
 /** Feature flag: is Web Push configured (VAPID keys present)? (Sprint 1.7) */
