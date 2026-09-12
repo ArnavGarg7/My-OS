@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export default async function LandingPage() {
   const identity = await getCurrentUser();
   if (identity) {
-    redirect(identity.isOnboarded ? "/command-center" : "/onboarding");
+    redirect(identity.isOnboarded ? "/home" : "/onboarding");
   }
 
   return (
@@ -41,7 +41,7 @@ export default async function LandingPage() {
         </div>
       ) : (
         <Button asChild size="lg">
-          <Link href="/command-center">Enter My OS</Link>
+          <Link href="/home">Enter My OS</Link>
         </Button>
       )}
     </main>
