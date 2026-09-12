@@ -30,9 +30,21 @@ bars vs goal + water + weight), the **food logger** (type or **voice** via `use-
 → **review the DB match + confirm grams** → log; unresolved foods show "no match" instead of guessing),
 planned vs actual diary, water + weight quick-logs, and an editable daily-goals panel. `components/nutrition/*`.
 
-## Part C — deeper integration (next)
-A Today macro summary panel, a Quick Add / Omni "Log food" path, offline-outbox registration for the log
-mutations, and surfacing supplements (`life.supplements`).
+## Part C — food cascade + Today (done)
+- **Resolution cascade** so common/Indian/branded foods resolve instead of "no match": USDA →
+  **Open Food Facts** (keyless; branded + Indian packaged like Maggi) → **AI estimate** (Gemini,
+  feature-local, flagged `estimated`). Databases first; the estimate is an honest, labelled fallback the
+  user still confirms. `source` now `usda | off | ai | manual`; the logger shows the source badge.
+- **Today panel** (`NutritionTodayPanel`) in the morning briefing — macros vs goal + water, links to
+  `/nutrition`; renders only once something is logged.
+- **Auth fix (shipped with this):** Google sign-in requested Calendar/Gmail/Drive (restricted) scopes,
+  which Google blocks at login for an unverified app (`Error 400: invalid_request`). Sign-in is now
+  **identity-only** (`openid email profile`); the Google connector requests its scopes separately via the
+  connector flow. `MYOS_OWNER_EMAILS` unchanged.
+
+## Later (optional)
+A Quick Add / Omni "Log food" path, offline-outbox registration for the log mutations, surfacing
+supplements (`life.supplements`), and connector-scope re-consent when the owner wants Google connectors.
 
 ## Deploy
 Migration 0047 auto-applies. Set **`FDC_API_KEY`** in `.env` for reliable food-DB throughput (DEMO_KEY

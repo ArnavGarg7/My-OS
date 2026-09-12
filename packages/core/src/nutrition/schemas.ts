@@ -29,7 +29,7 @@ export const logFoodSchema = z.object({
   fiber: z.number().min(0).max(10000).optional(),
   sugar: z.number().min(0).max(10000).optional(),
   sodium: z.number().min(0).max(1000000).optional(),
-  source: z.enum(["usda", "manual", "ai"]).optional(),
+  source: z.enum(["usda", "off", "manual", "ai"]).optional(),
   sourceRef: z.string().max(80).optional(),
   /** Planned meal (true) vs actually consumed (false, default). */
   planned: z.boolean().optional(),

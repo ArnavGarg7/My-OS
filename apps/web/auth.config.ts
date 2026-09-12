@@ -9,14 +9,10 @@ import Google from "next-auth/providers/google";
  * Google is both the sign-in provider AND the source of the Google connector's grant, so sign-in
  * requests the connector read scopes up front (one consent) — see the Google-auth stage charter.
  */
-const GOOGLE_SCOPES = [
-  "openid",
-  "email",
-  "profile",
-  "https://www.googleapis.com/auth/calendar.readonly",
-  "https://www.googleapis.com/auth/gmail.readonly",
-  "https://www.googleapis.com/auth/drive.metadata.readonly",
-].join(" ");
+// Sign-in requests IDENTITY ONLY. The Calendar/Gmail/Drive scopes are restricted/sensitive and Google
+// blocks them at login for an unverified app ("Access blocked … keeping apps secure"). The Google
+// connector requests those scopes separately, on demand, through the connector OAuth flow.
+const GOOGLE_SCOPES = ["openid", "email", "profile"].join(" ");
 
 /** Google emails allowed to sign in (lower-cased). Empty = nobody (fail-closed). */
 function ownerAllowlist(): string[] {
@@ -47,7 +43,7 @@ export const authConfig = {
       clientId: process.env.MYOS_GOOGLE_CLIENT_ID ?? "",
       clientSecret: process.env.MYOS_GOOGLE_CLIENT_SECRET ?? "",
       authorization: {
-        params: { scope: GOOGLE_SCOPES, access_type: "offline", prompt: "consent" },
+        params: { scope: GOOGLE_SCOPES, prompt: "select_account" },
       },
     }),
   ],

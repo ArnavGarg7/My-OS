@@ -12,7 +12,24 @@ import {
   type SetGoalsInput,
 } from "@myos/core/nutrition";
 import * as repo from "./repository";
-import { searchFoodDb } from "./food-db";
+import { searchFoodDb, type FoodCandidate } from "./food-db";
+import { searchOpenFoodFacts } from "./open-food-facts";
+import { estimateFood } from "./estimate";
+
+/**
+ * Resolve one food through the cascade: USDA (whole foods) → Open Food Facts (branded/Indian packaged) →
+ * an AI estimate (flagged). Databases first; the estimate is the honest fallback so common/Indian foods
+ * resolve instead of "no match". `error` is only set when even the estimate fails.
+ */
+async function resolveOne(food: string): Promise<{ candidates: FoodCandidate[]; error?: string }> {
+  const usda = await searchFoodDb(food);
+  if (usda.candidates.length > 0) return { candidates: usda.candidates };
+  const off = await searchOpenFoodFacts(food).catch(() => []);
+  if (off.length > 0) return { candidates: off };
+  const est = await estimateFood(food).catch(() => null);
+  if (est) return { candidates: [est] };
+  return usda.error ? { candidates: [], error: usda.error } : { candidates: [] };
+}
 
 /**
  * NutritionService. Parses a meal utterance (deterministic core), resolves each food against USDA (the
@@ -37,25 +54,26 @@ export async function resolveMeal(db: Database, input: ResolveMealInput) {
   const parsed = parseMealText(input.text);
   const items = await Promise.all(
     parsed.map(async (it) => {
-      const search = await searchFoodDb(it.food);
-      const top = search.candidates[0];
+      const { candidates, error } = await resolveOne(it.food);
+      const top = candidates[0];
       return {
         query: it.food,
         quantity: it.quantity ?? null,
         unit: it.unit ?? null,
         /** Grams if derivable from the portion; null → the UI asks the user for the amount. */
         suggestedGrams: gramsForPortion(it.quantity, it.unit, top?.servingGrams),
-        candidates: search.candidates,
-        error: search.ok ? undefined : search.error,
+        candidates,
+        error,
       };
     }),
   );
   return { meal: input.meal ?? null, items };
 }
 
-/** Direct food-DB search for the manual-add flow. */
+/** Direct food search for the manual-add flow — same cascade as resolveMeal. */
 export async function searchFood(_db: Database, query: string) {
-  return searchFoodDb(query);
+  const { candidates, error } = await resolveOne(query);
+  return { ok: candidates.length > 0, candidates, error };
 }
 
 // ── Logging ──────────────────────────────────────────────────────────────────
