@@ -37,7 +37,8 @@
     "./collaboration": "./src/collaboration/index.ts",
     "./sync": "./src/sync/index.ts",
     "./interaction": "./src/interaction/index.ts",
-    "./education": "./src/education/index.ts"
+    "./education": "./src/education/index.ts",
+    "./nutrition": "./src/nutrition/index.ts"
   },
   "types": "./src/index.ts",
   "scripts": {
