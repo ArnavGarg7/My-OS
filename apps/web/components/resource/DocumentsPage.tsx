@@ -9,7 +9,19 @@ import {
   type DocumentType,
   type ImportantDocument,
 } from "@myos/core/resource";
-import { DocumentIcon, formatCountdown } from "./resource-icons";
+import {
+  DOCUMENT_TYPE_ICON,
+  DOCUMENT_TYPE_LABEL,
+  DocumentIcon,
+  formatCountdown,
+} from "./resource-icons";
+import { TypePicker } from "./TypePicker";
+
+const DOCUMENT_OPTIONS = DOCUMENT_TYPES.map((t) => ({
+  value: t,
+  label: DOCUMENT_TYPE_LABEL[t],
+  icon: DOCUMENT_TYPE_ICON[t],
+}));
 
 /**
  * DocumentsPage (Sprint 4.3). The catalogue of what you must never lose: what it is, its
@@ -66,6 +78,12 @@ export function DocumentsPage({
         <Text variant="caption" tone="subtle">
           CATALOGUE A DOCUMENT — METADATA ONLY, NO FILES
         </Text>
+        <TypePicker
+          ariaLabel="Document type"
+          options={DOCUMENT_OPTIONS}
+          value={type}
+          onChange={setType}
+        />
         <div className="flex flex-wrap items-center gap-2">
           <Input
             aria-label="Document name"
@@ -74,18 +92,6 @@ export function DocumentsPage({
             onChange={(e) => setName(e.target.value)}
             className="max-w-44"
           />
-          <select
-            aria-label="Document type"
-            value={type}
-            onChange={(e) => setType(e.target.value as DocumentType)}
-            className="border-border bg-surface text-fg h-9 rounded-md border px-2 text-sm"
-          >
-            {DOCUMENT_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t.replace("_", " ")}
-              </option>
-            ))}
-          </select>
           <Input
             aria-label="Document number"
             placeholder="Number…"
@@ -161,15 +167,21 @@ function DocumentRow({
 }) {
   const [next, setNext] = useState("");
   const days = daysUntilExpiry(doc, now);
+  const TypeIcon = DOCUMENT_TYPE_ICON[doc.type];
   return (
     <li className="border-border-subtle flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2">
-      <span className="flex flex-col">
-        <Text variant="body-s">{doc.name}</Text>
-        <Text variant="caption" tone="subtle">
-          {doc.type.replace("_", " ")}
-          {doc.documentNumber ? ` · ${doc.documentNumber}` : ""}
-          {doc.location ? ` · ${doc.location}` : ""}
-        </Text>
+      <span className="flex items-center gap-2.5">
+        <span className="bg-elevated text-fg-muted flex size-8 shrink-0 items-center justify-center rounded-md">
+          <TypeIcon size={15} aria-hidden />
+        </span>
+        <span className="flex flex-col">
+          <Text variant="body-s">{doc.name}</Text>
+          <Text variant="caption" tone="subtle">
+            {DOCUMENT_TYPE_LABEL[doc.type]}
+            {doc.documentNumber ? ` · ${doc.documentNumber}` : ""}
+            {doc.location ? ` · ${doc.location}` : ""}
+          </Text>
+        </span>
       </span>
       <span className="inline-flex items-center gap-2">
         {days === null ? (

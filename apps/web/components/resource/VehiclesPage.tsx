@@ -8,7 +8,19 @@ import {
   type Vehicle,
   type VehicleType,
 } from "@myos/core/resource";
-import { VehicleIcon, formatCountdown } from "./resource-icons";
+import {
+  VEHICLE_TYPE_ICON,
+  VEHICLE_TYPE_LABEL,
+  VehicleIcon,
+  formatCountdown,
+} from "./resource-icons";
+import { TypePicker } from "./TypePicker";
+
+const VEHICLE_OPTIONS = VEHICLE_TYPES.map((t) => ({
+  value: t,
+  label: VEHICLE_TYPE_LABEL[t],
+  icon: VEHICLE_TYPE_ICON[t],
+}));
 
 /**
  * VehiclesPage (Sprint 4.3). Registration and pollution countdowns, derived on render.
@@ -61,6 +73,12 @@ export function VehiclesPage({
         <Text variant="caption" tone="subtle">
           ADD A VEHICLE
         </Text>
+        <TypePicker
+          ariaLabel="Vehicle type"
+          options={VEHICLE_OPTIONS}
+          value={type}
+          onChange={setType}
+        />
         <div className="flex flex-wrap items-center gap-2">
           <Input
             aria-label="Vehicle name"
@@ -69,18 +87,6 @@ export function VehiclesPage({
             onChange={(e) => setName(e.target.value)}
             className="max-w-40"
           />
-          <select
-            aria-label="Vehicle type"
-            value={type}
-            onChange={(e) => setType(e.target.value as VehicleType)}
-            className="border-border bg-surface text-fg h-9 rounded-md border px-2 text-sm"
-          >
-            {VEHICLE_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
           <Input
             aria-label="Registration number"
             placeholder="Registration…"
@@ -142,30 +148,38 @@ export function VehiclesPage({
         />
       ) : (
         <ul className="flex flex-col gap-1">
-          {vehicles.map((v) => (
-            <li
-              key={v.id}
-              className="border-border-subtle flex items-center justify-between rounded-md border px-3 py-2"
-            >
-              <span className="flex flex-col">
-                <Text variant="body-s">{v.name}</Text>
-                <Text variant="caption" tone="subtle">
-                  {v.type}
-                  {v.registrationNumber ? ` · ${v.registrationNumber}` : ""}
-                  {v.odometer > 0 ? ` · ${v.odometer.toLocaleString("en-IN")} km` : ""}
-                </Text>
-              </span>
-              {v.insurancePolicyId ? (
-                <Badge size="sm" variant="success">
-                  Insured
-                </Badge>
-              ) : (
-                <Badge size="sm" variant="neutral">
-                  No policy linked
-                </Badge>
-              )}
-            </li>
-          ))}
+          {vehicles.map((v) => {
+            const TypeIcon = VEHICLE_TYPE_ICON[v.type];
+            return (
+              <li
+                key={v.id}
+                className="border-border-subtle flex items-center justify-between rounded-md border px-3 py-2"
+              >
+                <span className="flex items-center gap-2.5">
+                  <span className="bg-elevated text-fg-muted flex size-8 shrink-0 items-center justify-center rounded-md">
+                    <TypeIcon size={15} aria-hidden />
+                  </span>
+                  <span className="flex flex-col">
+                    <Text variant="body-s">{v.name}</Text>
+                    <Text variant="caption" tone="subtle">
+                      {VEHICLE_TYPE_LABEL[v.type]}
+                      {v.registrationNumber ? ` · ${v.registrationNumber}` : ""}
+                      {v.odometer > 0 ? ` · ${v.odometer.toLocaleString("en-IN")} km` : ""}
+                    </Text>
+                  </span>
+                </span>
+                {v.insurancePolicyId ? (
+                  <Badge size="sm" variant="success">
+                    Insured
+                  </Badge>
+                ) : (
+                  <Badge size="sm" variant="neutral">
+                    No policy linked
+                  </Badge>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

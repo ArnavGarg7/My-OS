@@ -12,11 +12,19 @@ import {
   type InsuranceType,
 } from "@myos/core/resource";
 import {
+  INSURANCE_TYPE_ICON,
   INSURANCE_TYPE_LABEL,
   InsuranceIcon,
   formatCountdown,
   formatMoney,
 } from "./resource-icons";
+import { TypePicker } from "./TypePicker";
+
+const INSURANCE_OPTIONS = INSURANCE_TYPES.map((t) => ({
+  value: t,
+  label: INSURANCE_TYPE_LABEL[t],
+  icon: INSURANCE_TYPE_ICON[t],
+}));
 
 /**
  * InsurancePage (Sprint 4.3). Policies, coverage and renewal countdowns. The platform
@@ -72,6 +80,12 @@ export function InsurancePage({
         <Text variant="caption" tone="subtle">
           ADD A POLICY
         </Text>
+        <TypePicker
+          ariaLabel="Insurance type"
+          options={INSURANCE_OPTIONS}
+          value={type}
+          onChange={setType}
+        />
         <div className="flex flex-wrap items-center gap-2">
           <Input
             aria-label="Policy name"
@@ -80,18 +94,6 @@ export function InsurancePage({
             onChange={(e) => setName(e.target.value)}
             className="max-w-44"
           />
-          <select
-            aria-label="Insurance type"
-            value={type}
-            onChange={(e) => setType(e.target.value as InsuranceType)}
-            className="border-border bg-surface text-fg h-9 rounded-md border px-2 text-sm"
-          >
-            {INSURANCE_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {INSURANCE_TYPE_LABEL[t]}
-              </option>
-            ))}
-          </select>
           <Input
             aria-label="Provider"
             placeholder="Provider…"
@@ -189,16 +191,22 @@ function PolicyRow({
   onAddClaim: (input: { id: string; claim: string }) => void;
 }) {
   const [claim, setClaim] = useState("");
+  const TypeIcon = INSURANCE_TYPE_ICON[policy.type];
   return (
     <li className="border-border-subtle flex flex-col gap-2 rounded-md border px-3 py-2">
       <div className="flex items-center justify-between">
-        <span className="flex flex-col">
-          <Text variant="body-s">{policy.name}</Text>
-          <Text variant="caption" tone="subtle">
-            {INSURANCE_TYPE_LABEL[policy.type]}
-            {policy.provider ? ` · ${policy.provider}` : ""} · {formatMoney(policy.coverageAmount)}{" "}
-            cover
-          </Text>
+        <span className="flex items-center gap-2.5">
+          <span className="bg-elevated text-fg-muted flex size-8 shrink-0 items-center justify-center rounded-md">
+            <TypeIcon size={15} aria-hidden />
+          </span>
+          <span className="flex flex-col">
+            <Text variant="body-s">{policy.name}</Text>
+            <Text variant="caption" tone="subtle">
+              {INSURANCE_TYPE_LABEL[policy.type]}
+              {policy.provider ? ` · ${policy.provider}` : ""} ·{" "}
+              {formatMoney(policy.coverageAmount)} cover
+            </Text>
+          </span>
         </span>
         {policy.claims.length > 0 ? (
           <Badge size="sm" variant="neutral">

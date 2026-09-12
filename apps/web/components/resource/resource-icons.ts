@@ -1,21 +1,42 @@
 import {
+  Award,
+  Bike,
+  BookUser,
+  Boxes,
+  Building2,
   Cake,
   Car,
+  Cloud,
+  CreditCard,
   FileText,
+  Fingerprint,
+  Gem,
+  GraduationCap,
+  Hammer,
+  Heart,
+  HeartPulse,
   Home,
+  Laptop,
+  MoreHorizontal,
   Package,
   Plane,
+  Receipt,
   ShieldCheck,
+  Smartphone,
+  Sofa,
   TrendingUp,
   Users,
   Wallet,
   Wrench,
+  type LucideIcon,
 } from "lucide-react";
 import type {
   AssetType,
+  DocumentType,
   InsuranceType,
   RelationshipStrength,
   RelationshipType,
+  VehicleType,
 } from "@myos/core/resource";
 
 /**
@@ -83,6 +104,69 @@ export const RELATIONSHIP_TYPE_LABEL: Record<RelationshipType, string> = {
   recruiter: "Recruiter",
   investor: "Investor",
   networking: "Networking",
+};
+
+// ── Type → icon maps for the guided pickers + scannable lists (Phase 1) ──────────
+export const ASSET_TYPE_ICON: Record<AssetType, LucideIcon> = {
+  electronics: Laptop,
+  furniture: Sofa,
+  jewelry: Gem,
+  equipment: Hammer,
+  property: Building2,
+  collection: Boxes,
+  digital: Cloud,
+  vehicle: Car,
+};
+
+export const DOCUMENT_TYPE_LABEL: Record<DocumentType, string> = {
+  passport: "Passport",
+  driving_license: "Driving license",
+  pan: "PAN",
+  aadhaar: "Aadhaar",
+  certificate: "Certificate",
+  medical: "Medical",
+  insurance: "Insurance",
+  property: "Property",
+  tax: "Tax",
+  academic: "Academic",
+};
+
+export const DOCUMENT_TYPE_ICON: Record<DocumentType, LucideIcon> = {
+  passport: BookUser,
+  driving_license: Car,
+  pan: CreditCard,
+  aadhaar: Fingerprint,
+  certificate: Award,
+  medical: HeartPulse,
+  insurance: ShieldCheck,
+  property: Home,
+  tax: Receipt,
+  academic: GraduationCap,
+};
+
+export const INSURANCE_TYPE_ICON: Record<InsuranceType, LucideIcon> = {
+  health: HeartPulse,
+  life: Heart,
+  vehicle: Car,
+  home: Home,
+  travel: Plane,
+  device: Smartphone,
+};
+
+export const VEHICLE_TYPE_LABEL: Record<VehicleType, string> = {
+  car: "Car",
+  motorcycle: "Motorcycle",
+  scooter: "Scooter",
+  bicycle: "Bicycle",
+  other: "Other",
+};
+
+export const VEHICLE_TYPE_ICON: Record<VehicleType, LucideIcon> = {
+  car: Car,
+  motorcycle: Bike,
+  scooter: Bike,
+  bicycle: Bike,
+  other: MoreHorizontal,
 };
 
 /** ₹ formatting — the platform is single-currency, matching Finance (2.11). */

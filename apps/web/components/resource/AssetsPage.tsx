@@ -3,7 +3,7 @@
 import { Badge, Button, EmptyState, Text } from "@myos/ui";
 import { valueAssets, type Asset, type AssetType } from "@myos/core/resource";
 import { AssetEditor } from "./AssetEditor";
-import { ASSET_TYPE_LABEL, AssetIcon, formatMoney } from "./resource-icons";
+import { ASSET_TYPE_ICON, ASSET_TYPE_LABEL, AssetIcon, formatMoney } from "./resource-icons";
 
 /**
  * AssetsPage (Sprint 4.3). What you own, with each asset's depreciated value derived on
@@ -44,32 +44,40 @@ export function AssetsPage({
             <Text variant="body-s">{formatMoney(total)} current value</Text>
           </div>
           <ul className="flex flex-col gap-1">
-            {valued.map((v) => (
-              <li key={v.assetId}>
-                <button
-                  type="button"
-                  onClick={() => onSelect(v.assetId)}
-                  className={`border-border-subtle hover:bg-surface-subtle flex w-full items-center justify-between rounded-md border px-3 py-2 text-left ${
-                    selectedId === v.assetId ? "border-accent" : ""
-                  }`}
-                >
-                  <span className="flex flex-col">
-                    <Text variant="body-s">{v.name}</Text>
-                    <Text variant="caption" tone="subtle">
-                      {ASSET_TYPE_LABEL[v.type]} · paid {formatMoney(v.purchasePrice)}
-                    </Text>
-                  </span>
-                  <span className="inline-flex items-center gap-2">
-                    {v.underWarranty ? (
-                      <Badge size="sm" variant="success">
-                        Warranty
-                      </Badge>
-                    ) : null}
-                    <Text variant="body-s">{formatMoney(v.currentValue)}</Text>
-                  </span>
-                </button>
-              </li>
-            ))}
+            {valued.map((v) => {
+              const TypeIcon = ASSET_TYPE_ICON[v.type];
+              return (
+                <li key={v.assetId}>
+                  <button
+                    type="button"
+                    onClick={() => onSelect(v.assetId)}
+                    className={`border-border-subtle hover:bg-surface-subtle flex w-full items-center justify-between rounded-md border px-3 py-2 text-left ${
+                      selectedId === v.assetId ? "border-accent" : ""
+                    }`}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <span className="bg-elevated text-fg-muted flex size-8 shrink-0 items-center justify-center rounded-md">
+                        <TypeIcon size={15} aria-hidden />
+                      </span>
+                      <span className="flex flex-col">
+                        <Text variant="body-s">{v.name}</Text>
+                        <Text variant="caption" tone="subtle">
+                          {ASSET_TYPE_LABEL[v.type]} · paid {formatMoney(v.purchasePrice)}
+                        </Text>
+                      </span>
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      {v.underWarranty ? (
+                        <Badge size="sm" variant="success">
+                          Warranty
+                        </Badge>
+                      ) : null}
+                      <Text variant="body-s">{formatMoney(v.currentValue)}</Text>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
           {selectedId ? (
             <Button
