@@ -29,4 +29,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
+  events: {
+    /**
+     * Auto-connect the Google connector from the sign-in grant (Part B). Dynamically imported so the
+     * connectors graph never loads on the identity hot-path (this event fires only at sign-in, Node-side).
+     */
+    async signIn({ account }) {
+      if (account?.provider !== "google" || !account.access_token) return;
+      const { seedGoogleConnectorsFromGrant } = await import("@/server/identity/connector-seed");
+      await seedGoogleConnectorsFromGrant({
+        accessToken: account.access_token,
+        refreshToken: account.refresh_token ?? null,
+        expiresAt: account.expires_at ? new Date(account.expires_at * 1000).toISOString() : null,
+        scope: account.scope ?? null,
+      }).catch(() => {});
+    },
+  },
 });

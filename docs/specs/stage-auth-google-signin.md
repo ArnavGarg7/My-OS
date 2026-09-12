@@ -31,11 +31,13 @@ Clerk means reimplementing the provider seam + the client `signOut`; nothing els
   `MYOS_OWNER_EMAILS`. Reuses `MYOS_GOOGLE_CLIENT_ID/SECRET`. Fail-loud env guard when enabled but
   missing prerequisites. Build arg + Dockerfile ARG for the public flag.
 
-## What remains (Part B — connector auto-seed)
-Seed the Google connector (Calendar/Gmail/Drive) from the sign-in grant already captured on the JWT, so
-signing in connects Google automatically (no second OAuth dance). Sign-in already requests the connector
-read scopes with a refresh token. Wire on the `signIn` event → seal the tokens into the connector
-credential (reusing `connectOAuth`/`repo.updateCredential`).
+## Part B — connector auto-seed (done)
+Signing in now connects the Google connector automatically (no second OAuth dance). The Auth.js `signIn`
+**event** (`auth.ts`, Node-side, dynamically importing the connectors graph so it stays off the identity
+hot-path) builds a `TokenBundle` from the Google grant and calls `connectOAuth` for each provider whose
+scope was granted — `server/identity/connector-seed.ts` (`seedGoogleConnectorsFromGrant`). Only granted +
+OAuth-configured providers are seeded (fail-safe); the worker's background sync then fetches real data.
+Covered by `connector-seed.test.ts` (scope-gating). One Google grant covers Calendar/Gmail/Drive.
 
 ## Deployment impact (owner does on the VM)
 1. Google console: add redirect URI `https://myosarnav.duckdns.org/api/auth/callback/google`.
