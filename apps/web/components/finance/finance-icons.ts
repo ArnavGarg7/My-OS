@@ -3,11 +3,24 @@ import {
   ArrowLeftRight,
   ArrowUpRight,
   Banknote,
+  Car,
+  Clapperboard,
   CreditCard,
+  Gift,
+  GraduationCap,
+  HeartPulse,
+  Home,
   Landmark,
+  MoreHorizontal,
   PiggyBank,
+  Plane,
+  Plug,
   Repeat,
+  ShoppingBag,
+  ShoppingCart,
+  Sparkles,
   TrendingUp,
+  Utensils,
   Wallet,
   type LucideIcon,
 } from "lucide-react";
@@ -56,6 +69,31 @@ export const CYCLE_LABEL: Record<BillingCycle, string> = {
 };
 
 export const FINANCE_ICONS = { wallet: Wallet, subscription: Repeat, savings: PiggyBank };
+
+/** Category icon keys (from the core catalog) → lucide icons. Falls back to `other`. */
+export const CATEGORY_ICON: Record<string, LucideIcon> = {
+  groceries: ShoppingCart,
+  dining: Utensils,
+  transport: Car,
+  housing: Home,
+  utilities: Plug,
+  entertainment: Clapperboard,
+  health: HeartPulse,
+  shopping: ShoppingBag,
+  subscriptions: Repeat,
+  education: GraduationCap,
+  travel: Plane,
+  personal: Sparkles,
+  gifts: Gift,
+  income: Banknote,
+  savings: PiggyBank,
+  other: MoreHorizontal,
+};
+
+/** Resolve a category icon key to an icon, defaulting to the `other` icon. */
+export function categoryIcon(key: string): LucideIcon {
+  return CATEGORY_ICON[key] ?? MoreHorizontal;
+}
 
 /** Format a number as a compact currency string (single-currency this sprint). */
 export function formatMoney(amount: number, currency = "₹"): string {

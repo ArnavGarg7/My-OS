@@ -14,6 +14,7 @@ export * from "./cashflow";
 export * from "./forecasting";
 export * from "./summaries";
 export * from "./parser";
+export * from "./categories";
 export * from "./selectors";
 export * from "./engine";
 export * from "./schemas";

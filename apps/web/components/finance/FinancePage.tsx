@@ -1,10 +1,11 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@myos/ui";
+import { Card, CardContent, CardHeader, CardTitle, Text } from "@myos/ui";
 import { PageContainer, PageContent, PageLoading } from "@/components/framework";
 import { useShellStore } from "@/lib/shell/store";
 import { useFinance } from "./use-finance";
 import { AccountsCard } from "./AccountsCard";
+import { RecordEntryDialog } from "./RecordEntryDialog";
 import { QuickTransaction } from "./QuickTransaction";
 import { TransactionsTable } from "./TransactionsTable";
 import { FinanceSearch } from "./FinanceSearch";
@@ -91,6 +92,12 @@ export function FinancePage() {
               <CardTitle>Transactions</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <RecordEntryDialog controller={finance} />
+                <Text variant="caption" tone="subtle">
+                  or type it below
+                </Text>
+              </div>
               <QuickTransaction
                 accountId={finance.selectedAccountId}
                 onAdd={finance.addTransaction}
