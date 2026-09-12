@@ -16,5 +16,6 @@ export * from "./hierarchy";
 export * from "./correlations";
 export * from "./selectors";
 export * from "./parser";
+export * from "./goal-templates";
 export * from "./engine";
 export * from "./schemas";
