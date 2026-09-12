@@ -122,7 +122,8 @@ function sign(payload: string): string {
   return b64url(createHmac("sha256", stateSecret()).update(payload).digest());
 }
 
-/** Mint a signed state token binding the callback to this provider (10-minute validity). */
+/** Mint a signed state token binding the callback to this provider (30-minute validity — generous for
+ *  first-time consent flows that detour through provider setup, e.g. enabling a Google API). */
 export function signState(providerId: string): string {
   const payload = b64url(
     Buffer.from(
@@ -132,7 +133,7 @@ export function signState(providerId: string): string {
   return `${payload}.${sign(payload)}`;
 }
 
-/** Verify a state token: signature valid, provider matches, issued within the last 10 minutes. */
+/** Verify a state token: signature valid, provider matches, issued within the last 30 minutes. */
 export function verifyState(state: string | null, providerId: string): boolean {
   if (!state) return false;
   const [payload, sig] = state.split(".");
@@ -146,7 +147,7 @@ export function verifyState(state: string | null, providerId: string): boolean {
       Buffer.from(payload.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString(),
     );
     return (
-      parsed.p === providerId && typeof parsed.t === "number" && Date.now() - parsed.t < 600_000
+      parsed.p === providerId && typeof parsed.t === "number" && Date.now() - parsed.t < 1_800_000
     );
   } catch {
     return false;
