@@ -18,7 +18,6 @@ import { GoalHierarchy } from "./GoalHierarchy";
 import { GoalReviews } from "./GoalReviews";
 import { GoalSearch } from "./GoalSearch";
 import { GoalTimeline } from "./GoalTimeline";
-import { QuickGoal } from "./QuickGoal";
 import { GOAL_TYPE_LABEL, FORECAST_LABEL, STATUS_LABEL } from "./goal-icons";
 
 const at = (mo: number, d: number) => new Date(Date.UTC(2026, mo, d, 12)).toISOString();
@@ -239,25 +238,5 @@ describe("GoalTimeline", () => {
   it("prompts when no objectives", () => {
     render(<GoalTimeline goal={goal()} />);
     expect(screen.getByText(/Add objectives to chart/)).toBeInTheDocument();
-  });
-});
-
-describe("QuickGoal", () => {
-  it("parses a one-line capture into a goal", async () => {
-    const onCreate = vi.fn();
-    render(<QuickGoal onCreate={onCreate} />);
-    await userEvent.type(screen.getByLabelText("Quick goal"), "Graduate by 2027 #education");
-    await userEvent.click(screen.getByRole("button", { name: /Add/ }));
-    expect(onCreate).toHaveBeenCalledTimes(1);
-    const arg = onCreate.mock.calls[0]![0];
-    expect(arg.goalType).toBe("education");
-    expect(arg.title).toContain("Graduate");
-  });
-
-  it("does not submit empty input", async () => {
-    const onCreate = vi.fn();
-    render(<QuickGoal onCreate={onCreate} />);
-    expect(screen.getByRole("button", { name: /Add/ })).toBeDisabled();
-    expect(onCreate).not.toHaveBeenCalled();
   });
 });
