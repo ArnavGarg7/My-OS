@@ -29,6 +29,12 @@ interface OAuthConfig {
   extraAuthParams?: Record<string, string>;
   /** Space vs comma scope joiner (GitHub uses space; all use space here, kept explicit). */
   scopeSeparator: string;
+  /**
+   * Authorize-request param that carries the scopes. Default `scope`. Slack v2 splits bot (`scope`)
+   * from user (`user_scope`) — we request a USER token (channels/history/users read), so Slack uses
+   * `user_scope` and the callback reads `authed_user.access_token`.
+   */
+  scopeParam?: "scope" | "user_scope";
 }
 
 const GOOGLE = {
@@ -69,6 +75,7 @@ const CONFIGS: Record<string, OAuthConfig> = {
     clientIdEnv: "MYOS_SLACK_CLIENT_ID",
     clientSecretEnv: "MYOS_SLACK_CLIENT_SECRET",
     scopeSeparator: ",",
+    scopeParam: "user_scope",
   },
 };
 
@@ -145,7 +152,7 @@ export function buildAuthorizeUrl(
     client_id: id,
     redirect_uri: redirectUri,
     response_type: "code",
-    scope: cfg.scopes.join(cfg.scopeSeparator),
+    [cfg.scopeParam ?? "scope"]: cfg.scopes.join(cfg.scopeSeparator),
     state,
     ...(cfg.extraAuthParams ?? {}),
   });
