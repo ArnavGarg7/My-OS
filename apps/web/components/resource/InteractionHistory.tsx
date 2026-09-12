@@ -10,7 +10,14 @@ import {
   type InteractionType,
   type RelationshipInteraction,
 } from "@myos/core/resource";
-import { RelationshipIcon } from "./resource-icons";
+import { INTERACTION_TYPE_ICON, INTERACTION_TYPE_LABEL, RelationshipIcon } from "./resource-icons";
+import { TypePicker } from "./TypePicker";
+
+const INTERACTION_OPTIONS = INTERACTION_TYPES.map((t) => ({
+  value: t,
+  label: INTERACTION_TYPE_LABEL[t],
+  icon: INTERACTION_TYPE_ICON[t],
+}));
 
 /**
  * InteractionHistory (Sprint 4.3). The contact ledger for one person — log a conversation,
@@ -53,29 +60,25 @@ export function InteractionHistory({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <select
-          aria-label="Interaction type"
+      <div className="flex flex-col gap-2">
+        <TypePicker
+          ariaLabel="Interaction type"
+          options={INTERACTION_OPTIONS}
           value={type}
-          onChange={(e) => setType(e.target.value as InteractionType)}
-          className="border-border bg-surface text-fg h-9 rounded-md border px-2 text-sm"
-        >
-          {INTERACTION_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t.replace("_", " ")}
-            </option>
-          ))}
-        </select>
-        <Input
-          aria-label="Interaction notes"
-          placeholder="What did you talk about?"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="max-w-64"
+          onChange={setType}
         />
-        <Button size="sm" onClick={submit}>
-          Log
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            aria-label="Interaction notes"
+            placeholder="What did you talk about?"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="max-w-64"
+          />
+          <Button size="sm" onClick={submit}>
+            Log
+          </Button>
+        </div>
       </div>
 
       {mine.length > 0 ? (
@@ -100,24 +103,30 @@ export function InteractionHistory({
         </Text>
       ) : (
         <ul className="flex flex-col gap-1">
-          {mine.slice(0, 20).map((i) => (
-            <li
-              key={i.id}
-              className="border-border-subtle flex items-center justify-between border-b py-1 last:border-0"
-            >
-              <span className="flex flex-col">
-                <Text variant="caption">{i.type.replace("_", " ")}</Text>
-                {i.notes ? (
-                  <Text variant="caption" tone="subtle">
-                    {i.notes}
-                  </Text>
-                ) : null}
-              </span>
-              <Text variant="caption" tone="subtle">
-                {i.occurredAt.slice(0, 10)}
-              </Text>
-            </li>
-          ))}
+          {mine.slice(0, 20).map((i) => {
+            const Icon = INTERACTION_TYPE_ICON[i.type];
+            return (
+              <li
+                key={i.id}
+                className="border-border-subtle flex items-center justify-between border-b py-1 last:border-0"
+              >
+                <span className="flex items-center gap-2">
+                  <Icon size={14} aria-hidden className="text-fg-subtle shrink-0" />
+                  <span className="flex flex-col">
+                    <Text variant="caption">{INTERACTION_TYPE_LABEL[i.type]}</Text>
+                    {i.notes ? (
+                      <Text variant="caption" tone="subtle">
+                        {i.notes}
+                      </Text>
+                    ) : null}
+                  </span>
+                </span>
+                <Text variant="caption" tone="subtle">
+                  {i.occurredAt.slice(0, 10)}
+                </Text>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
