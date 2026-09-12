@@ -24,7 +24,15 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react";
-import type { AccountType, BillingCycle, TransactionDirection } from "@myos/core/finance";
+import {
+  categoriesForGroup,
+  findCategory,
+  type AccountType,
+  type BillingCycle,
+  type CategoryGroup,
+  type CustomCategory,
+  type TransactionDirection,
+} from "@myos/core/finance";
 
 /** Presentational icon + label maps for the Finance UI (Sprint 2.11). */
 export const ACCOUNT_ICON: Record<AccountType, LucideIcon> = {
@@ -93,6 +101,32 @@ export const CATEGORY_ICON: Record<string, LucideIcon> = {
 /** Resolve a category icon key to an icon, defaulting to the `other` icon. */
 export function categoryIcon(key: string): LucideIcon {
   return CATEGORY_ICON[key] ?? MoreHorizontal;
+}
+
+export interface CategoryOption {
+  id: string;
+  label: string;
+  icon: string;
+}
+
+/** Active categories (built-in + custom, archived removed) for a group, built-ins first. */
+export function categoryOptions(group: CategoryGroup, custom: CustomCategory[]): CategoryOption[] {
+  const seeded = categoriesForGroup(group).map((c) => ({ id: c.id, label: c.label, icon: c.icon }));
+  const extra = custom
+    .filter((c) => c.group === group && !c.archived)
+    .map((c) => ({ id: c.id, label: c.label, icon: c.icon }));
+  return [...seeded, ...extra];
+}
+
+/** Display label + icon key for any stored category id (built-in or custom). */
+export function categoryMeta(
+  id: string,
+  custom: CustomCategory[],
+): { label: string; icon: string } {
+  const c = custom.find((x) => x.id === id);
+  if (c) return { label: c.label, icon: c.icon };
+  const s = findCategory(id);
+  return s ? { label: s.label, icon: s.icon } : { label: id, icon: "other" };
 }
 
 /** Format a number as a compact currency string (single-currency this sprint). */

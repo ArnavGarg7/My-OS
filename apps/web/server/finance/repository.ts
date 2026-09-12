@@ -1,15 +1,18 @@
 import "server-only";
-import { desc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import type { Database } from "@myos/db";
 import {
   accounts,
   budgets,
+  financeCategories,
   savingsGoals,
   subscriptions,
   transactions,
   type AccountInsert,
   type AccountRow,
   type BudgetRow,
+  type FinanceCategoryInsert,
+  type FinanceCategoryRow,
   type SavingsGoalRow,
   type SubscriptionRow,
   type TransactionInsert,
@@ -27,6 +30,59 @@ export function listAccounts(db: Database): Promise<AccountRow[]> {
 export async function insertAccount(db: Database, values: AccountInsert): Promise<AccountRow> {
   const [row] = await db.insert(accounts).values(values).returning();
   if (!row) throw new Error("Failed to insert account");
+  return row;
+}
+
+export async function updateAccount(
+  db: Database,
+  id: string,
+  patch: Partial<Pick<AccountRow, "name" | "type" | "institution" | "archived">>,
+): Promise<AccountRow> {
+  const [row] = await db
+    .update(accounts)
+    .set({ ...patch, updatedAt: new Date() })
+    .where(eq(accounts.id, id))
+    .returning();
+  if (!row) throw new Error("Account not found");
+  return row;
+}
+
+export function listCategories(db: Database): Promise<FinanceCategoryRow[]> {
+  return db.select().from(financeCategories).orderBy(asc(financeCategories.label));
+}
+
+export async function getCategory(
+  db: Database,
+  id: string,
+): Promise<FinanceCategoryRow | undefined> {
+  const [row] = await db
+    .select()
+    .from(financeCategories)
+    .where(eq(financeCategories.id, id))
+    .limit(1);
+  return row;
+}
+
+export async function insertCategory(
+  db: Database,
+  values: FinanceCategoryInsert,
+): Promise<FinanceCategoryRow> {
+  const [row] = await db.insert(financeCategories).values(values).returning();
+  if (!row) throw new Error("Failed to insert category");
+  return row;
+}
+
+export async function updateCategory(
+  db: Database,
+  id: string,
+  patch: Partial<Pick<FinanceCategoryRow, "label" | "icon" | "color" | "archived">>,
+): Promise<FinanceCategoryRow> {
+  const [row] = await db
+    .update(financeCategories)
+    .set(patch)
+    .where(eq(financeCategories.id, id))
+    .returning();
+  if (!row) throw new Error("Category not found");
   return row;
 }
 

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { CATEGORY_CATALOG, categoriesForGroup, findCategory } from "./categories";
+import {
+  CATEGORY_CATALOG,
+  CATEGORY_ICON_KEYS,
+  categoriesForGroup,
+  findCategory,
+  isBuiltInCategory,
+  slugifyCategory,
+} from "./categories";
 
 describe("finance category catalog", () => {
   it("has unique lowercase ids in both groups", () => {
@@ -22,5 +29,26 @@ describe("finance category catalog", () => {
     expect(findCategory("GROCERIES")?.id).toBe("groceries");
     expect(findCategory("  dining ")?.id).toBe("dining");
     expect(findCategory("nonsense")).toBeUndefined();
+    expect(isBuiltInCategory("groceries")).toBe(true);
+    expect(isBuiltInCategory("pet-care")).toBe(false);
+  });
+
+  it("only uses icon keys that exist in the shared icon-key set", () => {
+    for (const c of CATEGORY_CATALOG) {
+      expect(CATEGORY_ICON_KEYS).toContain(c.icon);
+    }
+  });
+});
+
+describe("slugifyCategory", () => {
+  it("lowercases and hyphenates, trimming stray separators", () => {
+    expect(slugifyCategory("Pet Care")).toBe("pet-care");
+    expect(slugifyCategory("  Coffee & Tea!  ")).toBe("coffee-tea");
+    expect(slugifyCategory("Rent/Utilities")).toBe("rent-utilities");
+  });
+
+  it("returns an empty string when there are no usable characters", () => {
+    expect(slugifyCategory("   ")).toBe("");
+    expect(slugifyCategory("!!!")).toBe("");
   });
 });

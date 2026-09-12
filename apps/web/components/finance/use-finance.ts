@@ -25,6 +25,7 @@ export function useFinance() {
   const [query, setQuery] = useState("");
 
   const accountsQuery = trpc.finance.accounts.useQuery();
+  const categoriesQuery = trpc.finance.categories.useQuery();
   const txnsQuery = trpc.finance.transactions.useQuery();
   const budgetsQuery = trpc.finance.budgets.useQuery();
   const subsQuery = trpc.finance.subscriptions.useQuery();
@@ -66,6 +67,33 @@ export function useFinance() {
       toaster.success("Account created");
     },
   });
+  const updateAccountM = trpc.finance.updateAccount.useMutation({
+    onSuccess: () => {
+      utils.finance.accounts.invalidate();
+      utils.finance.summary.invalidate();
+      toaster.success("Account updated");
+    },
+    onError: (e) => toaster.error("Couldn't update account", e.message),
+  });
+  const invalidateCategories = () => {
+    utils.finance.categories.invalidate();
+  };
+  const createCategoryM = trpc.finance.createCategory.useMutation({
+    onSuccess: () => {
+      invalidateCategories();
+      toaster.success("Category added");
+    },
+    onError: (e) => toaster.error("Couldn't add category", e.message),
+  });
+  const updateCategoryM = trpc.finance.updateCategory.useMutation({
+    onSuccess: invalidateCategories,
+  });
+  const archiveCategoryM = trpc.finance.archiveCategory.useMutation({
+    onSuccess: () => {
+      invalidateCategories();
+      toaster.success("Category archived");
+    },
+  });
   const transferM = trpc.finance.transfer.useMutation({
     onSuccess: () => {
       refresh();
@@ -104,6 +132,7 @@ export function useFinance() {
 
   return {
     accounts: accountsQuery.data ?? [],
+    customCategories: categoriesQuery.data ?? [],
     transactions,
     view,
     budgets: budgetsQuery.data ?? [],
@@ -121,6 +150,13 @@ export function useFinance() {
     removeTransaction: (id: string) => deleteTxn.mutate({ id }),
     createAccount: (input: Parameters<typeof createAccountM.mutate>[0]) =>
       createAccountM.mutate(input),
+    updateAccount: (input: Parameters<typeof updateAccountM.mutate>[0]) =>
+      updateAccountM.mutate(input),
+    createCategory: (input: Parameters<typeof createCategoryM.mutate>[0]) =>
+      createCategoryM.mutate(input),
+    updateCategory: (input: Parameters<typeof updateCategoryM.mutate>[0]) =>
+      updateCategoryM.mutate(input),
+    archiveCategory: (id: string) => archiveCategoryM.mutate({ id }),
     transfer: (input: Parameters<typeof transferM.mutate>[0]) => transferM.mutate(input),
     createBudget: (input: Parameters<typeof createBudgetM.mutate>[0]) =>
       createBudgetM.mutate(input),

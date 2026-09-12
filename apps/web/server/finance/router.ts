@@ -1,7 +1,9 @@
 import {
+  categoryActionSchema,
   contributeSchema,
   createAccountSchema,
   createBudgetSchema,
+  createCategorySchema,
   createSavingsGoalSchema,
   createSubscriptionSchema,
   createTransactionSchema,
@@ -9,6 +11,8 @@ import {
   searchSchema,
   transactionActionSchema,
   transferSchema,
+  updateAccountSchema,
+  updateCategorySchema,
 } from "@myos/core/finance";
 import { protectedProcedure, router } from "../trpc";
 import * as service from "./service";
@@ -24,6 +28,21 @@ export const financeRouter = router({
   createAccount: protectedProcedure
     .input(createAccountSchema)
     .mutation(({ ctx, input }) => service.createAccount(ctx.db, input)),
+  updateAccount: protectedProcedure
+    .input(updateAccountSchema)
+    .mutation(({ ctx, input }) => service.updateAccount(ctx.db, input)),
+
+  // Custom categories (Phase 3)
+  categories: protectedProcedure.query(({ ctx }) => service.categories(ctx.db)),
+  createCategory: protectedProcedure
+    .input(createCategorySchema)
+    .mutation(({ ctx, input }) => service.createCategory(ctx.db, input)),
+  updateCategory: protectedProcedure
+    .input(updateCategorySchema)
+    .mutation(({ ctx, input }) => service.updateCategory(ctx.db, input)),
+  archiveCategory: protectedProcedure
+    .input(categoryActionSchema)
+    .mutation(({ ctx, input }) => service.updateCategory(ctx.db, { id: input.id, archived: true })),
 
   transactions: protectedProcedure.query(({ ctx }) => service.transactions(ctx.db)),
   createTransaction: protectedProcedure

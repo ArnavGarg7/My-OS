@@ -4,6 +4,8 @@ import type {
   AccountType,
   BillingCycle,
   Budget,
+  CategoryGroup,
+  CustomCategory,
   SavingsGoal,
   Subscription,
   Transaction,
@@ -12,6 +14,7 @@ import type {
 import type {
   AccountRow,
   BudgetRow,
+  FinanceCategoryRow,
   SavingsGoalRow,
   SubscriptionRow,
   TransactionRow,
@@ -29,8 +32,20 @@ export function accountRowToAccount(row: AccountRow): Account {
     currency: row.currency,
     openingBalance: row.openingBalance,
     institution: row.institution,
+    archived: row.archived,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+export function categoryRowToCustom(row: FinanceCategoryRow): CustomCategory {
+  return {
+    id: row.id,
+    label: row.label,
+    group: row.group as CategoryGroup,
+    icon: row.icon,
+    color: row.color,
+    archived: row.archived,
   };
 }
 

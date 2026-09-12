@@ -14,6 +14,7 @@ export function makeAccount(over: Partial<Account> = {}): Account {
     currency: over.currency ?? "INR",
     openingBalance: over.openingBalance ?? 10000,
     institution: over.institution ?? "",
+    archived: over.archived ?? false,
     createdAt: over.createdAt ?? at(2026, 6, 1),
     updatedAt: over.updatedAt ?? at(2026, 6, 1),
   };

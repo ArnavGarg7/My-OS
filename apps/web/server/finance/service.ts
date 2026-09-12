@@ -2,21 +2,28 @@ import "server-only";
 import {
   contribute,
   financeEngine,
+  isBuiltInCategory,
   savingsProgress,
+  slugifyCategory,
   type Account,
   type Budget,
   type CreateAccountInput,
+  type CreateCategoryInput,
+  type CustomCategory,
   type SavingsGoal,
   type SavingsProgress,
   type Subscription,
   type Transaction,
   type TransactionDirection,
+  type UpdateAccountInput,
+  type UpdateCategoryInput,
 } from "@myos/core/finance";
 import type { Database } from "@myos/db";
 import * as repo from "./repository";
 import {
   accountRowToAccount,
   budgetRowToBudget,
+  categoryRowToCustom,
   savingsRowToGoal,
   subscriptionRowToSubscription,
   transactionRowToTransaction,
@@ -47,6 +54,58 @@ export async function createAccount(db: Database, input: CreateAccountInput): Pr
     ...(input.currency ? { currency: input.currency } : {}),
   });
   return accountRowToAccount(row);
+}
+
+/** Drop undefined keys so patches satisfy exactOptionalPropertyTypes. */
+function compact<T extends Record<string, unknown>>(
+  o: T,
+): { [K in keyof T]?: Exclude<T[K], undefined> } {
+  return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as {
+    [K in keyof T]?: Exclude<T[K], undefined>;
+  };
+}
+
+export async function updateAccount(db: Database, input: UpdateAccountInput): Promise<Account> {
+  const { id, ...patch } = input;
+  const row = await repo.updateAccount(db, id, compact(patch));
+  return accountRowToAccount(row);
+}
+
+/* Custom categories (Phase 3) */
+export async function categories(db: Database): Promise<CustomCategory[]> {
+  return (await repo.listCategories(db)).map(categoryRowToCustom);
+}
+
+export async function createCategory(
+  db: Database,
+  input: CreateCategoryInput,
+): Promise<CustomCategory> {
+  const base = slugifyCategory(input.label);
+  if (!base) throw new Error("Enter a category name with letters or numbers.");
+  // Ensure the slug doesn't collide with a built-in id or an existing custom row.
+  const existing = new Set((await repo.listCategories(db)).map((c) => c.id));
+  let id = base;
+  let n = 2;
+  while (isBuiltInCategory(id) || existing.has(id)) {
+    id = `${base}-${n++}`;
+  }
+  const row = await repo.insertCategory(db, {
+    id,
+    label: input.label.trim(),
+    group: input.group,
+    icon: input.icon,
+    color: input.color,
+  });
+  return categoryRowToCustom(row);
+}
+
+export async function updateCategory(
+  db: Database,
+  input: UpdateCategoryInput,
+): Promise<CustomCategory> {
+  const { id, ...patch } = input;
+  const row = await repo.updateCategory(db, id, compact(patch));
+  return categoryRowToCustom(row);
 }
 
 export async function transactions(db: Database): Promise<Transaction[]> {

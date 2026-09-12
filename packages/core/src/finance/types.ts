@@ -13,6 +13,8 @@ export interface Account {
   /** Opening balance; the live balance is derived from transaction history. */
   openingBalance: number;
   institution: string;
+  /** Archived accounts are hidden from pickers but keep their history. */
+  archived: boolean;
   createdAt: string; // ISO
   updatedAt: string; // ISO
 }
