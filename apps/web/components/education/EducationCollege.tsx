@@ -19,6 +19,7 @@ import {
 } from "@myos/ui";
 import { PageContainer, PageContent } from "@/components/framework";
 import { useEducation } from "./use-education";
+import { TimetableImport } from "./TimetableImport";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0]; // Mon-first
@@ -86,6 +87,8 @@ export function EducationCollege() {
         </header>
 
         <TimetableSection week={week} onDeleteSession={(id) => edu.deleteSession.mutate({ id })} />
+
+        <TimetableImport />
 
         <CoursesSection edu={edu} courses={courses} />
 
