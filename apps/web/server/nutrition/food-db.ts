@@ -10,11 +10,15 @@ import { getEnv } from "../env";
  * Free key: https://fdc.nal.usda.gov/api-key-signup.html → FDC_API_KEY. Falls back to the public
  * low-volume DEMO_KEY so it works out of the box.
  */
+export type FoodSource = "usda" | "off" | "ai";
+
 export interface FoodCandidate {
   name: string;
   brand: string;
-  source: "usda";
+  source: FoodSource;
   sourceRef: string;
+  /** True when the numbers are an AI estimate (not a database record) — surfaced to the user. */
+  estimated?: boolean;
   per100g: { calories: number; protein: number; carbs: number; fat: number };
   fiber100g?: number;
   sugar100g?: number;

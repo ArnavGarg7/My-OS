@@ -9,6 +9,7 @@ import { selectWorkingHours, type EnergyLevel } from "@myos/core/today";
 import { PRIORITY_WEIGHT, selectOpen } from "@myos/core/task";
 import { PageContainer, PageContent, PageLoading } from "@/components/framework";
 import { EducationTodayPanel } from "@/components/education/EducationTodayPanel";
+import { NutritionTodayPanel } from "@/components/nutrition/NutritionTodayPanel";
 import { useToaster } from "@/lib/framework";
 import { useFocusLauncher } from "@/lib/focus/use-focus-launcher";
 import { useIdentity } from "@/lib/identity";
@@ -190,6 +191,9 @@ export function MorningBriefing() {
         {/* Education (timetable-driven): today's classes, surfacing targets, and near deadlines.
             Renders nothing when there's no college/internship data. */}
         <EducationTodayPanel />
+
+        {/* Nutrition (macros vs goal + water); renders only once something is logged today. */}
+        <NutritionTodayPanel />
 
         <MorningSection label="Next Action">
           <NextActionSection

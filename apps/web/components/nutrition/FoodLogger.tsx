@@ -87,7 +87,7 @@ export function FoodLogger({ date }: { date: string }) {
         protein: m.protein,
         carbs: m.carbs,
         fat: m.fat,
-        source: "usda",
+        source: cand.source,
         sourceRef: cand.sourceRef,
         planned,
         consumedOn: date,
@@ -220,11 +220,20 @@ export function FoodLogger({ date }: { date: string }) {
                 )}
 
                 {m ? (
-                  <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5">
                     <MacroChip label="kcal" value={m.calories} />
                     <MacroChip label="P" value={m.protein} unit="g" />
                     <MacroChip label="C" value={m.carbs} unit="g" />
                     <MacroChip label="F" value={m.fat} unit="g" />
+                    {cand?.estimated ? (
+                      <Badge variant="outline" size="sm" className="text-warning">
+                        estimated
+                      </Badge>
+                    ) : cand?.source === "off" ? (
+                      <Badge variant="outline" size="sm">
+                        Open Food Facts
+                      </Badge>
+                    ) : null}
                   </div>
                 ) : null}
               </div>
