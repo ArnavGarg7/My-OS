@@ -12,7 +12,18 @@ import {
 } from "@myos/core/resource";
 import { ContactCard } from "./ContactCard";
 import { InteractionHistory } from "./InteractionHistory";
-import { RELATIONSHIP_TYPE_LABEL, RelationshipIcon } from "./resource-icons";
+import {
+  RELATIONSHIP_TYPE_ICON,
+  RELATIONSHIP_TYPE_LABEL,
+  RelationshipIcon,
+} from "./resource-icons";
+import { TypePicker } from "./TypePicker";
+
+const RELATIONSHIP_OPTIONS = RELATIONSHIP_TYPES.map((t) => ({
+  value: t,
+  label: RELATIONSHIP_TYPE_LABEL[t],
+  icon: RELATIONSHIP_TYPE_ICON[t],
+}));
 
 /**
  * RelationshipPage (Sprint 4.3). The personal CRM — who matters, how recently you spoke,
@@ -82,6 +93,12 @@ export function RelationshipPage({
         <Text variant="caption" tone="subtle">
           ADD A CONTACT
         </Text>
+        <TypePicker
+          ariaLabel="Relationship type"
+          options={RELATIONSHIP_OPTIONS}
+          value={type}
+          onChange={setType}
+        />
         <div className="flex flex-wrap items-center gap-2">
           <Input
             aria-label="Contact name"
@@ -90,18 +107,6 @@ export function RelationshipPage({
             onChange={(e) => setName(e.target.value)}
             className="max-w-40"
           />
-          <select
-            aria-label="Relationship type"
-            value={type}
-            onChange={(e) => setType(e.target.value as RelationshipType)}
-            className="border-border bg-surface text-fg h-9 rounded-md border px-2 text-sm"
-          >
-            {RELATIONSHIP_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {RELATIONSHIP_TYPE_LABEL[t]}
-              </option>
-            ))}
-          </select>
           <Input
             aria-label="Company"
             placeholder="Company…"

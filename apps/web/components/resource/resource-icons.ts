@@ -1,30 +1,45 @@
 import {
   Award,
   Bike,
+  BookOpen,
   BookUser,
   Boxes,
+  Briefcase,
   Building2,
   Cake,
+  CalendarClock,
   Car,
   Cloud,
+  Coffee,
   CreditCard,
   FileText,
   Fingerprint,
   Gem,
+  Gift,
   GraduationCap,
   Hammer,
+  Handshake,
   Heart,
   HeartPulse,
   Home,
   Laptop,
+  Mail,
+  MessageCircle,
   MoreHorizontal,
+  Network,
   Package,
+  Phone,
   Plane,
+  Presentation,
   Receipt,
+  Share2,
   ShieldCheck,
   Smartphone,
   Sofa,
   TrendingUp,
+  UserCog,
+  UserRound,
+  UserSearch,
   Users,
   Wallet,
   Wrench,
@@ -34,6 +49,8 @@ import type {
   AssetType,
   DocumentType,
   InsuranceType,
+  InteractionType,
+  NetworkingKind,
   RelationshipStrength,
   RelationshipType,
   VehicleType,
@@ -167,6 +184,58 @@ export const VEHICLE_TYPE_ICON: Record<VehicleType, LucideIcon> = {
   scooter: Bike,
   bicycle: Bike,
   other: MoreHorizontal,
+};
+
+export const RELATIONSHIP_TYPE_ICON: Record<RelationshipType, LucideIcon> = {
+  friend: UserRound,
+  family: Users,
+  mentor: GraduationCap,
+  professor: BookOpen,
+  colleague: Briefcase,
+  manager: UserCog,
+  recruiter: UserSearch,
+  investor: TrendingUp,
+  networking: Network,
+};
+
+export const INTERACTION_TYPE_LABEL: Record<InteractionType, string> = {
+  call: "Call",
+  meeting: "Meeting",
+  email: "Email",
+  message: "Message",
+  coffee: "Coffee",
+  conference: "Conference",
+  travel: "Travel",
+  gift: "Gift",
+  follow_up: "Follow-up",
+};
+
+export const INTERACTION_TYPE_ICON: Record<InteractionType, LucideIcon> = {
+  call: Phone,
+  meeting: Users,
+  email: Mail,
+  message: MessageCircle,
+  coffee: Coffee,
+  conference: Presentation,
+  travel: Plane,
+  gift: Gift,
+  follow_up: CalendarClock,
+};
+
+export const NETWORKING_KIND_LABEL: Record<NetworkingKind, string> = {
+  conference: "Conference",
+  referral: "Referral",
+  introduction: "Introduction",
+  collaboration: "Collaboration",
+  recruitment: "Recruitment",
+};
+
+export const NETWORKING_KIND_ICON: Record<NetworkingKind, LucideIcon> = {
+  conference: Presentation,
+  referral: Share2,
+  introduction: Handshake,
+  collaboration: Users,
+  recruitment: UserSearch,
 };
 
 /** ₹ formatting — the platform is single-currency, matching Finance (2.11). */

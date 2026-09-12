@@ -2,7 +2,12 @@
 
 import { Badge, Text } from "@myos/ui";
 import type { Relationship, RelationshipHealth } from "@myos/core/resource";
-import { RELATIONSHIP_TYPE_LABEL, STRENGTH_LABEL, STRENGTH_TONE } from "./resource-icons";
+import {
+  RELATIONSHIP_TYPE_ICON,
+  RELATIONSHIP_TYPE_LABEL,
+  STRENGTH_LABEL,
+  STRENGTH_TONE,
+} from "./resource-icons";
 
 /**
  * ContactCard (Sprint 4.3). One person, with their derived strength. Strength and
@@ -21,6 +26,7 @@ export function ContactCard({
   onSelect: (id: string) => void;
 }) {
   const subtitle = [relationship.role, relationship.company].filter(Boolean).join(" · ");
+  const TypeIcon = RELATIONSHIP_TYPE_ICON[relationship.type];
 
   return (
     <button
@@ -31,7 +37,12 @@ export function ContactCard({
       }`}
     >
       <span className="flex items-center justify-between gap-2">
-        <Text variant="body-s">{relationship.name}</Text>
+        <span className="flex items-center gap-2">
+          <span className="bg-elevated text-fg-muted flex size-7 shrink-0 items-center justify-center rounded-md">
+            <TypeIcon size={14} aria-hidden />
+          </span>
+          <Text variant="body-s">{relationship.name}</Text>
+        </span>
         {health ? (
           <Badge size="sm" variant={STRENGTH_TONE[health.strength]}>
             {STRENGTH_LABEL[health.strength]}

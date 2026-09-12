@@ -1,16 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { Badge, Button, EmptyState, Input, Text } from "@myos/ui";
+import {
+  Badge,
+  Button,
+  EmptyState,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Text,
+} from "@myos/ui";
 import {
   NETWORKING_KINDS,
   countEventsByKind,
   mostConnected,
   professionalContacts,
+  type NetworkingKind,
   type Relationship,
   type RelationshipEvent,
 } from "@myos/core/resource";
-import { RelationshipIcon } from "./resource-icons";
+import { NETWORKING_KIND_ICON, NETWORKING_KIND_LABEL, RelationshipIcon } from "./resource-icons";
+import { TypePicker } from "./TypePicker";
+
+const NETWORKING_OPTIONS = NETWORKING_KINDS.map((k) => ({
+  value: k,
+  label: NETWORKING_KIND_LABEL[k],
+  icon: NETWORKING_KIND_ICON[k],
+}));
 
 /**
  * NetworkingView (Sprint 4.3). The professional ledger — conferences, referrals,
@@ -28,7 +47,7 @@ export function NetworkingView({
 }) {
   const [relationshipId, setRelationshipId] = useState("");
   const [title, setTitle] = useState("");
-  const [kind, setKind] = useState<string>("conference");
+  const [kind, setKind] = useState<NetworkingKind>("conference");
 
   const professional = professionalContacts(relationships);
   const chosen = relationshipId || relationships[0]?.id || "";
@@ -48,31 +67,25 @@ export function NetworkingView({
           <Text variant="caption" tone="subtle">
             LOG A NETWORKING EVENT
           </Text>
+          <TypePicker
+            ariaLabel="Event kind"
+            options={NETWORKING_OPTIONS}
+            value={kind}
+            onChange={setKind}
+          />
           <div className="flex flex-wrap items-center gap-2">
-            <select
-              aria-label="Contact"
-              value={chosen}
-              onChange={(e) => setRelationshipId(e.target.value)}
-              className="border-border bg-surface text-fg h-9 rounded-md border px-2 text-sm"
-            >
-              {relationships.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name}
-                </option>
-              ))}
-            </select>
-            <select
-              aria-label="Event kind"
-              value={kind}
-              onChange={(e) => setKind(e.target.value)}
-              className="border-border bg-surface text-fg h-9 rounded-md border px-2 text-sm"
-            >
-              {NETWORKING_KINDS.map((k) => (
-                <option key={k} value={k}>
-                  {k}
-                </option>
-              ))}
-            </select>
+            <Select value={chosen} onValueChange={(v) => v && setRelationshipId(v)}>
+              <SelectTrigger aria-label="Contact" className="max-w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {relationships.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>
+                    {r.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Input
               aria-label="Event title"
               placeholder="What happened?"
@@ -91,7 +104,7 @@ export function NetworkingView({
         <div className="flex flex-wrap items-center gap-2">
           {Object.entries(counts).map(([k, n]) => (
             <Badge key={k} size="sm" variant="neutral">
-              {k}: {n}
+              {NETWORKING_KIND_LABEL[k as NetworkingKind] ?? k}: {n}
             </Badge>
           ))}
         </div>
@@ -136,22 +149,28 @@ export function NetworkingView({
         />
       ) : (
         <ul className="flex flex-col gap-1">
-          {events.slice(0, 20).map((e) => (
-            <li
-              key={e.id}
-              className="border-border-subtle flex items-center justify-between border-b py-1 last:border-0"
-            >
-              <span className="flex flex-col">
-                <Text variant="caption">{e.title}</Text>
+          {events.slice(0, 20).map((e) => {
+            const Icon = NETWORKING_KIND_ICON[e.kind as NetworkingKind] ?? RelationshipIcon;
+            return (
+              <li
+                key={e.id}
+                className="border-border-subtle flex items-center justify-between border-b py-1 last:border-0"
+              >
+                <span className="flex items-center gap-2">
+                  <Icon size={14} aria-hidden className="text-fg-subtle shrink-0" />
+                  <span className="flex flex-col">
+                    <Text variant="caption">{e.title}</Text>
+                    <Text variant="caption" tone="subtle">
+                      {NETWORKING_KIND_LABEL[e.kind as NetworkingKind] ?? e.kind}
+                    </Text>
+                  </span>
+                </span>
                 <Text variant="caption" tone="subtle">
-                  {e.kind}
+                  {e.occurredAt.slice(0, 10)}
                 </Text>
-              </span>
-              <Text variant="caption" tone="subtle">
-                {e.occurredAt.slice(0, 10)}
-              </Text>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
