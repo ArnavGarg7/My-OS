@@ -5,6 +5,7 @@ import { SectionHeader, Text } from "@myos/ui";
 import { useHealthController } from "./use-health";
 import { HealthDashboard } from "./HealthDashboard";
 import { HealthQuickLog } from "./HealthQuickLog";
+import { HealthQuickLogDialog } from "./HealthQuickLogDialog";
 import { HealthTimeline } from "./HealthTimeline";
 
 /**
@@ -28,7 +29,15 @@ export function HealthPage() {
           </Text>
         </div>
 
-        <HealthQuickLog onLog={controller.quickLog} />
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <HealthQuickLogDialog controller={controller} />
+            <Text variant="caption" tone="subtle">
+              or type it below
+            </Text>
+          </div>
+          <HealthQuickLog onLog={controller.quickLog} />
+        </div>
 
         <HealthDashboard summary={controller.summary} controller={controller} />
 

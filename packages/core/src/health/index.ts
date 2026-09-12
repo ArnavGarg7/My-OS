@@ -16,5 +16,6 @@ export * from "./body";
 export * from "./correlations";
 export * from "./selectors";
 export * from "./parser";
+export * from "./quicklog";
 export * from "./engine";
 export * from "./schemas";
