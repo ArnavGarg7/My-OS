@@ -5,6 +5,8 @@
  * in the owner's timezone (YYYY-MM-DD); this module never touches the wall clock.
  */
 
+export * from "./schemas";
+
 export interface ClassSessionInput {
   id: string;
   courseId: string;

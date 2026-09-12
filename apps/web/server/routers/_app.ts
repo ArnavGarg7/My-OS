@@ -35,6 +35,7 @@ import { collaborationRouter } from "../collaboration/router";
 import { syncRouter } from "../sync/router";
 import { interactionRouter } from "../interaction/router";
 import { vaultRouter } from "../vault/router";
+import { educationRouter } from "../education/router";
 
 /**
  * Root tRPC router (04 §5). Feature routers (tasks, planner, health, …) mount
@@ -77,6 +78,7 @@ export const appRouter = router({
   sync: syncRouter,
   interaction: interactionRouter,
   vault: vaultRouter,
+  education: educationRouter,
   system: router({
     health: publicProcedure.query(async ({ ctx }) => {
       let db = false;

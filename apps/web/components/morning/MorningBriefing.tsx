@@ -8,6 +8,7 @@ import { assembleMorningBriefing, type MorningBriefing as Briefing } from "@myos
 import { selectWorkingHours, type EnergyLevel } from "@myos/core/today";
 import { PRIORITY_WEIGHT, selectOpen } from "@myos/core/task";
 import { PageContainer, PageContent, PageLoading } from "@/components/framework";
+import { EducationTodayPanel } from "@/components/education/EducationTodayPanel";
 import { useToaster } from "@/lib/framework";
 import { useFocusLauncher } from "@/lib/focus/use-focus-launcher";
 import { useIdentity } from "@/lib/identity";
@@ -185,6 +186,10 @@ export function MorningBriefing() {
         {/* Adaptive planning (Stage 5) — renders only when the day is genuinely
             overloaded, grounded in real capacity + history. */}
         <AdaptivePlanCard />
+
+        {/* Education (timetable-driven): today's classes, surfacing targets, and near deadlines.
+            Renders nothing when there's no college/internship data. */}
+        <EducationTodayPanel />
 
         <MorningSection label="Next Action">
           <NextActionSection
