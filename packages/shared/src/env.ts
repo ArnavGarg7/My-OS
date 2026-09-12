@@ -79,6 +79,13 @@ export const serverEnvSchema = z.object({
   GROQ_API_KEY: z.string().optional(),
   /** OpenWeather API key (Stage 9). Server-side only — powers the Weather connector's live fetch. */
   OPENWEATHER_API_KEY: z.string().optional(),
+  /**
+   * USDA FoodData Central API key (Nutrition module). The nutrition DB is the SOURCE OF TRUTH for
+   * calories/macros — AI only parses what was said, this resolves the numbers. Free key from
+   * https://fdc.nal.usda.gov/api-key-signup.html. When unset, the low-volume public "DEMO_KEY" is used
+   * so search works out of the box; set a real key for reliable throughput. Server-side only.
+   */
+  FDC_API_KEY: z.string().optional(),
   VOYAGE_API_KEY: z.string().optional(),
   /** Secret used to encrypt provider_credentials at rest (Sprint 5.3). */
   MYOS_AI_CREDENTIALS_SECRET: z.string().optional(),
