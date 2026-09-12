@@ -12,9 +12,9 @@ describe("nav config", () => {
     ]);
   });
 
-  it("defines 37 routes with unique hrefs", () => {
-    expect(NAV_ITEMS).toHaveLength(37);
-    expect(new Set(NAV_HREFS).size).toBe(37);
+  it("defines 38 routes with unique hrefs", () => {
+    expect(NAV_ITEMS).toHaveLength(38);
+    expect(new Set(NAV_HREFS).size).toBe(38);
   });
 
   it("gives every item an icon and a description", () => {

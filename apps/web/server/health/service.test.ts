@@ -79,6 +79,18 @@ function nutritionRow(over: Partial<NutritionLogRow> = {}): NutritionLogRow {
     carbs: 60,
     fat: 20,
     loggedAt: D(13, 0),
+    // Nutrition-module columns (additive).
+    name: "",
+    brand: "",
+    quantity: null,
+    unit: "",
+    fiber: null,
+    sugar: null,
+    sodium: null,
+    source: "manual",
+    sourceRef: "",
+    planned: false,
+    consumedOn: null,
     ...over,
   };
 }

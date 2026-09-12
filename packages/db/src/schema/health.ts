@@ -95,6 +95,36 @@ export const nutritionLogs = pgTable("nutrition_logs", {
   carbs: doublePrecision("carbs").notNull().default(0),
   fat: doublePrecision("fat").notNull().default(0),
   loggedAt: timestamp("logged_at", { withTimezone: true }).notNull().defaultNow(),
+  // Nutrition module — food identity + portion + provenance + planned/actual. All additive + defaulted
+  // so the pre-existing aggregate rows are unaffected.
+  name: text("name").notNull().default(""),
+  brand: text("brand").notNull().default(""),
+  quantity: doublePrecision("quantity"),
+  unit: text("unit").notNull().default(""),
+  fiber: doublePrecision("fiber"),
+  sugar: doublePrecision("sugar"),
+  sodium: doublePrecision("sodium"),
+  /** Where the macros came from: 'usda' (FoodData Central = source of truth) | 'manual' | 'ai'. */
+  source: text("source").notNull().default("manual"),
+  /** The food's id within `source` (e.g. USDA fdcId), for re-lookup. */
+  sourceRef: text("source_ref").notNull().default(""),
+  /** A planned meal (true) vs actually consumed (false). */
+  planned: boolean("planned").notNull().default(false),
+  /** Owner-local day (YYYY-MM-DD) this belongs to — groups a day's plan + actuals. */
+  consumedOn: date("consumed_on", { mode: "string" }),
+});
+
+/** Daily nutrition targets (single owner — one active row). */
+export const nutritionGoals = pgTable("nutrition_goals", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  calorieTarget: integer("calorie_target").notNull().default(2000),
+  proteinTarget: doublePrecision("protein_target").notNull().default(120),
+  carbsTarget: doublePrecision("carbs_target").notNull().default(220),
+  fatTarget: doublePrecision("fat_target").notNull().default(70),
+  waterMlTarget: integer("water_ml_target").notNull().default(2500),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const bodyMeasurements = pgTable("body_measurements", {
@@ -116,5 +146,10 @@ export type HealthDailyInsert = typeof healthDaily.$inferInsert;
 export type WorkoutRow = typeof workouts.$inferSelect;
 export type SleepSessionRow = typeof sleepSessions.$inferSelect;
 export type HydrationLogRow = typeof hydrationLogs.$inferSelect;
+export type HydrationLogInsert = typeof hydrationLogs.$inferInsert;
 export type NutritionLogRow = typeof nutritionLogs.$inferSelect;
+export type NutritionLogInsert = typeof nutritionLogs.$inferInsert;
+export type NutritionGoalRow = typeof nutritionGoals.$inferSelect;
+export type NutritionGoalInsert = typeof nutritionGoals.$inferInsert;
 export type BodyMeasurementRow = typeof bodyMeasurements.$inferSelect;
+export type BodyMeasurementInsert = typeof bodyMeasurements.$inferInsert;
