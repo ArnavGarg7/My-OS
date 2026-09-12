@@ -21,12 +21,16 @@ const h = vi.hoisted(() => ({
 vi.mock("server-only", () => ({}));
 vi.mock("next/navigation", () => ({ redirect: h.redirect }));
 vi.mock("./config", () => ({
+  // `externalAuthEnabled` is what resolveProvider now checks (Clerk OR Google). The existing tests drive
+  // it through the `clerkEnabled` holder so their true/false expectations still describe "a real backend
+  // is configured" vs "single-owner/dev".
   clerkEnabled: () => h.clerkEnabled(),
+  externalAuthEnabled: () => h.clerkEnabled(),
   isProduction: () => h.isProduction(),
   singleOwnerMode: () => h.singleOwnerMode(),
   signInUrl: () => "/sign-in",
 }));
-vi.mock("./clerk", () => ({
+vi.mock("./provider", () => ({
   getProviderUserId: () => h.getProviderUserId(),
   getProviderIdentity: () => h.getProviderIdentity(),
 }));

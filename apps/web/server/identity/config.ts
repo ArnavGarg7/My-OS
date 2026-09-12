@@ -1,5 +1,5 @@
 import "server-only";
-import { isClerkConfigured, isSingleOwnerMode } from "@myos/shared/env";
+import { isClerkConfigured, isGoogleAuthConfigured, isSingleOwnerMode } from "@myos/shared/env";
 import { getEnv } from "../env";
 
 /**
@@ -9,6 +9,16 @@ import { getEnv } from "../env";
  */
 export function clerkEnabled(): boolean {
   return isClerkConfigured(getEnv());
+}
+
+/** Is Google (Auth.js) sign-in the active backend? (Production self-hosted default; Clerk still wins.) */
+export function googleAuthEnabled(): boolean {
+  return isGoogleAuthConfigured(getEnv());
+}
+
+/** Is any real auth backend (Clerk or Google) configured? When false, the single-owner/dev path runs. */
+export function externalAuthEnabled(): boolean {
+  return clerkEnabled() || googleAuthEnabled();
 }
 
 export function isProduction(): boolean {
