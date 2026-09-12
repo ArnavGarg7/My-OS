@@ -1,6 +1,7 @@
 import {
   Award,
   Bike,
+  Bitcoin,
   BookOpen,
   BookUser,
   Boxes,
@@ -11,6 +12,7 @@ import {
   Car,
   Cloud,
   Coffee,
+  Coins,
   CreditCard,
   FileText,
   Fingerprint,
@@ -22,13 +24,16 @@ import {
   Heart,
   HeartPulse,
   Home,
+  Landmark,
   Laptop,
+  LineChart,
   Mail,
   MessageCircle,
   MoreHorizontal,
   Network,
   Package,
   Phone,
+  PieChart,
   Plane,
   Presentation,
   Receipt,
@@ -36,6 +41,8 @@ import {
   ShieldCheck,
   Smartphone,
   Sofa,
+  Stamp,
+  Syringe,
   TrendingUp,
   UserCog,
   UserRound,
@@ -50,9 +57,11 @@ import type {
   DocumentType,
   InsuranceType,
   InteractionType,
+  InvestmentType,
   NetworkingKind,
   RelationshipStrength,
   RelationshipType,
+  TravelDocumentType,
   VehicleType,
 } from "@myos/core/resource";
 
@@ -236,6 +245,46 @@ export const NETWORKING_KIND_ICON: Record<NetworkingKind, LucideIcon> = {
   introduction: Handshake,
   collaboration: Users,
   recruitment: UserSearch,
+};
+
+export const INVESTMENT_TYPE_LABEL: Record<InvestmentType, string> = {
+  stock: "Stock",
+  etf: "ETF",
+  mutual_fund: "Mutual fund",
+  bond: "Bond",
+  crypto: "Crypto",
+  fixed_deposit: "Fixed deposit",
+  gold: "Gold",
+  real_estate: "Real estate",
+};
+
+export const INVESTMENT_TYPE_ICON: Record<InvestmentType, LucideIcon> = {
+  stock: TrendingUp,
+  etf: LineChart,
+  mutual_fund: PieChart,
+  bond: FileText,
+  crypto: Bitcoin,
+  fixed_deposit: Landmark,
+  gold: Coins,
+  real_estate: Building2,
+};
+
+export const TRAVEL_DOCUMENT_TYPE_LABEL: Record<TravelDocumentType, string> = {
+  passport: "Passport",
+  visa: "Visa",
+  travel_insurance: "Travel insurance",
+  vaccination: "Vaccination",
+  lounge_membership: "Lounge membership",
+  frequent_flyer: "Frequent flyer",
+};
+
+export const TRAVEL_DOCUMENT_TYPE_ICON: Record<TravelDocumentType, LucideIcon> = {
+  passport: BookUser,
+  visa: Stamp,
+  travel_insurance: ShieldCheck,
+  vaccination: Syringe,
+  lounge_membership: Sofa,
+  frequent_flyer: Plane,
 };
 
 /** ₹ formatting — the platform is single-currency, matching Finance (2.11). */

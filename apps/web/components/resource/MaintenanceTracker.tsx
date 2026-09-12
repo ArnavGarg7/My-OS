@@ -1,7 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Badge, Button, EmptyState, Input, Text } from "@myos/ui";
+import {
+  Badge,
+  Button,
+  EmptyState,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Text,
+} from "@myos/ui";
 import type { Asset, MaintenanceView } from "@myos/core/resource";
 import { MaintenanceIcon, formatCountdown, formatMoney } from "./resource-icons";
 
@@ -60,18 +71,18 @@ export function MaintenanceTracker({
             SCHEDULE MAINTENANCE
           </Text>
           <div className="flex flex-wrap items-center gap-2">
-            <select
-              aria-label="Asset"
-              value={chosen}
-              onChange={(e) => setAssetId(e.target.value)}
-              className="border-border bg-surface text-fg h-9 rounded-md border px-2 text-sm"
-            >
-              {assets.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
-                </option>
-              ))}
-            </select>
+            <Select value={chosen} onValueChange={(v) => v && setAssetId(v)}>
+              <SelectTrigger aria-label="Asset" className="max-w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {assets.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Input
               aria-label="Maintenance title"
               placeholder="What needs doing?"
