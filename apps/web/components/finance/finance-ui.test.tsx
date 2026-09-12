@@ -35,6 +35,7 @@ function account(over: Partial<Account & { balance: number }> = {}): Account & {
     currency: "INR",
     openingBalance: 10000,
     institution: "",
+    archived: false,
     createdAt: iso(1),
     updatedAt: iso(1),
     balance: 8000,

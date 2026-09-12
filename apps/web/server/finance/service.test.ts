@@ -46,6 +46,7 @@ function accountRow(over: Partial<AccountRow> = {}): AccountRow {
     currency: "INR",
     openingBalance: 10000,
     institution: "",
+    archived: false,
     createdAt: D("2026-07-01T00:00:00Z"),
     updatedAt: D("2026-07-01T00:00:00Z"),
     ...over,
@@ -229,12 +230,20 @@ describe("summary + signals + search + forecast", () => {
   });
 
   it("derives signals", async () => {
-    h.listBudgets.mockResolvedValue([budgetRow({ monthlyLimit: 1000 })]);
-    h.listTransactions.mockResolvedValue([
-      txnRow({ category: "groceries", amount: 1500, occurredAt: D("2026-07-03T12:00:00Z") }),
-    ]);
-    const sig = await summary.signals(db, TZ);
-    expect(sig.overBudgetCategories).toContain("groceries");
+    // signals() derives the "current month" from the real clock, so pin it to the
+    // transaction's month to keep this assertion deterministic across calendar time.
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-15T12:00:00Z"));
+    try {
+      h.listBudgets.mockResolvedValue([budgetRow({ monthlyLimit: 1000 })]);
+      h.listTransactions.mockResolvedValue([
+        txnRow({ category: "groceries", amount: 1500, occurredAt: D("2026-07-03T12:00:00Z") }),
+      ]);
+      const sig = await summary.signals(db, TZ);
+      expect(sig.overBudgetCategories).toContain("groceries");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("searches transactions", async () => {

@@ -73,8 +73,37 @@ export const recordSchema = z.object({
 
 export const rangeSchema = z.object({ date: dateSchema.optional() });
 
+// ── Account management (Phase 3) ────────────────────────────────────────────
+export const updateAccountSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().trim().min(1).max(120).optional(),
+  type: z.enum(ACCOUNT_TYPES).optional(),
+  institution: z.string().trim().max(120).optional(),
+  archived: z.boolean().optional(),
+});
+export const accountActionSchema = z.object({ id: z.string().uuid() });
+
+// ── Custom categories (Phase 3) ─────────────────────────────────────────────
+export const createCategorySchema = z.object({
+  label: z.string().trim().min(1).max(40),
+  group: z.enum(["expense", "income"]).default("expense"),
+  icon: z.string().trim().max(40).default("other"),
+  color: z.string().trim().max(40).default(""),
+});
+export const updateCategorySchema = z.object({
+  id: z.string().min(1).max(60),
+  label: z.string().trim().min(1).max(40).optional(),
+  icon: z.string().trim().max(40).optional(),
+  color: z.string().trim().max(40).optional(),
+  archived: z.boolean().optional(),
+});
+export const categoryActionSchema = z.object({ id: z.string().min(1).max(60) });
+
 export type CreateAccountInput = z.infer<typeof createAccountSchema>;
+export type UpdateAccountInput = z.infer<typeof updateAccountSchema>;
 export type CreateTransactionInputSchema = z.infer<typeof createTransactionSchema>;
 export type CreateBudgetInput = z.infer<typeof createBudgetSchema>;
 export type CreateSubscriptionInput = z.infer<typeof createSubscriptionSchema>;
 export type CreateSavingsGoalInput = z.infer<typeof createSavingsGoalSchema>;
+export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
+export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;

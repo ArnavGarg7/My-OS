@@ -4,15 +4,15 @@ import { useMemo, useState } from "react";
 import { Input, MonoLabel, Text, cn } from "@myos/ui";
 import {
   categoryBreakdown,
-  findCategory,
   incomeVsExpense,
   monthlyTrend,
   resolvePeriod,
   transactionsInRange,
   type AnalysisPeriodId,
+  type CustomCategory,
   type Transaction,
 } from "@myos/core/finance";
-import { categoryIcon, formatMoney } from "./finance-icons";
+import { categoryIcon, categoryMeta, formatMoney } from "./finance-icons";
 
 const PERIODS: { id: AnalysisPeriodId; label: string }[] = [
   { id: "this-week", label: "This week" },
@@ -31,7 +31,13 @@ const monthLabel = (key: string) =>
  * deterministic category breakdown, income-vs-expense summary and a month-over-month trend. Every number
  * is derived by the pure finance engine — no AI, no estimates.
  */
-export function SpendingAnalysis({ transactions }: { transactions: Transaction[] }) {
+export function SpendingAnalysis({
+  transactions,
+  customCategories = [],
+}: {
+  transactions: Transaction[];
+  customCategories?: CustomCategory[];
+}) {
   const [period, setPeriod] = useState<AnalysisPeriodId>("this-month");
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
@@ -113,8 +119,8 @@ export function SpendingAnalysis({ transactions }: { transactions: Transaction[]
           </Text>
         ) : (
           breakdown.map((row) => {
-            const def = findCategory(row.category);
-            const Icon = categoryIcon(def?.icon ?? "other");
+            const meta = categoryMeta(row.category, customCategories);
+            const Icon = categoryIcon(meta.icon);
             return (
               <div key={row.category} className="flex items-center gap-2.5">
                 <div className="bg-elevated text-fg-muted flex size-8 shrink-0 items-center justify-center rounded-md">
@@ -123,7 +129,7 @@ export function SpendingAnalysis({ transactions }: { transactions: Transaction[]
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <Text variant="body-s" className="truncate">
-                      {def?.label ?? row.category}
+                      {meta.label}
                     </Text>
                     <Text variant="caption" tone="subtle" className="tabular-nums">
                       {formatMoney(row.amount)} · {row.percent}%

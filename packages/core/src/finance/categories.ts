@@ -41,8 +41,63 @@ export function categoriesForGroup(group: CategoryGroup): CategoryDef[] {
   return CATEGORY_CATALOG.filter((c) => c.group === group);
 }
 
-/** Look up a category definition by its stored id (case-insensitive). */
+/** Look up a built-in category definition by its stored id (case-insensitive). */
 export function findCategory(id: string): CategoryDef | undefined {
   const key = id.trim().toLowerCase();
   return CATEGORY_CATALOG.find((c) => c.id === key);
+}
+
+/** True if `id` is one of the built-in (non-custom) categories. */
+export function isBuiltInCategory(id: string): boolean {
+  return findCategory(id) !== undefined;
+}
+
+/**
+ * The icon keys a custom category may choose from — the same set the built-in catalog uses, so every
+ * category (seeded or custom) resolves to a real icon in the UI. Kept here so core validation and the UI
+ * picker agree on the allowed values.
+ */
+export const CATEGORY_ICON_KEYS: string[] = [
+  "groceries",
+  "dining",
+  "transport",
+  "housing",
+  "utilities",
+  "entertainment",
+  "health",
+  "shopping",
+  "subscriptions",
+  "education",
+  "travel",
+  "personal",
+  "gifts",
+  "income",
+  "savings",
+  "other",
+];
+
+/**
+ * A user-defined category. `id` is a slug stored verbatim on the transaction (like a built-in id), so
+ * budgets + analysis group by it directly. Persisted; built-ins are code-only.
+ */
+export interface CustomCategory {
+  id: string;
+  label: string;
+  group: CategoryGroup;
+  icon: string;
+  color: string;
+  archived: boolean;
+}
+
+/**
+ * Turn a free-text category name into a stable slug id: lowercase, alphanumerics kept, everything else
+ * collapsed to single hyphens, trimmed. Deterministic. Returns "" for names with no usable characters
+ * (the service treats that as invalid).
+ */
+export function slugifyCategory(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }

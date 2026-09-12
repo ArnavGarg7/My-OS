@@ -19,12 +19,8 @@ import {
   Text,
   cn,
 } from "@myos/ui";
-import {
-  categoriesForGroup,
-  type CreateTransactionInputSchema,
-  type TransactionDirection,
-} from "@myos/core/finance";
-import { categoryIcon } from "./finance-icons";
+import { type CreateTransactionInputSchema, type TransactionDirection } from "@myos/core/finance";
+import { categoryIcon, categoryOptions } from "./finance-icons";
 import type { useFinance } from "./use-finance";
 
 type Controller = ReturnType<typeof useFinance>;
@@ -41,7 +37,10 @@ const TABS: { direction: TransactionDirection; label: string }[] = [
  * MyMoney-style tappable capture. The free-text QuickTransaction box stays as an "or type it" fallback.
  */
 export function RecordEntryDialog({ controller }: { controller: Controller }) {
-  const accounts = controller.accounts;
+  const accounts = useMemo(
+    () => controller.accounts.filter((a) => !a.archived),
+    [controller.accounts],
+  );
   const [open, setOpen] = useState(false);
   const [direction, setDirection] = useState<TransactionDirection>("expense");
   const [amount, setAmount] = useState("");
@@ -54,8 +53,9 @@ export function RecordEntryDialog({ controller }: { controller: Controller }) {
   const fromAccount = accountId || defaultAccount;
 
   const categories = useMemo(
-    () => categoriesForGroup(direction === "income" ? "income" : "expense"),
-    [direction],
+    () =>
+      categoryOptions(direction === "income" ? "income" : "expense", controller.customCategories),
+    [direction, controller.customCategories],
   );
 
   const reset = () => {

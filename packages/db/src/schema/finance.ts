@@ -39,8 +39,24 @@ export const accounts = pgTable("accounts", {
   currency: text("currency").notNull().default("INR"),
   openingBalance: doublePrecision("opening_balance").notNull().default(0),
   institution: text("institution").notNull().default(""),
+  archived: boolean("archived").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * User-defined spending/income categories (Phase 3). Built-in categories live in
+ * `@myos/core/finance` (seeded, code-only); this table holds only the user's custom additions. `id` is
+ * a slug stored verbatim on `transactions.category`, so budgets + analysis group by it with no joins.
+ */
+export const financeCategories = pgTable("finance_categories", {
+  id: text("id").primaryKey(),
+  label: text("label").notNull(),
+  group: text("category_group").notNull().default("expense"),
+  icon: text("icon").notNull().default("other"),
+  color: text("color").notNull().default(""),
+  archived: boolean("archived").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const transactions = pgTable("transactions", {
@@ -98,6 +114,8 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
 
 export type AccountRow = typeof accounts.$inferSelect;
 export type AccountInsert = typeof accounts.$inferInsert;
+export type FinanceCategoryRow = typeof financeCategories.$inferSelect;
+export type FinanceCategoryInsert = typeof financeCategories.$inferInsert;
 export type TransactionRow = typeof transactions.$inferSelect;
 export type TransactionInsert = typeof transactions.$inferInsert;
 export type BudgetRow = typeof budgets.$inferSelect;

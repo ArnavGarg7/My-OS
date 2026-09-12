@@ -5,6 +5,8 @@ import { PageContainer, PageContent, PageLoading } from "@/components/framework"
 import { useShellStore } from "@/lib/shell/store";
 import { useFinance } from "./use-finance";
 import { AccountsCard } from "./AccountsCard";
+import { AccountManagerDialog } from "./AccountManagerDialog";
+import { CategoryManagerDialog } from "./CategoryManagerDialog";
 import { RecordEntryDialog } from "./RecordEntryDialog";
 import { QuickTransaction } from "./QuickTransaction";
 import { TransactionsTable } from "./TransactionsTable";
@@ -49,6 +51,11 @@ export function FinancePage() {
   return (
     <PageContainer width="full">
       <PageContent>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <AccountManagerDialog controller={finance} />
+          <CategoryManagerDialog controller={finance} />
+        </div>
+
         {summary && (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Panel title="Net worth">
@@ -77,7 +84,7 @@ export function FinancePage() {
         <div className="grid gap-4 lg:grid-cols-2">
           <Panel title="Accounts">
             <AccountsCard
-              accounts={finance.accounts}
+              accounts={finance.accounts.filter((a) => !a.archived)}
               selectedId={finance.selectedAccountId}
               onSelect={select}
             />
@@ -119,7 +126,10 @@ export function FinancePage() {
               <CardTitle>Spending analysis</CardTitle>
             </CardHeader>
             <CardContent>
-              <SpendingAnalysis transactions={finance.transactions} />
+              <SpendingAnalysis
+                transactions={finance.transactions}
+                customCategories={finance.customCategories}
+              />
             </CardContent>
           </Card>
 
