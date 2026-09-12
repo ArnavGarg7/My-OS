@@ -313,6 +313,19 @@ export const DOMAIN_CLASSIFICATION: DomainClassification[] = [
     rationale:
       "Offline sync ledger (Stage 8) — the idempotency record for replayed offline mutations. Keyed by a client-generated mutation id; stores the op + its result so a retry reconciles to the same server row instead of duplicating (task/inbox/journal creates, focus/task transitions). Results may embed the personal entity that was created, so raw rows are sensitive. NO secrets are ever stored here (credentials/tokens/keys stay server-side per Stage 4); the client outbox likewise never persists secrets. NO AI reads this.",
   },
+  {
+    file: "education.ts",
+    level: "sensitive",
+    rawAiSafe: false,
+    rationale:
+      "Education & Career — courses + a recurring weekly timetable, assignments, exams, an internship work-log, and advance-dated targets. Course schedule/grades and the internship log reveal the owner's academic + work habits, so raw rows are sensitive. Free-text bodies (assignment details, exam notes, internship notes) hold personal PII and are encryptedText at rest → PRIVATE; targets carry a free-text title/details so they are private too. NO AI reads raw education data; only derived day/week views surface.",
+    overrides: {
+      assignments: "private",
+      exams: "private",
+      internship_entries: "private",
+      targets: "private",
+    },
+  },
 ];
 
 /**
