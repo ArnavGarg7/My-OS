@@ -10,6 +10,20 @@ import { getEnv } from "../env";
  * before persistence). No AI, no business logic — this only obtains and refreshes credentials.
  */
 
+/**
+ * Public base URL for building OAuth redirect URIs. Behind a TLS-terminating proxy (Caddy/Cloudflare)
+ * the request's own origin is the container's internal bind address (`https://0.0.0.0:3000`), which no
+ * provider will accept. Prefer AUTH_URL (the canonical origin), then the X-Forwarded-* headers Caddy
+ * sends, then the request origin as a last resort. No trailing slash.
+ */
+export function publicBaseUrl(req: Request): string {
+  const configured = process.env.AUTH_URL?.trim().replace(/\/+$/, "");
+  if (configured) return configured;
+  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
+  if (host) return `${req.headers.get("x-forwarded-proto") ?? "https"}://${host}`;
+  return new URL(req.url).origin;
+}
+
 export interface TokenBundle {
   accessToken: string;
   refreshToken: string | null;

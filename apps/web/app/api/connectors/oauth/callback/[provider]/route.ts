@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireUser } from "@/server/identity";
 import { getDb } from "@/server/db";
-import { exchangeCodeForTokens, verifyState } from "@/server/connectors/oauth";
+import { exchangeCodeForTokens, publicBaseUrl, verifyState } from "@/server/connectors/oauth";
 import { connectOAuth } from "@/server/connectors/service";
 
 /**
@@ -13,7 +13,8 @@ import { connectOAuth } from "@/server/connectors/service";
 export async function GET(req: NextRequest, ctx: { params: Promise<{ provider: string }> }) {
   const { provider } = await ctx.params;
   const url = new URL(req.url);
-  const done = (q: string) => NextResponse.redirect(new URL(`/connectors?${q}`, req.url));
+  const base = publicBaseUrl(req);
+  const done = (q: string) => NextResponse.redirect(`${base}/connectors?${q}`);
 
   const providerError = url.searchParams.get("error");
   if (providerError) return done(`error=${encodeURIComponent(providerError)}`);
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ provider: s
 
   await requireUser(); // only the owner completes the connection
 
-  const redirectUri = `${url.origin}/api/connectors/oauth/callback/${provider}`;
+  const redirectUri = `${base}/api/connectors/oauth/callback/${provider}`;
   const bundle = await exchangeCodeForTokens(provider, code, redirectUri);
   if (!bundle?.accessToken) return done("error=exchange_failed");
 

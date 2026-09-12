@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireUser } from "@/server/identity";
-import { buildAuthorizeUrl, oauthConfigured, signState } from "@/server/connectors/oauth";
+import {
+  buildAuthorizeUrl,
+  oauthConfigured,
+  publicBaseUrl,
+  signState,
+} from "@/server/connectors/oauth";
 
 /**
  * OAuth start (Stage B). Owner-initiated: builds the provider's consent URL with a signed CSRF
@@ -10,12 +15,13 @@ import { buildAuthorizeUrl, oauthConfigured, signState } from "@/server/connecto
 export async function GET(req: NextRequest, ctx: { params: Promise<{ provider: string }> }) {
   await requireUser(); // only the owner can initiate a connection
   const { provider } = await ctx.params;
+  const base = publicBaseUrl(req);
   const backToConnectors = (err: string) =>
-    NextResponse.redirect(new URL(`/connectors?error=${err}`, req.url));
+    NextResponse.redirect(`${base}/connectors?error=${err}`);
 
   if (!oauthConfigured(provider)) return backToConnectors("not_configured");
 
-  const redirectUri = `${new URL(req.url).origin}/api/connectors/oauth/callback/${provider}`;
+  const redirectUri = `${base}/api/connectors/oauth/callback/${provider}`;
   const url = buildAuthorizeUrl(provider, redirectUri, signState(provider));
   if (!url) return backToConnectors("not_configured");
   return NextResponse.redirect(url);
