@@ -11,7 +11,14 @@ import {
 } from "@myos/core/resource";
 import { AccountsView } from "./AccountsView";
 import { PortfolioView } from "./PortfolioView";
-import { formatMoney } from "./resource-icons";
+import { INVESTMENT_TYPE_ICON, INVESTMENT_TYPE_LABEL, formatMoney } from "./resource-icons";
+import { TypePicker } from "./TypePicker";
+
+const INVESTMENT_OPTIONS = INVESTMENT_TYPES.map((t) => ({
+  value: t,
+  label: INVESTMENT_TYPE_LABEL[t],
+  icon: INVESTMENT_TYPE_ICON[t],
+}));
 
 /**
  * InvestmentsPage (Sprint 4.3). Add holdings, update prices, view allocation. Prices are
@@ -72,6 +79,12 @@ export function InvestmentsPage({
           <Text variant="caption" tone="subtle">
             ADD A HOLDING
           </Text>
+          <TypePicker
+            ariaLabel="Investment type"
+            options={INVESTMENT_OPTIONS}
+            value={type}
+            onChange={setType}
+          />
           <div className="flex flex-wrap items-center gap-2">
             <Input
               aria-label="Symbol"
@@ -80,18 +93,6 @@ export function InvestmentsPage({
               onChange={(e) => setSymbol(e.target.value)}
               className="max-w-32"
             />
-            <select
-              aria-label="Investment type"
-              value={type}
-              onChange={(e) => setType(e.target.value as InvestmentType)}
-              className="border-border bg-surface text-fg h-9 rounded-md border px-2 text-sm"
-            >
-              {INVESTMENT_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t.replace("_", " ")}
-                </option>
-              ))}
-            </select>
             <Input
               aria-label="Quantity"
               placeholder="Qty"

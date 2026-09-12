@@ -9,7 +9,19 @@ import {
   type TravelDocument,
   type TravelDocumentType,
 } from "@myos/core/resource";
-import { TravelIcon, formatCountdown } from "./resource-icons";
+import {
+  TRAVEL_DOCUMENT_TYPE_ICON,
+  TRAVEL_DOCUMENT_TYPE_LABEL,
+  TravelIcon,
+  formatCountdown,
+} from "./resource-icons";
+import { TypePicker } from "./TypePicker";
+
+const TRAVEL_OPTIONS = TRAVEL_DOCUMENT_TYPES.map((t) => ({
+  value: t,
+  label: TRAVEL_DOCUMENT_TYPE_LABEL[t],
+  icon: TRAVEL_DOCUMENT_TYPE_ICON[t],
+}));
 
 /**
  * TravelDocuments (Sprint 4.3). Passports, visas, travel insurance, vaccination records and
@@ -60,6 +72,12 @@ export function TravelDocuments({
         <Text variant="caption" tone="subtle">
           ADD A TRAVEL DOCUMENT
         </Text>
+        <TypePicker
+          ariaLabel="Travel document type"
+          options={TRAVEL_OPTIONS}
+          value={type}
+          onChange={setType}
+        />
         <div className="flex flex-wrap items-center gap-2">
           <Input
             aria-label="Travel document name"
@@ -68,18 +86,6 @@ export function TravelDocuments({
             onChange={(e) => setName(e.target.value)}
             className="max-w-44"
           />
-          <select
-            aria-label="Travel document type"
-            value={type}
-            onChange={(e) => setType(e.target.value as TravelDocumentType)}
-            className="border-border bg-surface text-fg h-9 rounded-md border px-2 text-sm"
-          >
-            {TRAVEL_DOCUMENT_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t.replace("_", " ")}
-              </option>
-            ))}
-          </select>
           <Input
             aria-label="Reference"
             placeholder="Reference…"
@@ -144,26 +150,34 @@ export function TravelDocuments({
             </div>
           ) : null}
           <ul className="flex flex-col gap-1">
-            {documents.map((d) => (
-              <li
-                key={d.id}
-                className="border-border-subtle flex items-center justify-between rounded-md border px-3 py-2"
-              >
-                <span className="flex flex-col">
-                  <Text variant="body-s">{d.name}</Text>
-                  <Text variant="caption" tone="subtle">
-                    {d.type.replace("_", " ")}
-                    {d.country ? ` · ${d.country}` : ""}
-                    {d.reference ? ` · ${d.reference}` : ""}
-                  </Text>
-                </span>
-                {d.expiresAt ? (
-                  <Text variant="caption" tone="subtle">
-                    expires {d.expiresAt}
-                  </Text>
-                ) : null}
-              </li>
-            ))}
+            {documents.map((d) => {
+              const TypeIcon = TRAVEL_DOCUMENT_TYPE_ICON[d.type];
+              return (
+                <li
+                  key={d.id}
+                  className="border-border-subtle flex items-center justify-between rounded-md border px-3 py-2"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span className="bg-elevated text-fg-muted flex size-8 shrink-0 items-center justify-center rounded-md">
+                      <TypeIcon size={15} aria-hidden />
+                    </span>
+                    <span className="flex flex-col">
+                      <Text variant="body-s">{d.name}</Text>
+                      <Text variant="caption" tone="subtle">
+                        {TRAVEL_DOCUMENT_TYPE_LABEL[d.type]}
+                        {d.country ? ` · ${d.country}` : ""}
+                        {d.reference ? ` · ${d.reference}` : ""}
+                      </Text>
+                    </span>
+                  </span>
+                  {d.expiresAt ? (
+                    <Text variant="caption" tone="subtle">
+                      expires {d.expiresAt}
+                    </Text>
+                  ) : null}
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
