@@ -17,6 +17,7 @@ import { RoutinePage } from "./RoutinePage";
 import { MedicationTracker } from "./MedicationTracker";
 import { SupplementTracker } from "./SupplementTracker";
 import { WorkoutPrograms } from "./WorkoutPrograms";
+import { WorkoutLoggerDialog } from "./WorkoutLoggerDialog";
 import { ExerciseLibrary } from "./ExerciseLibrary";
 import { BodyComposition } from "./BodyComposition";
 import { InjuryLog } from "./InjuryLog";
@@ -97,6 +98,9 @@ export function LifeDashboard() {
           <RoutinePage life={life} />
         </TabsContent>
         <TabsContent value="workouts">
+          <div className="mb-4">
+            <WorkoutLoggerDialog />
+          </div>
           <div className="grid gap-6 lg:grid-cols-2">
             <WorkoutPrograms workouts={life.workouts} onLog={life.logWorkout} />
             <ExerciseLibrary workouts={life.workouts} />

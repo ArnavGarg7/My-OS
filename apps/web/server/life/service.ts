@@ -6,6 +6,7 @@ import type {
   DoctorAppointment,
   Habit,
   Injury,
+  LogGuidedWorkoutInput,
   Medication,
   PersonalReview,
   Supplement,
@@ -105,6 +106,42 @@ export function listWorkouts(db: Database) {
 }
 export function logWorkout(db: Database, v: Partial<WorkoutSession>) {
   return repo.insertWorkout(db, { ...v, date: v.date ?? today() });
+}
+export function listExercises(db: Database) {
+  return repo.listExercises(db);
+}
+/**
+ * Log a guided workout: resolve each entry's exercise (get-or-create in the library, so the PR library
+ * builds itself), flatten its sets, and persist one session. Cardio logs duration; strength logs
+ * reps×weight. Intensity falls back to the session RPE.
+ */
+export async function logGuidedWorkout(db: Database, input: LogGuidedWorkoutInput) {
+  const rpe = input.perceivedExertion ?? 5;
+  const sets: WorkoutSession["sets"] = [];
+  for (const entry of input.entries) {
+    const type = entry.type ?? "strength";
+    const exerciseId = await repo.getOrCreateExercise(
+      db,
+      entry.name,
+      type,
+      entry.muscleGroups ?? [],
+    );
+    for (const s of entry.sets) {
+      sets.push({
+        exerciseId,
+        reps: s.reps ?? 0,
+        weight: s.weight ?? 0,
+        durationMinutes: s.durationMinutes ?? 0,
+        intensity: s.intensity ?? rpe,
+      });
+    }
+  }
+  return repo.insertWorkout(db, {
+    date: input.date ?? today(),
+    sets,
+    perceivedExertion: rpe,
+    recoveryNotes: input.recoveryNotes ?? "",
+  });
 }
 export function listBody(db: Database) {
   return repo.listBody(db);
