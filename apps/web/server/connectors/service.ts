@@ -17,6 +17,7 @@ import { fetchRaw, type LiveFetch } from "./feed";
 import { encryptSecret, secretHint } from "./vault";
 import { isOAuthProvider, oauthConfigured, type TokenBundle } from "./oauth";
 import { hasLiveFetcher, makeLiveFetch } from "./live";
+import { makeWeatherLiveFetch, weatherConfigured } from "./weather";
 import { providerLiveAvailable, capabilities as deriveCapabilities } from "./capabilities";
 import { writeExternal, writeCapability, type ExternalWriteAction, type LiveWrite } from "./write";
 import * as repo from "./repository";
@@ -183,6 +184,10 @@ export async function sync(
   if (!effectiveLive && oauthConfigured(account.providerId) && hasLiveFetcher(account.providerId)) {
     const cred = await repo.loadCredential(db, accountId).catch(() => null);
     if (cred) effectiveLive = makeLiveFetch(db, account) ?? undefined;
+  }
+  // Weather is api-key (not OAuth) — inject its real fetch so the connector emits live conditions.
+  if (!effectiveLive && account.providerId === "weather" && weatherConfigured()) {
+    effectiveLive = makeWeatherLiveFetch();
   }
 
   try {

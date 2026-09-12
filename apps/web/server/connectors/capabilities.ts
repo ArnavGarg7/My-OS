@@ -20,8 +20,13 @@ const LIVE_ENV: Record<string, string> = {
   "google-drive": "MYOS_GOOGLE_CLIENT_ID",
   github: "MYOS_GITHUB_CLIENT_ID",
   slack: "MYOS_SLACK_CLIENT_ID",
-  weather: "OPENWEATHER_API_KEY",
+  weather: "ACCUWEATHER_API_KEY",
 };
+
+/** Weather is live with EITHER AccuWeather (preferred) or OpenWeather configured. */
+function weatherLive(env: Record<string, string | undefined>): boolean {
+  return Boolean(env.ACCUWEATHER_API_KEY || env.OPENWEATHER_API_KEY);
+}
 
 export interface ProviderCapability {
   providerId: string;
@@ -35,13 +40,15 @@ export interface ProviderCapability {
 export function deriveCapabilities(env: Record<string, string | undefined>): ProviderCapability[] {
   return CONNECTOR_PROVIDERS.map((p) => {
     const requires = LIVE_ENV[p.id] ?? null;
-    const liveAvailable = requires ? Boolean(env[requires]) : false;
+    const liveAvailable =
+      p.id === "weather" ? weatherLive(env) : requires ? Boolean(env[requires]) : false;
     return { providerId: p.id, liveAvailable, requires };
   });
 }
 
 /** Live-availability for one provider from the current process env. */
 export function providerLiveAvailable(providerId: string): boolean {
+  if (providerId === "weather") return weatherLive(process.env);
   const requires = LIVE_ENV[providerId];
   return requires ? Boolean(process.env[requires]) : false;
 }
