@@ -16,6 +16,7 @@ import {
   ListChecks,
   Milestone,
   MoonStar,
+  Salad,
   KeyRound,
   Settings,
   ShieldCheck,
@@ -195,6 +196,12 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/goals",
         icon: Target,
         description: "Long-term outcomes and check-ins.",
+      },
+      {
+        label: "Nutrition",
+        href: "/nutrition",
+        icon: Salad,
+        description: "Food log, calories & macros, water, weight, and nutrition goals.",
       },
       {
         label: "Health",

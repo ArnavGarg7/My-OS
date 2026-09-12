@@ -24,11 +24,15 @@ those tables rather than adding a parallel engine.
   `removeFood`, `logWater`, `logWeight`, `getGoals`/`setGoals`, `day`. Keeps `health_daily` in sync so the
   existing Health surfaces reflect nutrition.
 
-## Part B — UI + integration (next)
-Dedicated `/nutrition` page under the Life nav group: a day view with macro rings vs goal, the food log
-(type/voice → resolve → **review candidate + confirm portion** → log), planned vs actual, water + weight
-quick-logs, and goals. Wire Quick Add / Omni (a "Log food" path reusing `use-voice`), a Today macro
-summary, and offline (logs queue like any mutation). Supplements reuse `life.supplements`.
+## Part B — UI (done)
+Dedicated `/nutrition` page (nav item under the Life group): a day dashboard (calories/protein/carbs/fat
+bars vs goal + water + weight), the **food logger** (type or **voice** via `use-voice` → `resolveMeal`
+→ **review the DB match + confirm grams** → log; unresolved foods show "no match" instead of guessing),
+planned vs actual diary, water + weight quick-logs, and an editable daily-goals panel. `components/nutrition/*`.
+
+## Part C — deeper integration (next)
+A Today macro summary panel, a Quick Add / Omni "Log food" path, offline-outbox registration for the log
+mutations, and surfacing supplements (`life.supplements`).
 
 ## Deploy
 Migration 0047 auto-applies. Set **`FDC_API_KEY`** in `.env` for reliable food-DB throughput (DEMO_KEY
