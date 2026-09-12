@@ -1,8 +1,7 @@
-import { PagePlaceholder } from "@/components/shell/page-placeholder";
-import { getNavItem } from "@/lib/shell/nav";
+import { EducationInternship } from "@/components/education/EducationInternship";
 
 export const metadata = { title: "Internship" };
 
 export default function InternshipPage() {
-  return <PagePlaceholder item={getNavItem("/internship")} />;
+  return <EducationInternship />;
 }

@@ -21,10 +21,13 @@
 - **B — Server:** repo/service/router (CRUD + day/week queries), tRPC.
 - **C — UI:** fill the College stub (timetable grid + assignments/exams) and Internship stub (log +
   deliverables); a targets surface. Slot into the grouped nav (already under "Work").
-- **D — Timetable ingestion:** manual grid entry (always reliable) + **import** from pasted text or a
-  `.docx` / text-extractable PDF via the structured AI extractor, prefilling the grid for review.
-  ⚠️ **Image/photo timetables need vision** — the AI layer is **text-only today**, so image ingestion is
-  a follow-up that requires wiring multimodal input into the AI gateway. Word/PDF-text + manual land now.
+- **D — Timetable ingestion (done, image/vision):** manual grid entry (always reliable) **plus import
+  from a photo**. Rather than retrofit the frozen, text-only AI gateway, a **feature-local vision
+  extractor** (`server/education/timetable-vision.ts`) sends the image to Gemini `generateContent` with
+  an inline-image part, asks for JSON, and validates it with the pure `validateStructured` helper. The
+  browser downscales the photo first; the parsed classes are shown for **review** before `importTimetable`
+  commits them (dedupes courses by title). Model overridable via `MYOS_VISION_MODEL`; needs `GEMINI_API_KEY`.
+  `.docx`/PDF-file upload remains a later add (needs a doc-parsing dependency).
 - **E — Today integration:** class blocks into the planner/today; advance-dated targets surface on date.
 
 ## Conventions
