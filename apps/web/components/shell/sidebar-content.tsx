@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Pin, PinOff } from "lucide-react";
 import { MonoLabel } from "@myos/ui";
-import { NAV_SECTIONS } from "@/lib/shell/nav";
+import { NAV_SECTIONS, getNavItem } from "@/lib/shell/nav";
+import { usePins } from "@/lib/shell/use-pins";
 import { SidebarNavItem } from "./sidebar-nav-item";
 
 export interface SidebarContentProps {
@@ -12,22 +13,53 @@ export interface SidebarContentProps {
   onNavigate?: (() => void) | undefined;
 }
 
-/** Sections collapsed by default in the expanded sidebar (the daily-drivers stay open). */
-const DEFAULT_COLLAPSED = new Set(["Life", "Intelligence", "System"]);
+/** Sections collapsed by default in the expanded sidebar — only Primary stays open (V2 IA pass). */
+const DEFAULT_COLLAPSED = new Set(["Work", "Life", "Intelligence", "System"]);
 const STORE_KEY = "myos.sidebar.sections";
 
 function sectionHasActive(items: { href: string }[], pathname: string): boolean {
   return items.some((it) => pathname === it.href || pathname.startsWith(`${it.href}/`));
 }
 
+/** Hover-revealed pin/unpin control overlaid on a sidebar row (expanded mode only). */
+function PinToggle({
+  href,
+  pinned,
+  onToggle,
+}: {
+  href: string;
+  pinned: boolean;
+  onToggle: (href: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={pinned ? "Unpin from top" : "Pin to top"}
+      title={pinned ? "Unpin from top" : "Pin to top"}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onToggle(href);
+      }}
+      className={`text-fg-subtle hover:text-fg hover:bg-overlay focus-visible:ring-ring absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-1 outline-none transition-opacity focus-visible:opacity-100 focus-visible:ring-1 ${
+        pinned ? "opacity-60" : "opacity-0 group-hover:opacity-100"
+      }`}
+    >
+      {pinned ? <PinOff size={12} aria-hidden /> : <Pin size={12} aria-hidden />}
+    </button>
+  );
+}
+
 /**
- * The scrollable nav body, shared by the desktop sidebar and the mobile drawer. In the expanded
- * sidebar each section is collapsible so 32 routes don't all shout at once (UX pass 1): Main + Work
- * stay open, the rest start collapsed but are one click away, the section containing the current page
- * auto-opens, and the open/closed choice is remembered. The icon-rail (collapsed) mode is unchanged.
+ * The scrollable nav body, shared by the desktop sidebar and the mobile drawer. So the ~37 routes don't
+ * all shout at once (V2 IA pass): a user-pinned favorites row sits at the top, only Primary stays open by
+ * default, the rest start collapsed but are one click away, the section containing the current page
+ * auto-opens, and both the open/closed and pinned choices are remembered. Rows reveal a pin/unpin control
+ * on hover. The icon-rail (collapsed) mode is unchanged.
  */
 export function SidebarContent({ collapsed, onNavigate }: SidebarContentProps) {
   const pathname = usePathname();
+  const { pinned, toggle: togglePin, isPinned } = usePins();
 
   const [open, setOpen] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(NAV_SECTIONS.map((s) => [s.label, !DEFAULT_COLLAPSED.has(s.label)])),
@@ -78,8 +110,37 @@ export function SidebarContent({ collapsed, onNavigate }: SidebarContentProps) {
     );
   }
 
+  // Resolve pinned hrefs to nav items, skipping any that no longer exist.
+  const pinnedItems = pinned
+    .map((href) => {
+      try {
+        return getNavItem(href);
+      } catch {
+        return null;
+      }
+    })
+    .filter((item): item is ReturnType<typeof getNavItem> => item !== null);
+
   return (
     <nav aria-label="Primary" className="flex-1 space-y-3 overflow-y-auto px-2 py-2">
+      {pinnedItems.length > 0 ? (
+        <div className="space-y-1">
+          <div className="px-2.5 py-1.5">
+            <MonoLabel tone="subtle" aria-hidden>
+              Pinned
+            </MonoLabel>
+          </div>
+          <div className="space-y-0.5">
+            {pinnedItems.map((item) => (
+              <div key={item.href} className="group relative">
+                <SidebarNavItem item={item} collapsed={false} onNavigate={onNavigate} />
+                <PinToggle href={item.href} pinned onToggle={togglePin} />
+              </div>
+            ))}
+          </div>
+          <div aria-hidden className="bg-border mx-2.5 mt-2 h-px" />
+        </div>
+      ) : null}
       {NAV_SECTIONS.map((section) => {
         const isOpen = open[section.label] ?? true;
         return (
@@ -110,7 +171,14 @@ export function SidebarContent({ collapsed, onNavigate }: SidebarContentProps) {
                       {firstSecondary ? (
                         <div aria-hidden className="bg-border mx-2.5 my-1.5 h-px" />
                       ) : null}
-                      <SidebarNavItem item={item} collapsed={false} onNavigate={onNavigate} />
+                      <div className="group relative">
+                        <SidebarNavItem item={item} collapsed={false} onNavigate={onNavigate} />
+                        <PinToggle
+                          href={item.href}
+                          pinned={isPinned(item.href)}
+                          onToggle={togglePin}
+                        />
+                      </div>
                     </div>
                   );
                 })}

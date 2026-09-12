@@ -2,6 +2,7 @@ import {
   BarChart3,
   BookOpen,
   Boxes,
+  House,
   LayoutDashboard,
   Briefcase,
   CalendarClock,
@@ -73,6 +74,12 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Primary",
     blurb: "The surfaces you operate from every day.",
     items: [
+      {
+        label: "Home",
+        href: "/home",
+        icon: House,
+        description: "A calm start — what to do now, quick capture, and your daily surfaces.",
+      },
       {
         label: "Command Center",
         href: "/command-center",
