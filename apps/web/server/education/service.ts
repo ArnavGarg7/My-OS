@@ -23,8 +23,14 @@ import {
   type UpdateInternshipEntryInput,
   type UpdateSessionInput,
   type UpdateTargetInput,
+  type ParsedTimetable,
 } from "@myos/core/education";
 import * as repo from "./repository";
+
+function hhmmToMinutes(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  return (h ?? 0) * 60 + (m ?? 0);
+}
 
 /**
  * EducationService (Part B). Bridges the pure @myos/core/education engine with persistence, and builds
@@ -137,6 +143,48 @@ export async function todayItems(db: Database, date: string) {
     exams: o.upcomingExams.slice(0, 3),
     targets: o.surfacingTargets,
   };
+}
+
+/**
+ * Import a reviewed parsed timetable (from the vision extractor). Reuses existing courses by title
+ * (case-insensitive), creates the missing ones, then adds each class session mapped to its course.
+ * Idempotent on courses (won't duplicate a title); sessions are always added (the review step is where
+ * the user prunes). Returns what was created.
+ */
+export async function importParsedTimetable(db: Database, input: ParsedTimetable) {
+  const existing = await repo.listCourses(db);
+  const byTitle = new Map(existing.map((c) => [c.title.trim().toLowerCase(), c]));
+  let createdCourses = 0;
+
+  const ensureCourse = async (title: string, code = ""): Promise<string> => {
+    const key = title.trim().toLowerCase();
+    const found = byTitle.get(key);
+    if (found) return found.id;
+    const row = await repo.insertCourse(db, { title: title.trim(), code });
+    byTitle.set(key, row);
+    createdCourses += 1;
+    return row.id;
+  };
+
+  for (const c of input.courses) await ensureCourse(c.title, c.code);
+
+  let createdSessions = 0;
+  for (const s of input.sessions) {
+    const start = hhmmToMinutes(s.start);
+    const end = hhmmToMinutes(s.end);
+    if (end <= start) continue;
+    const courseId = await ensureCourse(s.courseTitle);
+    await repo.insertSession(db, {
+      courseId,
+      weekday: s.weekday,
+      startMinute: start,
+      endMinute: end,
+      kind: s.kind ?? "lecture",
+      location: s.location ?? "",
+    });
+    createdSessions += 1;
+  }
+  return { createdCourses, createdSessions };
 }
 
 // ── Courses ────────────────────────────────────────────────────────────────────

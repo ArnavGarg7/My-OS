@@ -7,6 +7,8 @@ import {
   createTargetSchema,
   dayViewSchema,
   idSchema,
+  importTimetableSchema,
+  parseTimetableImageSchema,
   updateAssignmentSchema,
   updateCourseSchema,
   updateExamSchema,
@@ -16,6 +18,7 @@ import {
 } from "@myos/core/education";
 import { protectedProcedure, router } from "../trpc";
 import * as service from "./service";
+import { extractTimetableFromImage } from "./timetable-vision";
 
 /**
  * Education & Career API (Part B). Thin, zod-validated tRPC surface over EducationService — college
@@ -30,6 +33,15 @@ export const educationRouter = router({
   today: protectedProcedure
     .input(dayViewSchema)
     .query(({ ctx, input }) => service.todayItems(ctx.db, input.date)),
+
+  // Timetable import from a photo (Part D — feature-local vision). Parse returns a reviewable timetable;
+  // import commits the reviewed result.
+  parseTimetableImage: protectedProcedure
+    .input(parseTimetableImageSchema)
+    .mutation(({ input }) => extractTimetableFromImage(input.imageBase64, input.mimeType)),
+  importTimetable: protectedProcedure
+    .input(importTimetableSchema)
+    .mutation(({ ctx, input }) => service.importParsedTimetable(ctx.db, input)),
 
   // Courses
   createCourse: protectedProcedure

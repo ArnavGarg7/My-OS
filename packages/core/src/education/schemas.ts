@@ -95,6 +95,38 @@ export const dayViewSchema = z.object({
   date: dateString,
 });
 
+// ── Timetable import (vision) ────────────────────────────────────────────────────
+/** A course the vision model read off an uploaded timetable image. */
+export const parsedCourseSchema = z.object({
+  title: z.string().min(1).max(200),
+  code: z.string().max(40).optional(),
+});
+/** A class block the vision model read; `courseTitle` links it to a parsed course by title. */
+export const parsedSessionSchema = z.object({
+  courseTitle: z.string().min(1).max(200),
+  weekday: z.number().int().min(0).max(6),
+  start: z.string().regex(/^\d{1,2}:\d{2}$/, "expected H:MM"),
+  end: z.string().regex(/^\d{1,2}:\d{2}$/, "expected H:MM"),
+  kind: classKindSchema.optional(),
+  location: z.string().max(200).optional(),
+});
+/** The structured timetable the model returns — validated before it ever reaches the DB. */
+export const parsedTimetableSchema = z.object({
+  courses: z.array(parsedCourseSchema).max(40),
+  sessions: z.array(parsedSessionSchema).max(300),
+});
+/** parseTimetableImage input — a base64 image (data stripped of its `data:` prefix) + its mime type. */
+export const parseTimetableImageSchema = z.object({
+  imageBase64: z.string().min(1).max(12_000_000),
+  mimeType: z.enum(["image/png", "image/jpeg", "image/webp"]),
+});
+/** importTimetable input — the reviewed parsed timetable the user confirmed. */
+export const importTimetableSchema = parsedTimetableSchema;
+
+export type ParsedCourse = z.infer<typeof parsedCourseSchema>;
+export type ParsedSession = z.infer<typeof parsedSessionSchema>;
+export type ParsedTimetable = z.infer<typeof parsedTimetableSchema>;
+
 export type CreateCourseInput = z.infer<typeof createCourseSchema>;
 export type UpdateCourseInput = z.infer<typeof updateCourseSchema>;
 export type CreateSessionInput = z.infer<typeof createSessionSchema>;
