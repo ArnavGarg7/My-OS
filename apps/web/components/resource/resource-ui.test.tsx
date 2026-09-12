@@ -280,12 +280,13 @@ describe("DocumentsPage", () => {
   it("shows document health and an expiry countdown", () => {
     render(
       <DocumentsPage
-        documents={[makeDocument({ name: "Passport", expiresAt: "2099-01-01" })]}
+        documents={[makeDocument({ name: "Indian Passport", expiresAt: "2099-01-01" })]}
         onCreate={vi.fn()}
         onRenew={vi.fn()}
       />,
     );
-    expect(screen.getByText("Passport")).toBeInTheDocument();
+    // "Indian Passport" is the document name; the type picker separately renders a "Passport" tile.
+    expect(screen.getByText("Indian Passport")).toBeInTheDocument();
     expect(screen.getByText("100% valid")).toBeInTheDocument();
   });
 

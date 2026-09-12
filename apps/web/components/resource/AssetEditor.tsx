@@ -3,6 +3,14 @@
 import { useState } from "react";
 import { Button, Input, Text } from "@myos/ui";
 import { ASSET_TYPES, type AssetType } from "@myos/core/resource";
+import { ASSET_TYPE_ICON, ASSET_TYPE_LABEL } from "./resource-icons";
+import { TypePicker } from "./TypePicker";
+
+const ASSET_OPTIONS = ASSET_TYPES.map((t) => ({
+  value: t,
+  label: ASSET_TYPE_LABEL[t],
+  icon: ASSET_TYPE_ICON[t],
+}));
 
 /**
  * AssetEditor (Sprint 4.3). Capture what you own. Leaving the current value blank is the
@@ -54,6 +62,7 @@ export function AssetEditor({
       <Text variant="caption" tone="subtle">
         ADD AN ASSET
       </Text>
+      <TypePicker ariaLabel="Asset type" options={ASSET_OPTIONS} value={type} onChange={setType} />
       <div className="flex flex-wrap items-center gap-2">
         <Input
           aria-label="Asset name"
@@ -62,18 +71,6 @@ export function AssetEditor({
           onChange={(e) => setName(e.target.value)}
           className="max-w-52"
         />
-        <select
-          aria-label="Asset type"
-          value={type}
-          onChange={(e) => setType(e.target.value as AssetType)}
-          className="border-border bg-surface text-fg h-9 rounded-md border px-2 text-sm"
-        >
-          {ASSET_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
         <Input
           aria-label="Purchase price"
           placeholder="Price"
