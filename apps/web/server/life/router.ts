@@ -5,6 +5,7 @@ import {
   completeRoutineSchema,
   habitInputSchema,
   injuryInputSchema,
+  logGuidedWorkoutSchema,
   logMedicationSchema,
   medicationInputSchema,
   reviewInputSchema,
@@ -115,6 +116,10 @@ export const lifeRouter = router({
   logWorkout: protectedProcedure
     .input(workoutInputSchema)
     .mutation(({ ctx, input }) => service.logWorkout(ctx.db, input as Partial<WorkoutSession>)),
+  listExercises: protectedProcedure.query(({ ctx }) => service.listExercises(ctx.db)),
+  logGuidedWorkout: protectedProcedure
+    .input(logGuidedWorkoutSchema)
+    .mutation(({ ctx, input }) => service.logGuidedWorkout(ctx.db, input)),
   listBody: protectedProcedure.query(({ ctx }) => service.listBody(ctx.db)),
   logBody: protectedProcedure
     .input(bodyInputSchema)

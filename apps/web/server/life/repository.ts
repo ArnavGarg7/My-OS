@@ -1,9 +1,10 @@
 import "server-only";
-import { desc, eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import type { Database } from "@myos/db";
 import {
   bodyMeasurements as healthBody,
   doctorAppointments,
+  exerciseLibrary,
   habitCompletions,
   injuryLog,
   lifeBodyMeasurements,
@@ -17,6 +18,7 @@ import {
   supplements,
   visionItems,
   workoutSessions,
+  type ExerciseRow,
 } from "@myos/db/schema";
 import type {
   BodyMeasurement,
@@ -288,6 +290,31 @@ export async function updateInjuryRow(
   if (patch.status === "healed") set.healedAt = new Date();
   const [row] = await db.update(injuryLog).set(set).where(eq(injuryLog.id, id)).returning();
   return m.injuryRowTo(row!);
+}
+
+/* ── Exercise library ───────────────────────────────────────────────────── */
+export function listExercises(db: Database): Promise<ExerciseRow[]> {
+  return db.select().from(exerciseLibrary).orderBy(exerciseLibrary.name);
+}
+/** Find an exercise by name (case-insensitive) or create it — so a guided workout builds the library. */
+export async function getOrCreateExercise(
+  db: Database,
+  name: string,
+  type: ExerciseRow["type"],
+  muscleGroups: string[],
+): Promise<string> {
+  const existing = await db
+    .select({ id: exerciseLibrary.id })
+    .from(exerciseLibrary)
+    .where(sql`lower(${exerciseLibrary.name}) = ${name.trim().toLowerCase()}`)
+    .limit(1);
+  if (existing[0]) return existing[0].id;
+  const [row] = await db
+    .insert(exerciseLibrary)
+    .values({ name: name.trim(), type, muscleGroups })
+    .returning({ id: exerciseLibrary.id });
+  if (!row) throw new Error("Failed to create exercise");
+  return row.id;
 }
 
 /* ── Workouts / Body ────────────────────────────────────────────────────── */

@@ -20,6 +20,7 @@ export * from "./adherence";
 export * from "./scheduling";
 export * from "./planner";
 export * from "./workouts";
+export * from "./exercise-catalog";
 export * from "./injuries";
 export * from "./medication";
 export * from "./supplements";
