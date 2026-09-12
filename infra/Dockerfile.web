@@ -29,8 +29,10 @@ ENV MYOS_BUILD_STANDALONE=1
 # is EVER passed as a build arg or exposed to the client — those stay runtime-only via `env_file`.
 ARG NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY=""
 ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=""
+ARG NEXT_PUBLIC_MYOS_GOOGLE_AUTH=""
 ENV NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY=$NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY
 ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_MYOS_GOOGLE_AUTH=$NEXT_PUBLIC_MYOS_GOOGLE_AUTH
 # Copy the ENTIRE installed workspace (root node_modules + every package's node_modules), not just the
 # root. pnpm hoists most deps to the root store but the per-package `.bin` symlinks (e.g. apps/web's
 # `next` binary) live in `apps/web/node_modules` — copying only `/app/node_modules` leaves them behind,

@@ -2,8 +2,8 @@ import "server-only";
 import { redirect } from "next/navigation";
 import type { UserPreferencesRow } from "@myos/db/schema";
 import { getDb } from "../db";
-import { clerkEnabled, isProduction, signInUrl, singleOwnerMode } from "./config";
-import { getProviderIdentity, getProviderUserId } from "./clerk";
+import { externalAuthEnabled, isProduction, signInUrl, singleOwnerMode } from "./config";
+import { getProviderIdentity, getProviderUserId } from "./provider";
 import * as repo from "./repository";
 import type { OnboardingInput, PreferencesUpdate, ProfileUpdate } from "./schemas";
 import type { Identity, ProviderIdentity, UserPreferences } from "./types";
@@ -28,7 +28,7 @@ interface ResolvedProvider {
 
 /** Resolve the current request's provider identity, or null if unauthenticated. */
 async function resolveProvider(): Promise<ResolvedProvider | null> {
-  if (clerkEnabled()) {
+  if (externalAuthEnabled()) {
     const clerkId = await getProviderUserId();
     if (!clerkId) return null;
     const provider = (await getProviderIdentity()) ?? {
