@@ -21,7 +21,10 @@ export function HealthTimeline({
   const entries: Entry[] = [
     ...hydration.map((h) => ({ time: h.time, label: `Water · ${h.amountMl}ml` })),
     ...nutrition.map((n) => ({ time: n.loggedAt, label: `${n.meal} · ${n.calories} kcal` })),
-    ...workouts.map((w) => ({ time: w.startedAt, label: `${w.type} · ${w.durationMinutes}m` })),
+    ...workouts.map((w) => ({
+      time: w.startedAt,
+      label: `${w.label ? w.label : w.type} · ${w.durationMinutes}m`,
+    })),
   ].sort((a, b) => a.time.localeCompare(b.time));
 
   if (entries.length === 0) {

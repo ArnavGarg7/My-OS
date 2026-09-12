@@ -107,8 +107,20 @@ export function useHealthController() {
       carbs = 0,
       fat = 0,
     ) => mealM.mutate({ meal, calories, protein, carbs, fat }),
-    logWorkout: (type: WorkoutType, durationMinutes: number, rpe: number | null = null) =>
-      workoutM.mutate({ type, durationMinutes, volume: 0, rpe, completed: true }),
+    logWorkout: (
+      type: WorkoutType,
+      durationMinutes: number,
+      rpe: number | null = null,
+      recoveryNotes?: string,
+    ) =>
+      workoutM.mutate({
+        type,
+        durationMinutes,
+        volume: 0,
+        rpe,
+        completed: true,
+        ...(recoveryNotes ? { recoveryNotes } : {}),
+      }),
     logSleep: (bedTime: string, wakeTime: string, quality = 70) =>
       sleepM.mutate({ bedTime, wakeTime, quality }),
     updateWeight: (weight: number) => weightM.mutate({ weight }),

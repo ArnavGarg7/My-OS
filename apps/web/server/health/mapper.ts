@@ -51,6 +51,7 @@ export function workoutRowToWorkout(row: WorkoutRow): Workout {
     caloriesBurned: row.caloriesBurned,
     rpe: row.rpe,
     completed: row.completed,
+    ...(row.recoveryNotes ? { label: row.recoveryNotes } : {}),
   };
 }
 

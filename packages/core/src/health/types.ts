@@ -38,6 +38,8 @@ export interface Workout {
   caloriesBurned: number;
   rpe: number | null; // 1–10
   completed: boolean;
+  /** Optional free-text detail — e.g. the exercise + muscle group from the guided logger. */
+  label?: string;
 }
 
 export interface SleepSession {

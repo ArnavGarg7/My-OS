@@ -128,6 +128,9 @@ export function NutritionPage() {
 
               <div className="flex items-center gap-2">
                 <Scale size={15} aria-hidden className="text-fg-subtle" />
+                <Text variant="caption" tone="subtle">
+                  Body weight
+                </Text>
                 {d.weight ? (
                   <Text variant="body-s" className="tabular-nums">
                     {d.weight} kg
@@ -138,6 +141,7 @@ export function NutritionPage() {
                   step="0.1"
                   className="w-20"
                   placeholder="kg"
+                  aria-label="Today's body weight in kilograms"
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
                 />

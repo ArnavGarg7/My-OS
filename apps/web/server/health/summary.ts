@@ -26,6 +26,7 @@ const DAY_MS = 86_400_000;
 export async function loadInput(
   db: Database,
   date: string,
+  tz = "UTC",
   now = new Date(),
 ): Promise<HealthInput> {
   const dayStart = new Date(`${date}T00:00:00.000Z`);
@@ -35,10 +36,10 @@ export async function loadInput(
     await Promise.all([
       repo.getDaily(db, date),
       repo.listSleep(db, 30),
-      repo.listWorkouts(db, { date }),
+      repo.listWorkouts(db, { date, tz }),
       repo.recentWorkouts(db, twoDaysAgo),
-      repo.listHydration(db, date),
-      repo.listNutrition(db, date),
+      repo.listHydration(db, date, tz),
+      repo.listNutrition(db, date, tz),
       repo.listBody(db, 60),
     ]);
 
@@ -64,14 +65,16 @@ export async function buildSummary(
   db: Database,
   date: string,
   now = new Date(),
+  tz = "UTC",
 ): Promise<HealthSummary> {
-  return healthEngine.summary(await loadInput(db, date, now));
+  return healthEngine.summary(await loadInput(db, date, tz, now));
 }
 
 export async function buildSignals(
   db: Database,
   date: string,
   now = new Date(),
+  tz = "UTC",
 ): Promise<HealthSignals> {
-  return healthEngine.signals(await loadInput(db, date, now));
+  return healthEngine.signals(await loadInput(db, date, tz, now));
 }
