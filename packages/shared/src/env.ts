@@ -80,6 +80,17 @@ export const serverEnvSchema = z.object({
   /** OpenWeather API key (Stage 9). Server-side only — powers the Weather connector's live fetch. */
   OPENWEATHER_API_KEY: z.string().optional(),
   /**
+   * AccuWeather API key (Weather connector). When set, real current conditions come from AccuWeather
+   * (preferred over OpenWeather). Free key: https://developer.accuweather.com — note the free tier is
+   * ~50 calls/day, so results are cached for 60 minutes. Server-side only.
+   */
+  ACCUWEATHER_API_KEY: z.string().optional(),
+  /**
+   * Default weather location (e.g. "New Delhi, IN") for the server-side Weather CONNECTOR sync, which
+   * has no client context. The weather WIDGET uses the location passed from the client. Optional.
+   */
+  WEATHER_LOCATION: z.string().optional(),
+  /**
    * USDA FoodData Central API key (Nutrition module). The nutrition DB is the SOURCE OF TRUTH for
    * calories/macros — AI only parses what was said, this resolves the numbers. Free key from
    * https://fdc.nal.usda.gov/api-key-signup.html. When unset, the low-volume public "DEMO_KEY" is used
