@@ -1,5 +1,6 @@
 import "server-only";
 import { and, desc, eq, gte, lte } from "drizzle-orm";
+import { offsetMinutes } from "@myos/core/calendar";
 import type { Database } from "@myos/db";
 import {
   bodyMeasurements,
@@ -22,8 +23,16 @@ import {
  * No business logic — the service composes these with the pure HealthEngine.
  * Timestamps are Date objects at the DB boundary; the mapper ISO-encodes them.
  */
-function dayBounds(date: string): { from: Date; to: Date } {
-  const from = new Date(`${date}T00:00:00.000Z`);
+/**
+ * UTC [from, to) instants for a local calendar day. `date` is a wall-clock day in `tz`; the true UTC
+ * window is local-midnight shifted by the zone offset (e.g. IST +5:30 → the day starts 18:30 UTC the
+ * evening before). Without this, a workout logged after local midnight lands in the previous UTC day and
+ * silently drops out of "today". Defaults to UTC when no tz is given.
+ */
+function dayBounds(date: string, tz = "UTC"): { from: Date; to: Date } {
+  const naive = new Date(`${date}T00:00:00.000Z`).getTime();
+  const offset = offsetMinutes(`${date}T00:00:00.000Z`, tz);
+  const from = new Date(naive - offset * 60_000);
   const to = new Date(from.getTime() + 24 * 60 * 60_000);
   return { from, to };
 }
@@ -57,9 +66,12 @@ export function listDaily(db: Database, from: string, to: string): Promise<Healt
 }
 
 // --- workouts ---
-export function listWorkouts(db: Database, range?: { date?: string }): Promise<WorkoutRow[]> {
+export function listWorkouts(
+  db: Database,
+  range?: { date?: string; tz?: string },
+): Promise<WorkoutRow[]> {
   if (range?.date) {
-    const { from, to } = dayBounds(range.date);
+    const { from, to } = dayBounds(range.date, range.tz);
     return db
       .select()
       .from(workouts)
@@ -93,6 +105,7 @@ export async function insertWorkout(
     caloriesBurned: number;
     rpe: number | null;
     completed: boolean;
+    recoveryNotes?: string;
   },
 ): Promise<WorkoutRow> {
   const [row] = await db.insert(workouts).values(values).returning();
@@ -125,8 +138,8 @@ export async function insertSleep(
 }
 
 // --- hydration ---
-export function listHydration(db: Database, date: string): Promise<HydrationLogRow[]> {
-  const { from, to } = dayBounds(date);
+export function listHydration(db: Database, date: string, tz = "UTC"): Promise<HydrationLogRow[]> {
+  const { from, to } = dayBounds(date, tz);
   return db
     .select()
     .from(hydrationLogs)
@@ -144,8 +157,8 @@ export async function insertHydration(
 }
 
 // --- nutrition ---
-export function listNutrition(db: Database, date: string): Promise<NutritionLogRow[]> {
-  const { from, to } = dayBounds(date);
+export function listNutrition(db: Database, date: string, tz = "UTC"): Promise<NutritionLogRow[]> {
+  const { from, to } = dayBounds(date, tz);
   return db
     .select()
     .from(nutritionLogs)

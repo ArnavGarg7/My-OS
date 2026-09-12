@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Apple, Plus } from "lucide-react";
+import { ArrowLeft, Apple, Dumbbell, HeartPulse, Plus } from "lucide-react";
 import {
   Button,
   Dialog,
@@ -21,10 +21,14 @@ import {
   MOODS,
   SLEEP_DURATIONS_HOURS,
   WORKOUT_DURATIONS_MIN,
-  WORKOUT_PRESETS,
   type Mood,
-  type WorkoutType,
 } from "@myos/core/health";
+import {
+  CARDIO_EXERCISES,
+  MUSCLE_GROUPS,
+  STRENGTH_BY_GROUP,
+  type CatalogExercise,
+} from "@myos/core/life";
 import { HEALTH_ICONS, ENERGY_LABEL } from "./health-icons";
 import type { useHealthController } from "./use-health";
 
@@ -34,7 +38,7 @@ const METRICS = [
   { id: "water", label: "Water", icon: HEALTH_ICONS.water },
   { id: "workout", label: "Workout", icon: HEALTH_ICONS.workout },
   { id: "sleep", label: "Sleep", icon: HEALTH_ICONS.sleep },
-  { id: "weight", label: "Weight", icon: HEALTH_ICONS.body },
+  { id: "weight", label: "Body weight", icon: HEALTH_ICONS.body },
   { id: "energy", label: "Energy", icon: HEALTH_ICONS.energy },
   { id: "mood", label: "Mood", icon: HEALTH_ICONS.heart },
   { id: "meal", label: "Meal", icon: Apple },
@@ -145,8 +149,8 @@ export function HealthQuickLogDialog({ controller }: { controller: Controller })
 
               {metric === "workout" ? (
                 <WorkoutPicker
-                  onPick={(type, minutes) => {
-                    controller.logWorkout(type, minutes);
+                  onLog={(type, minutes, note) => {
+                    controller.logWorkout(type, minutes, null, note);
                     done();
                   }}
                 />
@@ -171,7 +175,7 @@ export function HealthQuickLogDialog({ controller }: { controller: Controller })
               {metric === "weight" ? (
                 <div className="flex items-end gap-2">
                   <label className="flex flex-1 flex-col gap-1">
-                    <span className="text-fg-subtle text-caption">Weight (kg)</span>
+                    <span className="text-fg-subtle text-caption">Your body weight (kg)</span>
                     <Input
                       autoFocus
                       type="number"
@@ -254,38 +258,117 @@ export function HealthQuickLogDialog({ controller }: { controller: Controller })
   );
 }
 
-function WorkoutPicker({ onPick }: { onPick: (type: WorkoutType, minutes: number) => void }) {
-  const [type, setType] = useState<WorkoutType | null>(null);
+/**
+ * Guided workout picker. Cardio → a common cardio exercise; Strength → a muscle group → a popular
+ * exercise for it — the same real catalog the Life workout logger uses. After picking the exercise, tap
+ * a duration and it logs a health workout (type + minutes) tagged with the exercise, so it shows on the
+ * timeline and feeds readiness.
+ */
+function WorkoutPicker({
+  onLog,
+}: {
+  onLog: (type: "cardio" | "strength", minutes: number, note: string) => void;
+}) {
+  const [category, setCategory] = useState<"cardio" | "strength" | null>(null);
+  const [group, setGroup] = useState<string | null>(null);
+  const [exercise, setExercise] = useState<CatalogExercise | null>(null);
 
-  if (type === null) {
+  // Step 1 — category
+  if (category === null) {
     return (
-      <div className="grid grid-cols-3 gap-1.5">
-        {WORKOUT_PRESETS.map((w) => (
-          <button
-            key={w.type}
-            type="button"
-            onClick={() => setType(w.type)}
-            className="border-border hover:border-accent hover:bg-elevated text-body-s rounded-md border px-2.5 py-2"
-          >
-            {w.label}
-          </button>
-        ))}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => setCategory("cardio")}
+          className="border-border hover:border-accent hover:bg-elevated flex flex-col items-center gap-1 rounded-lg border p-4"
+        >
+          <HeartPulse size={20} aria-hidden className="text-accent" />
+          <Text variant="body-s" className="font-medium">
+            Cardio
+          </Text>
+        </button>
+        <button
+          type="button"
+          onClick={() => setCategory("strength")}
+          className="border-border hover:border-accent hover:bg-elevated flex flex-col items-center gap-1 rounded-lg border p-4"
+        >
+          <Dumbbell size={20} aria-hidden className="text-accent" />
+          <Text variant="body-s" className="font-medium">
+            Strength
+          </Text>
+        </button>
+      </div>
+    );
+  }
+
+  // Step 4 — duration (once an exercise is chosen)
+  if (exercise) {
+    const note =
+      category === "strength" && exercise.muscleGroup
+        ? `${exercise.name} · ${exercise.muscleGroup}`
+        : exercise.name;
+    return (
+      <div className="space-y-2">
+        <BackHeader label={exercise.name} onBack={() => setExercise(null)} />
+        <MonoLabel tone="subtle">How long?</MonoLabel>
+        <div className="flex flex-wrap gap-1.5">
+          {WORKOUT_DURATIONS_MIN.map((min) => (
+            <Chip key={min} label={`${min} min`} onClick={() => onLog(category, min, note)} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Cardio — pick an exercise directly
+  if (category === "cardio") {
+    return (
+      <div className="space-y-2">
+        <BackHeader label="Cardio" onBack={() => setCategory(null)} />
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+          {CARDIO_EXERCISES.map((c) => (
+            <ExerciseTile key={c.name} label={c.name} onClick={() => setExercise(c)} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Strength — pick a muscle group, then an exercise
+  if (group === null) {
+    return (
+      <div className="space-y-2">
+        <BackHeader label="Strength — body part" onBack={() => setCategory(null)} />
+        <div className="grid grid-cols-3 gap-1.5">
+          {MUSCLE_GROUPS.map((g) => (
+            <ExerciseTile key={g} label={g} onClick={() => setGroup(g)} />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-2">
-      <BackHeader
-        label={WORKOUT_PRESETS.find((w) => w.type === type)!.label}
-        onBack={() => setType(null)}
-      />
-      <div className="flex flex-wrap gap-1.5">
-        {WORKOUT_DURATIONS_MIN.map((min) => (
-          <Chip key={min} label={`${min} min`} onClick={() => onPick(type, min)} />
+      <BackHeader label={group} onBack={() => setGroup(null)} />
+      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+        {(STRENGTH_BY_GROUP[group] ?? []).map((c) => (
+          <ExerciseTile key={c.name} label={c.name} onClick={() => setExercise(c)} />
         ))}
       </div>
     </div>
+  );
+}
+
+function ExerciseTile({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="border-border hover:border-accent hover:bg-elevated text-body-s rounded-md border px-2.5 py-2 text-left"
+    >
+      {label}
+    </button>
   );
 }
 

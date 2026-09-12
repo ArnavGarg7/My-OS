@@ -32,6 +32,8 @@ export const logWorkoutSchema = z.object({
   rpe: z.number().int().min(1).max(10).nullable().default(null),
   startedAt: isoSchema.optional(),
   completed: z.boolean().default(true),
+  /** Free-text detail from the guided logger, e.g. "Squat · Legs". */
+  recoveryNotes: z.string().trim().max(2000).optional(),
 });
 
 export const finishWorkoutSchema = z.object({

@@ -46,11 +46,11 @@ function dateFor(tz: string, date?: string): string {
 
 // --- reads ---
 export function summary(db: Database, tz: string, date?: string): Promise<HealthSummary> {
-  return buildSummary(db, dateFor(tz, date));
+  return buildSummary(db, dateFor(tz, date), new Date(), tz);
 }
 
 export function signals(db: Database, tz: string, date?: string) {
-  return buildSignals(db, dateFor(tz, date));
+  return buildSignals(db, dateFor(tz, date), new Date(), tz);
 }
 
 export async function daily(db: Database, tz: string, date?: string): Promise<HealthDaily | null> {
@@ -63,15 +63,15 @@ export async function sleep(db: Database): Promise<SleepSession[]> {
 }
 
 export async function workoutList(db: Database, tz: string, date?: string): Promise<Workout[]> {
-  return (await repo.listWorkouts(db, { date: dateFor(tz, date) })).map(workoutRowToWorkout);
+  return (await repo.listWorkouts(db, { date: dateFor(tz, date), tz })).map(workoutRowToWorkout);
 }
 
 export async function hydration(db: Database, tz: string, date?: string): Promise<HydrationLog[]> {
-  return (await repo.listHydration(db, dateFor(tz, date))).map(hydrationRowToLog);
+  return (await repo.listHydration(db, dateFor(tz, date), tz)).map(hydrationRowToLog);
 }
 
 export async function nutrition(db: Database, tz: string, date?: string): Promise<NutritionLog[]> {
-  return (await repo.listNutrition(db, dateFor(tz, date))).map(nutritionRowToLog);
+  return (await repo.listNutrition(db, dateFor(tz, date), tz)).map(nutritionRowToLog);
 }
 
 export async function body(db: Database): Promise<BodyMeasurement[]> {
@@ -118,7 +118,10 @@ export async function history(db: Database, days = 14): Promise<HealthDaily[]> {
 
 // --- aggregate sync ---
 async function syncDailyAggregates(db: Database, tz: string, date: string): Promise<void> {
-  const [hy, nu] = await Promise.all([repo.listHydration(db, date), repo.listNutrition(db, date)]);
+  const [hy, nu] = await Promise.all([
+    repo.listHydration(db, date, tz),
+    repo.listNutrition(db, date, tz),
+  ]);
   const waterMl = hy.filter((h) => h.source === "water").reduce((s, h) => s + h.amountMl, 0);
   const calories = nu.reduce((s, n) => s + n.calories, 0);
   const protein = nu.reduce((s, n) => s + n.protein, 0);
@@ -188,6 +191,7 @@ export async function logWorkout(
     caloriesBurned: estimateCalories(input.type, input.durationMinutes, input.rpe),
     rpe: input.rpe,
     completed: input.completed,
+    ...(input.recoveryNotes ? { recoveryNotes: input.recoveryNotes } : {}),
   });
   await syncDailyAggregates(db, tz, dateFor(tz));
   return workoutRowToWorkout(row);
