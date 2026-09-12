@@ -213,6 +213,59 @@ interface DriveFile {
   modifiedTime?: string;
 }
 
+/** Slack: recent public-channel messages that mention you, since the checkpoint → mention payloads. */
+async function fetchSlack(token: string, checkpoint: string | null): Promise<RawPayload[]> {
+  const headers = { authorization: `Bearer ${token}` };
+  const call = async <T>(method: string, params?: Record<string, string>): Promise<T | null> => {
+    const qs = params ? `?${new URLSearchParams(params).toString()}` : "";
+    const res = await fetch(`https://slack.com/api/${method}${qs}`, { headers }).catch(() => null);
+    if (!res || !res.ok) return null;
+    const json = (await res.json().catch(() => null)) as ({ ok?: boolean } & T) | null;
+    return json?.ok ? json : null;
+  };
+
+  const auth = await call<{ user_id?: string }>("auth.test");
+  const me = auth?.user_id;
+  if (!me) return [];
+  const mention = `<@${me}>`;
+
+  const list = await call<{ channels?: { id?: string; name?: string }[] }>("conversations.list", {
+    types: "public_channel",
+    exclude_archived: "true",
+    limit: "30",
+  });
+  const channels = (list?.channels ?? []).filter((c) => c.id).slice(0, 8);
+  const oldest = checkpoint ? String(Math.floor(new Date(checkpoint).getTime() / 1000)) : undefined;
+
+  const out: RawPayload[] = [];
+  for (const ch of channels) {
+    const hist = await call<{ messages?: SlackMessage[] }>("conversations.history", {
+      channel: ch.id as string,
+      limit: "15",
+      ...(oldest ? { oldest } : {}),
+    });
+    for (const m of hist?.messages ?? []) {
+      if (!m.ts || !m.text || !m.text.includes(mention)) continue;
+      out.push({
+        type: "app_mention",
+        externalId: `${ch.id}-${m.ts}`,
+        at: new Date(Number(m.ts) * 1000).toISOString(),
+        fields: {
+          label: m.text.replace(mention, "").trim().slice(0, 140) || "mentioned you",
+          channel: ch.name ?? ch.id ?? "",
+        },
+      });
+    }
+  }
+  return out;
+}
+
+interface SlackMessage {
+  ts?: string;
+  text?: string;
+  user?: string;
+}
+
 const FETCHERS: Record<
   string,
   (token: string, checkpoint: string | null) => Promise<RawPayload[]>
@@ -221,6 +274,7 @@ const FETCHERS: Record<
   github: fetchGitHub,
   gmail: fetchGmail,
   "google-drive": fetchGoogleDrive,
+  slack: fetchSlack,
 };
 
 /** Whether a real (non-sample) live fetcher is implemented for this provider. */
