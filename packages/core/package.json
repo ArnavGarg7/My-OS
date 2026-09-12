@@ -36,7 +36,8 @@
     "./proactive": "./src/proactive/index.ts",
     "./collaboration": "./src/collaboration/index.ts",
     "./sync": "./src/sync/index.ts",
-    "./interaction": "./src/interaction/index.ts"
+    "./interaction": "./src/interaction/index.ts",
+    "./education": "./src/education/index.ts"
   },
   "types": "./src/index.ts",
   "scripts": {
