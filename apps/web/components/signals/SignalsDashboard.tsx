@@ -1,7 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Badge, Button, Card, Tabs, TabsContent, TabsList, TabsTrigger, Text } from "@myos/ui";
+import { AlertTriangle, Radar, Sparkles, type LucideIcon } from "lucide-react";
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState as UIEmptyState,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Text,
+} from "@myos/ui";
 import { PageContainer, PageContent, PageHeader, PageLoading } from "@/components/framework";
 import { useIntelligenceAction } from "@/lib/intelligence/use-intelligence-action";
 import { trpc, type RouterOutputs } from "@/lib/trpc/client";
@@ -22,12 +33,31 @@ const SEVERITY: Record<string, "danger" | "warning" | "accent" | "neutral"> = {
   low: "accent",
   info: "neutral",
 };
+const SEVERITY_LABEL: Record<string, string> = {
+  critical: "Critical",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+  info: "Info",
+};
 const LEVEL: Record<string, "danger" | "warning" | "success" | "accent" | "neutral"> = {
   critical: "danger",
   important: "warning",
   reminder: "accent",
   suggestion: "success",
   silent: "neutral",
+};
+const NOTIFY_LABEL: Record<string, string> = {
+  critical: "Critical",
+  important: "Important",
+  reminder: "Reminder",
+  suggestion: "Suggestion",
+  silent: "Silent",
+};
+/** Capitalize a bare enum token for display (e.g. "risks" -> "Risks"). */
+const cap = (s: string) => {
+  const t = s.replace(/_/g, " ");
+  return `${t.charAt(0).toUpperCase()}${t.slice(1)}`;
 };
 
 export function SignalsDashboard() {
@@ -72,9 +102,13 @@ function PriorityIndicator({ priority }: { priority: number }) {
 function SignalBadge({ signal }: { signal: Signal }) {
   return (
     <div className="flex items-center gap-1.5">
-      <Badge variant={SEVERITY[signal.severity] ?? "neutral"}>{signal.severity}</Badge>
-      <Badge variant="neutral">{signal.category}</Badge>
-      <Badge variant={LEVEL[signal.notify] ?? "neutral"}>{signal.notify}</Badge>
+      <Badge variant={SEVERITY[signal.severity] ?? "neutral"}>
+        {SEVERITY_LABEL[signal.severity] ?? cap(signal.severity)}
+      </Badge>
+      <Badge variant="neutral">{cap(signal.category)}</Badge>
+      <Badge variant={LEVEL[signal.notify] ?? "neutral"}>
+        {NOTIFY_LABEL[signal.notify] ?? cap(signal.notify)}
+      </Badge>
     </div>
   );
 }
@@ -165,7 +199,10 @@ function SignalFeed() {
           ))}
         </div>
       ) : (
-        <EmptyState text="No active signals. The engine is watching — nothing needs your attention right now." />
+        <EmptyState
+          title="No active signals"
+          text="The engine is watching — nothing needs your attention right now."
+        />
       )}
     </div>
   );
@@ -181,7 +218,11 @@ function RiskPanel() {
       ))}
     </div>
   ) : (
-    <EmptyState text="No risks detected. Deadlines, readiness, focus and prep all look clear." />
+    <EmptyState
+      icon={AlertTriangle}
+      title="No risks detected"
+      text="Deadlines, readiness, focus and prep all look clear."
+    />
   );
 }
 
@@ -195,7 +236,11 @@ function OpportunityPanel() {
       ))}
     </div>
   ) : (
-    <EmptyState text="No opportunities right now. Freed time and good-readiness windows will surface here." />
+    <EmptyState
+      icon={Sparkles}
+      title="No opportunities right now"
+      text="Freed time and good-readiness windows will surface here."
+    />
   );
 }
 
@@ -239,12 +284,14 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
-function EmptyState({ text }: { text: string }) {
-  return (
-    <Card className="p-6">
-      <Text variant="body-m" className="text-fg-muted">
-        {text}
-      </Text>
-    </Card>
-  );
+function EmptyState({
+  icon = Radar,
+  title,
+  text,
+}: {
+  icon?: LucideIcon;
+  title: string;
+  text: string;
+}) {
+  return <UIEmptyState icon={icon} title={title} description={text} />;
 }
