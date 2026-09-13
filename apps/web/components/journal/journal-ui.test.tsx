@@ -217,6 +217,16 @@ describe("JournalEditor", () => {
     render(<JournalEditor seed="What is today's intention?" onSave={() => {}} />);
     expect(screen.getByDisplayValue(/What is today's intention/)).toBeInTheDocument();
   });
+
+  it("saves with the chosen entry type", async () => {
+    const onSave = vi.fn();
+    const user = userEvent.setup();
+    render(<JournalEditor onSave={onSave} />);
+    await user.type(screen.getByLabelText("Entry title"), "Grateful");
+    await user.click(screen.getByRole("radio", { name: "Gratitude" }));
+    await user.click(screen.getByRole("button", { name: /save entry/i }));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ entryType: "gratitude" }));
+  });
 });
 
 describe("JournalQuickCapture", () => {
