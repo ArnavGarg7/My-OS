@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Textarea } from "@myos/ui";
+import { Button, Input, MonoLabel, Textarea, cn } from "@myos/ui";
 import { PageContainer, PageContent, PageLoading } from "@/components/framework";
 import { useModal } from "@/lib/framework";
 import { useShellStore } from "@/lib/shell/store";
-import type { CreateProjectSchemaInput } from "@myos/core/project";
+import {
+  PROJECT_PRIORITIES,
+  type CreateProjectSchemaInput,
+  type ProjectPriority,
+} from "@myos/core/project";
+import { PRIORITY_LABEL } from "./project-icons";
 import { useProject } from "./use-project";
 import { ProjectToolbar, type ProjectView } from "./ProjectToolbar";
 import { ProjectList } from "./ProjectList";
@@ -24,9 +29,10 @@ function CreateProjectInline({
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<ProjectPriority>("medium");
   const submit = () => {
     if (!name.trim()) return;
-    onCreate({ name: name.trim(), description: description.trim() || undefined });
+    onCreate({ name: name.trim(), description: description.trim() || undefined, priority });
     close();
   };
   return (
@@ -44,6 +50,28 @@ function CreateProjectInline({
         placeholder="What outcome does this drive? (optional)"
         rows={3}
       />
+      <label className="flex flex-col gap-1">
+        <MonoLabel tone="subtle">Priority</MonoLabel>
+        <div role="radiogroup" aria-label="Priority" className="flex flex-wrap gap-1.5">
+          {PROJECT_PRIORITIES.map((p) => (
+            <button
+              key={p}
+              type="button"
+              role="radio"
+              aria-checked={priority === p}
+              onClick={() => setPriority(p)}
+              className={cn(
+                "text-caption rounded-md border px-2.5 py-1",
+                priority === p
+                  ? "border-accent bg-accent/10 text-accent"
+                  : "border-border text-fg-muted hover:border-accent hover:bg-elevated",
+              )}
+            >
+              {PRIORITY_LABEL[p]}
+            </button>
+          ))}
+        </div>
+      </label>
       <div className="flex justify-end">
         <Button disabled={!name.trim()} onClick={submit}>
           Create project
