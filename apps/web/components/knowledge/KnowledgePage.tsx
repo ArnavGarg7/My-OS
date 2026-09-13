@@ -1,7 +1,18 @@
 "use client";
 
-import { PageHeader, StatBlock, Tabs, TabsContent, TabsList, TabsTrigger } from "@myos/ui";
+import {
+  Badge,
+  PageHeader,
+  StatBlock,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Text,
+} from "@myos/ui";
+import { Pin } from "lucide-react";
 import { PageContainer, PageLoading } from "@/components/framework";
+import { TYPE_ICON } from "./knowledge-icons";
 import { trpc } from "@/lib/trpc/client";
 import { useKnowledge } from "./use-knowledge";
 import { NoteEditor } from "./NoteEditor";
@@ -79,13 +90,37 @@ export function KnowledgePage() {
                     <button
                       type="button"
                       onClick={() => k.setSelectedNoteId(n.id)}
-                      className={`w-full rounded-md border px-3 py-2 text-left ${
+                      className={`flex w-full items-start gap-2.5 rounded-md border px-3 py-2 text-left ${
                         n.id === k.selectedNoteId
                           ? "border-accent bg-surface-raised"
                           : "border-border-subtle hover:bg-surface-raised"
                       }`}
                     >
-                      {n.title}
+                      <TYPE_ICON.note
+                        size={16}
+                        aria-hidden
+                        className="text-fg-subtle mt-0.5 shrink-0"
+                      />
+                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <span className="flex items-center gap-1.5">
+                          <Text variant="body-s" className="truncate font-medium">
+                            {n.title || "Untitled note"}
+                          </Text>
+                          {n.pinned ? (
+                            <Pin size={12} aria-label="Pinned" className="text-accent shrink-0" />
+                          ) : null}
+                        </span>
+                        <span className="flex flex-wrap items-center gap-1">
+                          <Text variant="caption" tone="subtle">
+                            {new Date(n.updatedAt).toLocaleDateString()}
+                          </Text>
+                          {n.tags.slice(0, 3).map((t) => (
+                            <Badge key={t} size="sm" variant="neutral">
+                              #{t}
+                            </Badge>
+                          ))}
+                        </span>
+                      </span>
                     </button>
                   </li>
                 ))}
