@@ -11,6 +11,13 @@ const CONFIDENCE_TONE: Record<string, "success" | "accent" | "warning" | "neutra
   low: "warning",
   unknown: "neutral",
 };
+const CONFIDENCE_LABEL: Record<string, string> = {
+  very_high: "Very high",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+  unknown: "Unknown",
+};
 
 /**
  * Adaptive plan realism (Stage 5). Grounded in the user's real capacity, committed
@@ -53,7 +60,7 @@ export function AdaptivePlanCard() {
           </div>
         </div>
         <Badge variant={CONFIDENCE_TONE[p.confidence.level] ?? "neutral"} size="sm">
-          {p.confidence.level.replace(/_/g, " ")}
+          {CONFIDENCE_LABEL[p.confidence.level] ?? p.confidence.level.replace(/_/g, " ")}
         </Badge>
       </div>
 
