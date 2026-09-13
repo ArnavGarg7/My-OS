@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { Button, Input, Text } from "@myos/ui";
+import {
+  Button,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Text,
+} from "@myos/ui";
 import {
   ACTION_KINDS,
   EXECUTION_POLICIES,
@@ -13,6 +22,12 @@ import {
   type ExecutionPolicy,
   type TriggerKind,
 } from "@myos/core/automation";
+
+/** Readable label from an enum token, e.g. "generate_notification" -> "Generate notification". */
+const label = (k: string) => {
+  const t = k.replace(/_/g, " ");
+  return `${t.charAt(0).toUpperCase()}${t.slice(1)}`;
+};
 
 /**
  * AutomationEditor (Sprint 3.4). Editorial create form — readable top to bottom:
@@ -63,17 +78,18 @@ export function AutomationEditor({
           <Text variant="caption" tone="subtle">
             When (trigger)
           </Text>
-          <select
-            value={trigger}
-            onChange={(e) => setTrigger(e.target.value as TriggerKind)}
-            className="border-border bg-elevated rounded-md border px-2 py-1.5 text-sm"
-          >
-            {TRIGGER_KINDS.map((k) => (
-              <option key={k} value={k}>
-                {k}
-              </option>
-            ))}
-          </select>
+          <Select value={trigger} onValueChange={(v) => v && setTrigger(v as TriggerKind)}>
+            <SelectTrigger aria-label="Trigger">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {TRIGGER_KINDS.map((k) => (
+                <SelectItem key={k} value={k}>
+                  {label(k)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </label>
         <label className="flex flex-col gap-1">
           <Text variant="caption" tone="subtle">
@@ -92,33 +108,35 @@ export function AutomationEditor({
           <Text variant="caption" tone="subtle">
             Then (action)
           </Text>
-          <select
-            value={action}
-            onChange={(e) => setAction(e.target.value as ActionKind)}
-            className="border-border bg-elevated rounded-md border px-2 py-1.5 text-sm"
-          >
-            {ACTION_KINDS.map((k) => (
-              <option key={k} value={k}>
-                {k}
-              </option>
-            ))}
-          </select>
+          <Select value={action} onValueChange={(v) => v && setAction(v as ActionKind)}>
+            <SelectTrigger aria-label="Action">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ACTION_KINDS.map((k) => (
+                <SelectItem key={k} value={k}>
+                  {label(k)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </label>
         <label className="flex flex-col gap-1">
           <Text variant="caption" tone="subtle">
             How often (policy)
           </Text>
-          <select
-            value={policy}
-            onChange={(e) => setPolicy(e.target.value as ExecutionPolicy)}
-            className="border-border bg-elevated rounded-md border px-2 py-1.5 text-sm"
-          >
-            {EXECUTION_POLICIES.map((k) => (
-              <option key={k} value={k}>
-                {k.replace(/_/g, " ")}
-              </option>
-            ))}
-          </select>
+          <Select value={policy} onValueChange={(v) => v && setPolicy(v as ExecutionPolicy)}>
+            <SelectTrigger aria-label="Policy">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {EXECUTION_POLICIES.map((k) => (
+                <SelectItem key={k} value={k}>
+                  {label(k)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </label>
       </div>
 

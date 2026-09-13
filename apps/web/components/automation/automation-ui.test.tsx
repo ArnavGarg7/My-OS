@@ -18,7 +18,7 @@ import { PRIORITY_BADGE, STATUS_LABEL, TRIGGER_ICON, actionLabel } from "./autom
 
 describe("automation-icons", () => {
   it("has an icon for every trigger kind", () => {
-    expect(Object.keys(TRIGGER_ICON)).toHaveLength(17);
+    expect(Object.keys(TRIGGER_ICON)).toHaveLength(18);
   });
   it("maps status + priority", () => {
     expect(STATUS_LABEL.enabled).toBe("Enabled");
