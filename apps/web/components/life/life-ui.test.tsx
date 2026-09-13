@@ -270,7 +270,7 @@ describe("PersonalGrowth", () => {
       <PersonalGrowth vision={[]} reviews={[]} onAddVision={onAddVision} onStartReview={vi.fn()} />,
     );
     await userEvent.type(screen.getByLabelText("Vision statement"), "I train daily.");
-    await userEvent.selectOptions(screen.getByLabelText("Life area"), "career");
+    await userEvent.click(screen.getByRole("radio", { name: "Career" }));
     await userEvent.click(screen.getByRole("button", { name: "Add" }));
     expect(onAddVision).toHaveBeenCalledWith({
       category: "career",

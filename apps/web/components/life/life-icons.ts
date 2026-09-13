@@ -1,18 +1,30 @@
 import {
   Activity,
+  Briefcase,
   CalendarClock,
   Dumbbell,
   Flame,
+  GraduationCap,
   HeartPulse,
+  Leaf,
   ListChecks,
+  Palette,
   Pill,
   Repeat,
   Sparkles,
   Stethoscope,
   Sunrise,
   Target,
+  Users,
+  Wallet,
+  type LucideIcon,
 } from "lucide-react";
-import type { InjuryStatus, RecommendationLevel, RoutineType } from "@myos/core/life";
+import type {
+  InjuryStatus,
+  RecommendationLevel,
+  RoutineType,
+  VisionCategory,
+} from "@myos/core/life";
 
 /**
  * Life icon + tone maps (Sprint 4.2). Pure presentation lookups shared by the Life
@@ -28,6 +40,28 @@ export const GrowthIcon = Target;
 export const StreakIcon = Flame;
 export const ReadinessIcon = HeartPulse;
 export const StepsIcon = ListChecks;
+
+export const VISION_CATEGORY_LABEL: Record<VisionCategory, string> = {
+  health: "Health",
+  career: "Career",
+  relationships: "Relationships",
+  finance: "Finance",
+  learning: "Learning",
+  personal: "Personal",
+  spiritual: "Spiritual",
+  recreation: "Recreation",
+};
+
+export const VISION_CATEGORY_ICON: Record<VisionCategory, LucideIcon> = {
+  health: HeartPulse,
+  career: Briefcase,
+  relationships: Users,
+  finance: Wallet,
+  learning: GraduationCap,
+  personal: Sparkles,
+  spiritual: Leaf,
+  recreation: Palette,
+};
 
 export const ROUTINE_TYPE_LABEL: Record<RoutineType, string> = {
   morning: "Morning",
