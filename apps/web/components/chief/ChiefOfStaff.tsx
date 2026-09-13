@@ -90,6 +90,12 @@ const CONFIDENCE_TONE: Record<string, "success" | "accent" | "warning" | "neutra
   medium: "accent",
   low: "warning",
 };
+const CONFIDENCE_LABEL: Record<string, string> = {
+  very_high: "Very high",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+};
 
 function ProposalCard({
   title,
@@ -124,7 +130,7 @@ function ProposalCard({
               {proposal.summary}
             </Text>
             <Badge variant={CONFIDENCE_TONE[proposal.confidence] ?? "neutral"} size="sm">
-              {proposal.confidence.replace(/_/g, " ")}
+              {CONFIDENCE_LABEL[proposal.confidence] ?? proposal.confidence.replace(/_/g, " ")}
             </Badge>
           </div>
           {proposal.changes.slice(0, 3).map((c, i) => (
