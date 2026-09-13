@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Badge, EmptyState, Input, Text } from "@myos/ui";
+import { Button, Badge, EmptyState, Input, Text, cn } from "@myos/ui";
 import { Target } from "lucide-react";
-import type { PersonalReview, VisionItem } from "@myos/core/life";
+import { VISION_CATEGORIES, type PersonalReview, type VisionItem } from "@myos/core/life";
+import { VISION_CATEGORY_ICON, VISION_CATEGORY_LABEL } from "./life-icons";
 
 type VisionCategory = VisionItem["category"];
 
@@ -32,6 +33,31 @@ export function PersonalGrowth({
   return (
     <div className="flex flex-col gap-4">
       <section className="flex flex-col gap-2">
+        <div role="radiogroup" aria-label="Life area" className="flex flex-wrap gap-1.5">
+          {VISION_CATEGORIES.map((c) => {
+            const Icon = VISION_CATEGORY_ICON[c];
+            const active = category === c;
+            return (
+              <button
+                key={c}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                aria-label={VISION_CATEGORY_LABEL[c]}
+                onClick={() => setCategory(c)}
+                className={cn(
+                  "text-caption inline-flex items-center gap-1 rounded-md border px-2.5 py-1",
+                  active
+                    ? "border-accent bg-accent/10 text-accent"
+                    : "border-border text-fg-muted hover:border-accent hover:bg-elevated",
+                )}
+              >
+                <Icon size={13} aria-hidden />
+                {VISION_CATEGORY_LABEL[c]}
+              </button>
+            );
+          })}
+        </div>
         <div className="flex items-end gap-2">
           <Input
             value={statement}
@@ -39,21 +65,6 @@ export function PersonalGrowth({
             placeholder="I am someone who…"
             aria-label="Vision statement"
           />
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value as VisionCategory)}
-            aria-label="Life area"
-            className="border-border-subtle bg-surface h-9 rounded-md border px-2 text-sm"
-          >
-            <option value="health">Health</option>
-            <option value="career">Career</option>
-            <option value="relationships">Relationships</option>
-            <option value="finance">Finance</option>
-            <option value="learning">Learning</option>
-            <option value="personal">Personal</option>
-            <option value="spiritual">Spiritual</option>
-            <option value="recreation">Recreation</option>
-          </select>
           <Button
             size="sm"
             variant="secondary"
@@ -74,24 +85,30 @@ export function PersonalGrowth({
           />
         ) : (
           <ul className="flex flex-col gap-1">
-            {vision.map((v) => (
-              <li
-                key={v.id}
-                className="border-border-subtle flex items-center justify-between rounded border px-3 py-1.5"
-              >
-                <Text variant="body-s">{v.statement}</Text>
-                <span className="flex items-center gap-1.5">
-                  <Badge size="sm" variant="neutral">
-                    {v.category}
-                  </Badge>
-                  {v.isIdentity ? (
-                    <Badge size="sm" variant="accent">
-                      Identity
+            {vision.map((v) => {
+              const Icon = VISION_CATEGORY_ICON[v.category];
+              return (
+                <li
+                  key={v.id}
+                  className="border-border-subtle flex items-center justify-between rounded border px-3 py-1.5"
+                >
+                  <span className="flex items-center gap-2">
+                    <Icon size={14} aria-hidden className="text-fg-subtle shrink-0" />
+                    <Text variant="body-s">{v.statement}</Text>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Badge size="sm" variant="neutral">
+                      {VISION_CATEGORY_LABEL[v.category]}
                     </Badge>
-                  ) : null}
-                </span>
-              </li>
-            ))}
+                    {v.isIdentity ? (
+                      <Badge size="sm" variant="accent">
+                        Identity
+                      </Badge>
+                    ) : null}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
