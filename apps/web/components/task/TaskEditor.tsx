@@ -10,9 +10,25 @@ import {
   SelectTrigger,
   SelectValue,
   Text,
+  cn,
 } from "@myos/ui";
 import { TASK_PRIORITIES, type Task, type TaskPriority } from "@myos/core/task";
 import { PRIORITY_LABEL } from "./task-icons";
+
+/** Quick due-date presets → a YYYY-MM-DD string (or "" to clear), computed from today. */
+const DUE_PRESETS: { label: string; days: number | null }[] = [
+  { label: "Today", days: 0 },
+  { label: "Tomorrow", days: 1 },
+  { label: "Next week", days: 7 },
+  { label: "None", days: null },
+];
+
+function dateInputPlusDays(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
 
 /**
  * Inline task editor (Sprint 2.5). Edits title, description, priority, estimate
@@ -106,21 +122,48 @@ export function TaskEditor({
         />
       </div>
 
-      <div className="flex items-center justify-between gap-3">
-        <Text variant="label" tone="subtle">
-          Due date
-        </Text>
-        <Input
-          type="date"
-          value={due}
-          onChange={(e) => setDue(e.target.value)}
-          onBlur={() => {
-            const next = due ? new Date(`${due}T09:00:00`).toISOString() : null;
-            if (next !== task.dueAt) onUpdate({ dueAt: next });
-          }}
-          aria-label="Due date"
-          className="w-40"
-        />
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between gap-3">
+          <Text variant="label" tone="subtle">
+            Due date
+          </Text>
+          <Input
+            type="date"
+            value={due}
+            onChange={(e) => setDue(e.target.value)}
+            onBlur={() => {
+              const next = due ? new Date(`${due}T09:00:00`).toISOString() : null;
+              if (next !== task.dueAt) onUpdate({ dueAt: next });
+            }}
+            aria-label="Due date"
+            className="w-40"
+          />
+        </div>
+        <div className="flex flex-wrap justify-end gap-1.5">
+          {DUE_PRESETS.map((p) => {
+            const value = p.days === null ? "" : dateInputPlusDays(p.days);
+            const active = due === value && (p.days !== null || due === "");
+            return (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => {
+                  setDue(value);
+                  const next = value ? new Date(`${value}T09:00:00`).toISOString() : null;
+                  if (next !== task.dueAt) onUpdate({ dueAt: next });
+                }}
+                className={cn(
+                  "text-caption rounded-md border px-2 py-0.5",
+                  active
+                    ? "border-accent bg-accent/10 text-accent"
+                    : "border-border text-fg-muted hover:border-accent hover:bg-elevated",
+                )}
+              >
+                {p.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
