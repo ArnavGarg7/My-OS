@@ -1,7 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { Badge, Button, Card, Tabs, TabsContent, TabsList, TabsTrigger, Text } from "@myos/ui";
+import {
+  AlertTriangle,
+  Calendar,
+  CalendarClock,
+  CircleCheck,
+  CircleDashed,
+  FolderKanban,
+  Gauge,
+  GraduationCap,
+  HeartPulse,
+  Repeat,
+  Sparkles,
+  Target,
+  TrendingUp,
+  type LucideIcon,
+} from "lucide-react";
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Text,
+} from "@myos/ui";
 import { PageContainer, PageContent, PageHeader, PageLoading } from "@/components/framework";
 import { trpc, type RouterOutputs } from "@/lib/trpc/client";
 
@@ -20,17 +46,57 @@ const CONFIDENCE: Record<string, "success" | "accent" | "warning" | "neutral"> =
   medium: "accent",
   low: "warning",
 };
+const CONFIDENCE_LABEL: Record<string, string> = {
+  very_high: "Very high",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+};
 const OUTLOOK: Record<string, "danger" | "success" | "accent" | "neutral"> = {
   at_risk: "danger",
   on_track: "success",
   opportunity: "accent",
   neutral: "neutral",
 };
+const OUTLOOK_LABEL: Record<string, string> = {
+  at_risk: "At risk",
+  on_track: "On track",
+  opportunity: "Opportunity",
+  neutral: "Neutral",
+};
+const OUTLOOK_ICON: Record<string, LucideIcon> = {
+  at_risk: AlertTriangle,
+  on_track: CircleCheck,
+  opportunity: Sparkles,
+  neutral: CircleDashed,
+};
+
+/** Icon + label per prediction kind, for scannable forecast cards. */
+const KIND_ICON: Record<string, LucideIcon> = {
+  goal: Target,
+  deadline: CalendarClock,
+  schedule: Calendar,
+  workload: Gauge,
+  study: GraduationCap,
+  project: FolderKanban,
+  health: HeartPulse,
+  habit: Repeat,
+};
+const KIND_LABEL: Record<string, string> = {
+  goal: "Goal",
+  deadline: "Deadline",
+  schedule: "Schedule",
+  workload: "Workload",
+  study: "Study",
+  project: "Project",
+  health: "Health",
+  habit: "Habit",
+};
 
 function ConfidenceBadge({ level, score }: { level: string; score: number }) {
   return (
     <Badge variant={CONFIDENCE[level] ?? "neutral"}>
-      {level.replace("_", " ")} · {Math.round(score * 100)}%
+      {CONFIDENCE_LABEL[level] ?? level.replace("_", " ")} · {Math.round(score * 100)}%
     </Badge>
   );
 }
@@ -74,17 +140,25 @@ export function PredictionCenter() {
 
 function ForecastCard({ p }: { p: Prediction }) {
   const [open, setOpen] = useState(false);
+  const KindIcon = KIND_ICON[p.kind] ?? CircleDashed;
+  const OutlookIcon = OUTLOOK_ICON[p.outlook] ?? CircleDashed;
   return (
     <Card className="flex flex-col gap-2 p-4">
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <Badge variant={OUTLOOK[p.outlook] ?? "neutral"}>{p.outlook.replace("_", " ")}</Badge>
+          <span className="bg-elevated text-fg-muted flex size-8 shrink-0 items-center justify-center rounded-md">
+            <KindIcon size={16} aria-hidden />
+          </span>
+          <Badge variant={OUTLOOK[p.outlook] ?? "neutral"}>
+            <OutlookIcon size={12} aria-hidden className="mr-1 inline" />
+            {OUTLOOK_LABEL[p.outlook] ?? p.outlook.replace("_", " ")}
+          </Badge>
           <Text variant="body-m" className="truncate">
             {p.explanation.headline}
           </Text>
         </div>
         <div className="flex items-center gap-1.5">
-          <Badge variant="neutral">{p.kind}</Badge>
+          <Badge variant="neutral">{KIND_LABEL[p.kind] ?? p.kind}</Badge>
           <ConfidenceBadge level={p.confidence.level} score={p.confidence.score} />
         </div>
       </div>
@@ -132,14 +206,16 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
-function Empty({ text }: { text: string }) {
-  return (
-    <Card className="p-6">
-      <Text variant="body-m" className="text-fg-muted">
-        {text}
-      </Text>
-    </Card>
-  );
+function Empty({
+  icon = TrendingUp,
+  title,
+  text,
+}: {
+  icon?: LucideIcon;
+  title: string;
+  text: string;
+}) {
+  return <EmptyState icon={icon} title={title} description={text} />;
 }
 
 function ForecastFeed() {
@@ -161,7 +237,10 @@ function ForecastFeed() {
           ))}
         </div>
       ) : (
-        <Empty text="No forecasts yet. As your history accumulates, deterministic predictions appear here." />
+        <Empty
+          title="No forecasts yet"
+          text="As your history accumulates, deterministic predictions appear here."
+        />
       )}
     </div>
   );
@@ -178,7 +257,11 @@ function RiskForecasts() {
       ))}
     </div>
   ) : (
-    <Empty text="No forecast risks. Deadlines, workload and habits all look likely to hold." />
+    <Empty
+      icon={AlertTriangle}
+      title="No forecast risks"
+      text="Deadlines, workload and habits all look likely to hold."
+    />
   );
 }
 
@@ -193,7 +276,11 @@ function OpportunityForecasts() {
       ))}
     </div>
   ) : (
-    <Empty text="No forecast opportunities right now. Upcoming free time and healthy schedules will surface here." />
+    <Empty
+      icon={Sparkles}
+      title="No forecast opportunities"
+      text="Upcoming free time and healthy schedules will surface here."
+    />
   );
 }
 
