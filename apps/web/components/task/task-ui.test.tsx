@@ -141,6 +141,16 @@ describe("TaskEditor", () => {
     await user.tab();
     expect(onUpdate).toHaveBeenCalledWith(expect.objectContaining({ title: "Renamed" }));
   });
+
+  it("sets a due date from a quick preset", async () => {
+    const onUpdate = vi.fn();
+    const user = userEvent.setup();
+    render(<TaskEditor task={task({ dueAt: null })} onUpdate={onUpdate} />);
+    await user.click(screen.getByRole("button", { name: "Tomorrow" }));
+    expect(onUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ dueAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/) }),
+    );
+  });
 });
 
 describe("TaskDependencies", () => {
