@@ -1,7 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { Badge, Button, Card, Tabs, TabsContent, TabsList, TabsTrigger, Text } from "@myos/ui";
+import {
+  BarChart3,
+  CalendarCheck,
+  Fingerprint,
+  Lightbulb,
+  Repeat,
+  Scale,
+  SlidersHorizontal,
+  Sunrise,
+  type LucideIcon,
+} from "lucide-react";
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Progress,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Text,
+  cn,
+} from "@myos/ui";
 import { PageContainer, PageContent, PageHeader, PageLoading } from "@/components/framework";
 import { trpc } from "@/lib/trpc/client";
 
@@ -21,9 +44,20 @@ const CONF: Record<string, "success" | "accent" | "warning" | "neutral"> = {
   low: "warning",
   unknown: "neutral",
 };
+const CONF_LABEL: Record<string, string> = {
+  very_high: "Very high",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+  unknown: "Unknown",
+};
 
 function ConfidenceBadge({ level, caption }: { level: string; caption?: string }) {
-  return <Badge variant={CONF[level] ?? "neutral"}>{caption ?? level.replace("_", " ")}</Badge>;
+  return (
+    <Badge variant={CONF[level] ?? "neutral"}>
+      {caption ?? CONF_LABEL[level] ?? level.replace("_", " ")}
+    </Badge>
+  );
 }
 
 export function PersonalIntelligenceCenter() {
@@ -79,14 +113,16 @@ export function PersonalIntelligenceCenter() {
   );
 }
 
-function Empty({ text }: { text: string }) {
-  return (
-    <Card className="p-6">
-      <Text variant="body-m" className="text-fg-muted">
-        {text}
-      </Text>
-    </Card>
-  );
+function Empty({
+  icon = Fingerprint,
+  title,
+  text,
+}: {
+  icon?: LucideIcon;
+  title: string;
+  text: string;
+}) {
+  return <EmptyState icon={icon} title={title} description={text} />;
 }
 
 /**
@@ -101,9 +137,11 @@ function Estimation() {
   if (!e || e.direction === "unknown") {
     return (
       <Empty
+        icon={Scale}
+        title="Not enough evidence yet"
         text={
           e?.detail ??
-          "Not enough estimated-and-tracked tasks yet. Once you complete tasks that have an estimate and focus time, My OS learns how your estimates compare to reality."
+          "Once you complete tasks that have an estimate and focus time, My OS learns how your estimates compare to reality."
         }
       />
     );
@@ -154,18 +192,25 @@ function Profile() {
   const cats = q.data ? Object.entries(q.data.byCategory) : [];
   return q.data ? (
     <div className="flex flex-col gap-3">
-      <Card className="flex items-center justify-between p-4">
-        <div>
-          <Text variant="heading-s">Profile maturity</Text>
-          <Text variant="body-s" className="text-fg-muted">
-            {q.data.fieldCount} learned field{q.data.fieldCount === 1 ? "" : "s"} across{" "}
-            {cats.length} categories.
-          </Text>
+      <Card className="flex flex-col gap-2 p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <Text variant="heading-s">Profile maturity</Text>
+            <Text variant="body-s" className="text-fg-muted">
+              {q.data.fieldCount} learned field{q.data.fieldCount === 1 ? "" : "s"} across{" "}
+              {cats.length} categories.
+            </Text>
+          </div>
+          <Text variant="heading-m">{Math.round(q.data.maturity * 100)}%</Text>
         </div>
-        <Text variant="heading-m">{Math.round(q.data.maturity * 100)}%</Text>
+        <Progress value={Math.round(q.data.maturity * 100)} />
       </Card>
       {cats.length === 0 ? (
-        <Empty text="Nothing learned yet. As you use the OS, confident preferences appear here with their evidence." />
+        <Empty
+          icon={Fingerprint}
+          title="Nothing learned yet"
+          text="As you use the OS, confident preferences appear here with their evidence."
+        />
       ) : (
         cats.map(([category, fields]) => (
           <Card key={category} className="flex flex-col gap-2 p-4">
@@ -185,7 +230,11 @@ function Profile() {
       )}
     </div>
   ) : (
-    <Empty text="No profile yet." />
+    <Empty
+      icon={Fingerprint}
+      title="No profile yet"
+      text="Your learned profile will appear here."
+    />
   );
 }
 
@@ -232,7 +281,11 @@ function Preferences() {
       ))}
     </div>
   ) : (
-    <Empty text="No preferences learned yet." />
+    <Empty
+      icon={SlidersHorizontal}
+      title="No preferences learned yet"
+      text="Confident, actionable preferences appear here once the OS has enough evidence."
+    />
   );
 }
 
@@ -264,7 +317,11 @@ function Habits() {
       ))}
     </div>
   ) : (
-    <Empty text="No habit models yet — they form once enough completion history exists." />
+    <Empty
+      icon={Repeat}
+      title="No habit models yet"
+      text="They form once enough completion history exists."
+    />
   );
 }
 
@@ -286,7 +343,11 @@ function Routines() {
       ))}
     </div>
   ) : (
-    <Empty text="No routines discovered yet — they require repeated evidence." />
+    <Empty
+      icon={Sunrise}
+      title="No routines discovered yet"
+      text="They require repeated evidence before the OS is confident."
+    />
   );
 }
 
@@ -313,7 +374,11 @@ function Insights() {
       ))}
     </div>
   ) : (
-    <Empty text="No insights yet — they appear once the OS is confident enough to explain a pattern." />
+    <Empty
+      icon={Lightbulb}
+      title="No insights yet"
+      text="They appear once the OS is confident enough to explain a pattern."
+    />
   );
 }
 
@@ -369,7 +434,11 @@ function Reviews() {
           <Line label="System adaptation" value={monthly.data.systemAdaptation} />
         </Card>
       ) : (
-        <Empty text="No review data yet." />
+        <Empty
+          icon={CalendarCheck}
+          title="No review data yet"
+          text="Weekly and monthly reviews appear once there's a period of activity to summarise."
+        />
       )}
     </div>
   );
@@ -438,12 +507,67 @@ function Analytics() {
       ) : null}
     </div>
   ) : (
-    <Empty text="No analytics yet." />
+    <Empty
+      icon={BarChart3}
+      title="No analytics yet"
+      text="Behavioural metrics and decision tendencies appear here as activity accrues."
+    />
   );
 }
 
 const MODES = ["manual", "suggested", "automatic"] as const;
+type Mode = (typeof MODES)[number];
+const MODE_LABEL: Record<Mode, string> = {
+  manual: "Manual",
+  suggested: "Suggested",
+  automatic: "Automatic",
+};
 const SENSITIVE = ["health", "communication", "decision_style"];
+
+/** Segmented learning-mode picker; "automatic" is disabled for sensitive categories. */
+function ModePicker({
+  value,
+  category,
+  disabled,
+  onChange,
+}: {
+  value: Mode;
+  category: string;
+  disabled: boolean;
+  onChange: (mode: Mode) => void;
+}) {
+  const sensitive = SENSITIVE.includes(category);
+  return (
+    <div
+      role="radiogroup"
+      aria-label={`Learning mode for ${category}`}
+      className="border-border flex gap-0.5 rounded-md border p-0.5"
+    >
+      {MODES.map((m) => {
+        const blocked = m === "automatic" && sensitive;
+        const active = value === m;
+        return (
+          <button
+            key={m}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            disabled={disabled || blocked}
+            title={blocked ? "Sensitive areas can't be automatic" : undefined}
+            onClick={() => onChange(m)}
+            className={cn(
+              "text-caption rounded px-2 py-1",
+              active ? "bg-accent text-on-accent" : "text-fg-muted hover:bg-elevated",
+              blocked && "cursor-not-allowed opacity-40 hover:bg-transparent",
+            )}
+          >
+            {MODE_LABEL[m]}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 function Settings() {
   const q = trpc.adaptation.settings.useQuery();
@@ -467,26 +591,17 @@ function Settings() {
                 <span className="text-fg-muted"> · sensitive</span>
               ) : null}
             </Text>
-            <select
-              className="border-border bg-base rounded border p-1 text-sm"
-              value={p.mode}
-              onChange={(e) =>
+            <ModePicker
+              value={p.mode as Mode}
+              category={p.category}
+              disabled={setPolicy.isPending}
+              onChange={(mode) =>
                 setPolicy.mutate(
-                  { category: p.category, mode: e.target.value as (typeof MODES)[number] },
+                  { category: p.category, mode },
                   { onSuccess: () => void utils.adaptation.settings.invalidate() },
                 )
               }
-            >
-              {MODES.map((m) => (
-                <option
-                  key={m}
-                  value={m}
-                  disabled={m === "automatic" && SENSITIVE.includes(p.category)}
-                >
-                  {m}
-                </option>
-              ))}
-            </select>
+            />
           </div>
         ))}
       </div>
