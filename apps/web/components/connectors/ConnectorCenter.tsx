@@ -1,7 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Badge, Button, Card, Tabs, TabsContent, TabsList, TabsTrigger, Text } from "@myos/ui";
+import { PlugZap, RefreshCw, Waypoints, type LucideIcon } from "lucide-react";
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Text,
+} from "@myos/ui";
 import { PageContainer, PageContent, PageHeader, PageLoading } from "@/components/framework";
 import { trpc, type RouterOutputs } from "@/lib/trpc/client";
 import { useToaster } from "@/lib/framework";
@@ -43,6 +54,17 @@ const STATE: Record<string, "success" | "danger" | "warning" | "accent" | "neutr
   authenticating: "warning",
   disconnected: "neutral",
 };
+const STATE_LABEL: Record<string, string> = {
+  healthy: "Healthy",
+  connected: "Connected",
+  syncing: "Syncing",
+  warning: "Warning",
+  failed: "Failed",
+  authenticating: "Authenticating",
+  disconnected: "Disconnected",
+};
+const stateLabel = (s: string) =>
+  STATE_LABEL[s] ?? `${s.charAt(0).toUpperCase()}${s.slice(1).replace(/_/g, " ")}`;
 
 const CATEGORY_LABEL: Record<string, string> = {
   calendar: "Calendar",
@@ -95,14 +117,16 @@ export function ConnectorCenter() {
   );
 }
 
-function Empty({ text }: { text: string }) {
-  return (
-    <Card className="p-6">
-      <Text variant="body-m" className="text-fg-muted">
-        {text}
-      </Text>
-    </Card>
-  );
+function Empty({
+  icon = PlugZap,
+  title,
+  text,
+}: {
+  icon?: LucideIcon;
+  title: string;
+  text: string;
+}) {
+  return <EmptyState icon={icon} title={title} description={text} />;
 }
 
 function ConnectorCard({ p, onDone }: { p: Provider; onDone: () => void }) {
@@ -126,7 +150,7 @@ function ConnectorCard({ p, onDone }: { p: Provider; onDone: () => void }) {
         <div className="flex items-center gap-1.5">
           {p.sample ? <Badge variant="warning">sample data</Badge> : null}
           {account ? (
-            <Badge variant={STATE[account.state] ?? "neutral"}>{account.state}</Badge>
+            <Badge variant={STATE[account.state] ?? "neutral"}>{stateLabel(account.state)}</Badge>
           ) : (
             <Badge variant="neutral">not connected</Badge>
           )}
@@ -257,7 +281,10 @@ function Services() {
       ))}
     </div>
   ) : (
-    <Empty text="No providers registered." />
+    <Empty
+      title="No providers registered"
+      text="Connectors will appear here once providers are available."
+    />
   );
 }
 
@@ -273,7 +300,7 @@ function Health() {
               <Text variant="body-m" className="truncate">
                 {h.label}
               </Text>
-              <Badge variant={STATE[h.state] ?? "neutral"}>{h.state}</Badge>
+              <Badge variant={STATE[h.state] ?? "neutral"}>{stateLabel(h.state)}</Badge>
             </div>
             <Text variant="body-s" className="text-fg-muted">
               {h.reasons.length > 0 ? h.reasons.join(" · ") : "All good"}
@@ -292,7 +319,11 @@ function Health() {
       ))}
     </div>
   ) : (
-    <Empty text="No connected services yet. Connect one on the Services tab to see its health here." />
+    <Empty
+      icon={Waypoints}
+      title="No connected services yet"
+      text="Connect one on the Services tab to see its health here."
+    />
   );
 }
 
@@ -321,7 +352,11 @@ function Activity() {
       ))}
     </div>
   ) : (
-    <Empty text="No normalized events yet. Sync a connected service — its external changes become normalized events here, then flow into Signals." />
+    <Empty
+      icon={Waypoints}
+      title="No normalized events yet"
+      text="Sync a connected service — its external changes become normalized events here, then flow into Signals."
+    />
   );
 }
 
@@ -346,7 +381,11 @@ function SyncJobs() {
       ))}
     </div>
   ) : (
-    <Empty text="No sync runs yet." />
+    <Empty
+      icon={RefreshCw}
+      title="No sync runs yet"
+      text="Trigger a sync from a connected service to see its runs here."
+    />
   );
 }
 

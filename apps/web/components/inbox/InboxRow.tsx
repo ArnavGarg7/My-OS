@@ -42,7 +42,7 @@ export function InboxRow({
         <span className="flex items-center gap-2">
           <span className="text-body-m text-fg truncate font-medium">{item.title}</span>
           {item.status !== "new" ? (
-            <Badge size="sm" variant="neutral">
+            <Badge size="sm" variant="neutral" className="capitalize">
               {item.status}
             </Badge>
           ) : null}
