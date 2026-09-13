@@ -15,6 +15,7 @@ export * from "./types";
 export * from "./schemas";
 export * from "./streaks";
 export * from "./habits";
+export * from "./habit-templates";
 export * from "./routines";
 export * from "./adherence";
 export * from "./scheduling";

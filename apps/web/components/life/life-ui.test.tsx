@@ -60,10 +60,10 @@ describe("HabitEditor", () => {
   it("creates a habit with the chosen frequency", async () => {
     const onCreate = vi.fn();
     render(<HabitEditor onCreate={onCreate} />);
-    await userEvent.type(screen.getByLabelText("Habit name"), "Meditate");
-    await userEvent.selectOptions(screen.getByLabelText("Habit frequency"), "weekly");
+    await userEvent.type(screen.getByLabelText("Habit name"), "Cold shower");
+    await userEvent.click(screen.getByRole("button", { name: "Weekly" }));
     await userEvent.click(screen.getByRole("button", { name: "Add" }));
-    expect(onCreate).toHaveBeenCalledWith({ name: "Meditate", frequency: "weekly" });
+    expect(onCreate).toHaveBeenCalledWith({ name: "Cold shower", frequency: "weekly" });
   });
 
   it("ignores an empty name", async () => {
@@ -71,6 +71,13 @@ describe("HabitEditor", () => {
     render(<HabitEditor onCreate={onCreate} />);
     await userEvent.click(screen.getByRole("button", { name: "Add" }));
     expect(onCreate).not.toHaveBeenCalled();
+  });
+
+  it("adds a seeded suggestion in one tap with its default frequency", async () => {
+    const onCreate = vi.fn();
+    render(<HabitEditor onCreate={onCreate} />);
+    await userEvent.click(screen.getByRole("button", { name: /Meditate/ }));
+    expect(onCreate).toHaveBeenCalledWith({ name: "Meditate", frequency: "daily" });
   });
 });
 
