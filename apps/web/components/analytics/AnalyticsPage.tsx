@@ -6,6 +6,7 @@ import { Text, cn } from "@myos/ui";
 import { PageContainer, PageContent, PageLoading } from "@/components/framework";
 import { useShellStore } from "@/lib/shell/store";
 import { useAnalyticsPage, type AnalyticsSection } from "./use-analytics-page";
+import { SECTION_ICON } from "./analytics-icons";
 import { AnalyticsFilters } from "./AnalyticsFilters";
 import { ScoreTile } from "./AnalyticsCharts";
 import { ProductivityDashboard } from "./ProductivityDashboard";
@@ -67,26 +68,30 @@ export function AnalyticsPage() {
             <AnalyticsFilters period={a.period} onPeriod={a.setPeriod} />
           </div>
           <div className="flex flex-wrap gap-1">
-            {SECTIONS.map((s) => (
-              <button
-                key={s.key}
-                type="button"
-                aria-pressed={a.section === s.key}
-                onClick={() => {
-                  a.setSection(s.key);
-                  a.selectMetric(s.key);
-                  openContextPanel(true);
-                }}
-                className={cn(
-                  "text-caption rounded-full border px-2.5 py-1 transition-colors",
-                  a.section === s.key
-                    ? "border-accent bg-accent/10 text-accent"
-                    : "border-border text-fg-subtle hover:text-fg",
-                )}
-              >
-                {s.label}
-              </button>
-            ))}
+            {SECTIONS.map((s) => {
+              const Icon = SECTION_ICON[s.key];
+              return (
+                <button
+                  key={s.key}
+                  type="button"
+                  aria-pressed={a.section === s.key}
+                  onClick={() => {
+                    a.setSection(s.key);
+                    a.selectMetric(s.key);
+                    openContextPanel(true);
+                  }}
+                  className={cn(
+                    "text-caption inline-flex items-center gap-1 rounded-full border px-2.5 py-1 transition-colors",
+                    a.section === s.key
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-border text-fg-subtle hover:text-fg",
+                  )}
+                >
+                  <Icon size={12} aria-hidden />
+                  {s.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 

@@ -3,9 +3,11 @@ import {
   BarChart3,
   Brain,
   CalendarDays,
+  ClipboardCheck,
   Flame,
   Folder,
   HeartPulse,
+  LayoutGrid,
   Minus,
   NotebookPen,
   Target,
@@ -40,6 +42,7 @@ export function scoreDot(score: number): string {
 }
 
 export const SECTION_ICON = {
+  overview: LayoutGrid,
   productivity: BarChart3,
   focus: Zap,
   planner: CalendarDays,
@@ -50,6 +53,7 @@ export const SECTION_ICON = {
   finance: Wallet,
   journal: NotebookPen,
   timeline: Activity,
+  review: ClipboardCheck,
   brain: Brain,
   habit: Flame,
 } as const;
