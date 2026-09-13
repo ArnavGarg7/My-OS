@@ -169,6 +169,13 @@ const SIGNAL_SEVERITY: Record<string, "danger" | "warning" | "accent" | "neutral
   low: "accent",
   info: "neutral",
 };
+const SEVERITY_LABEL: Record<string, string> = {
+  critical: "Critical",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+  info: "Info",
+};
 
 function SignalRow({ signal }: { signal: Signal }) {
   const [open, setOpen] = useState(false);
@@ -190,7 +197,7 @@ function SignalRow({ signal }: { signal: Signal }) {
           size="sm"
           className="shrink-0"
         >
-          {signal.severity}
+          {SEVERITY_LABEL[signal.severity] ?? signal.severity}
         </Badge>
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -226,6 +233,12 @@ const OUTLOOK_TONE: Record<string, "danger" | "warning" | "success" | "neutral">
   opportunity: "success",
   neutral: "neutral",
 };
+const OUTLOOK_LABEL: Record<string, string> = {
+  at_risk: "At risk",
+  on_track: "On track",
+  opportunity: "Opportunity",
+  neutral: "Neutral",
+};
 
 function PredictionRow({ prediction }: { prediction: Prediction }) {
   const [open, setOpen] = useState(false);
@@ -245,7 +258,7 @@ function PredictionRow({ prediction }: { prediction: Prediction }) {
           size="sm"
           className="shrink-0"
         >
-          {prediction.outlook.replace(/_/g, " ")}
+          {OUTLOOK_LABEL[prediction.outlook] ?? prediction.outlook.replace(/_/g, " ")}
         </Badge>
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2">
