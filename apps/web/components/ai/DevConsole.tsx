@@ -15,7 +15,7 @@ import { trpc } from "@/lib/trpc/client";
 
 function Metric({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="border-border bg-elevated rounded border p-3">
+    <div className="border-border bg-elevated flex flex-col gap-0.5 rounded border p-3">
       <Text variant="body-s" className="text-fg-muted">
         {label}
       </Text>

@@ -51,7 +51,7 @@ function Row({
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <div className="min-w-0">
+      <div className="flex min-w-0 flex-col gap-0.5">
         <Text variant="body-s">{label}</Text>
         {description ? (
           <Text variant="caption" tone="subtle">

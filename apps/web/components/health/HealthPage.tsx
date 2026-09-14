@@ -22,7 +22,7 @@ export function HealthPage() {
   return (
     <PageContainer width="full">
       <PageContent className="gap-6">
-        <div>
+        <div className="flex flex-col gap-1">
           <Text variant="heading-l">Health</Text>
           <Text variant="body-s" tone="subtle">
             Deterministic wellness — sleep, recovery, readiness, nutrition and hydration.

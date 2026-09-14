@@ -193,8 +193,8 @@ function Profile() {
   return q.data ? (
     <div className="flex flex-col gap-3">
       <Card className="flex flex-col gap-2 p-4">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col gap-0.5">
             <Text variant="heading-s">Profile maturity</Text>
             <Text variant="body-s" className="text-fg-muted">
               {q.data.fieldCount} learned field{q.data.fieldCount === 1 ? "" : "s"} across{" "}
