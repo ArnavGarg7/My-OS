@@ -26,11 +26,11 @@ export function PlannerMiniCalendar({ date }: { date?: string | undefined }) {
   }, [date]);
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       <div className="text-label text-fg-subtle">{monthLabel}</div>
-      <div className="grid grid-cols-7 gap-0.5 text-center">
+      <div className="grid grid-cols-7 gap-1 text-center">
         {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-          <span key={i} className="text-caption text-fg-subtle">
+          <span key={i} className="text-caption text-fg-subtle pb-0.5">
             {d}
           </span>
         ))}
@@ -38,7 +38,7 @@ export function PlannerMiniCalendar({ date }: { date?: string | undefined }) {
           <span
             key={i}
             className={cn(
-              "text-caption flex h-6 items-center justify-center rounded tabular-nums",
+              "text-body-s mx-auto flex size-9 items-center justify-center rounded-md tabular-nums",
               d === null ? "" : "text-fg-muted",
               d === todayKey ? "bg-accent text-inverted font-medium" : "",
             )}

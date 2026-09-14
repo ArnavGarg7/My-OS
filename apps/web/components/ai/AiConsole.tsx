@@ -31,7 +31,7 @@ export function AiConsole() {
       />
       <PageContent>
         <Tabs defaultValue="overview">
-          <TabsList className="flex-wrap">
+          <TabsList className="h-auto flex-wrap gap-y-1">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="providers">Providers</TabsTrigger>
             <TabsTrigger value="promptRegistry">Prompt Registry</TabsTrigger>
