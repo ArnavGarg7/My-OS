@@ -157,35 +157,47 @@
   --font-mono:
     var(--font-jetbrains, "JetBrains Mono"), ui-monospace, "SFMono-Regular", Menlo, Consolas,
     monospace;
+  /* Display face — Sora carries the big type (display + heading scale) for a designed,
+     premium feel; falls back to the sans stack so dense readability never breaks. */
+  --font-display:
+    var(--font-sora, "Sora"), var(--font-inter, "Inter"), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
 
-  /* Type scale — 03 §2.2, expanded. Each is size / line-height / weight / tracking. */
+  /* Type scale — 03 §2.2, expanded. Each is size / line-height / weight / tracking.
+     display-* and heading-xl/l/m render in the display face (--font-display). */
   --text-display-xl: 44px;
   --text-display-xl--line-height: 48px;
   --text-display-xl--font-weight: 700;
   --text-display-xl--letter-spacing: -0.02em;
+  --text-display-xl--font-family: var(--font-display);
 
   --text-display-l: 36px;
   --text-display-l--line-height: 40px;
   --text-display-l--font-weight: 700;
   --text-display-l--letter-spacing: -0.02em;
+  --text-display-l--font-family: var(--font-display);
 
   --text-display-m: 28px;
   --text-display-m--line-height: 34px;
   --text-display-m--font-weight: 650;
   --text-display-m--letter-spacing: -0.01em;
+  --text-display-m--font-family: var(--font-display);
 
   --text-heading-xl: 22px;
   --text-heading-xl--line-height: 28px;
   --text-heading-xl--font-weight: 600;
   --text-heading-xl--letter-spacing: -0.01em;
+  --text-heading-xl--font-family: var(--font-display);
 
   --text-heading-l: 20px;
   --text-heading-l--line-height: 28px;
   --text-heading-l--font-weight: 600;
+  --text-heading-l--font-family: var(--font-display);
 
   --text-heading-m: 16px;
   --text-heading-m--line-height: 24px;
   --text-heading-m--font-weight: 600;
+  --text-heading-m--font-family: var(--font-display);
 
   --text-heading-s: 14px;
   --text-heading-s--line-height: 20px;

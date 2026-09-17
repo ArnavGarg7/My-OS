@@ -1,19 +1,26 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Sora } from "next/font/google";
 import { APP_NAME, APP_TAGLINE } from "@myos/shared/constants";
 import { Providers } from "./providers";
 
 /**
- * Kinetic Obsidian type engine (V2 Stage 1): Inter for prose + interaction,
- * JetBrains Mono for machine state (timers, shortcuts, telemetry). Exposed as
- * CSS vars that @myos/ui's --font-sans / --font-mono tokens consume.
+ * Kinetic Obsidian type engine (V2 Stage 1; V2 aesthetic pass): Sora carries the
+ * display + heading scale (greetings, page titles, section heads, big numbers) for
+ * a designed, premium feel; Inter remains the dense-UI workhorse for body/interaction;
+ * JetBrains Mono carries machine state (timers, shortcuts, telemetry). All three are
+ * self-hosted by next/font and exposed as CSS vars @myos/ui's font tokens consume.
  */
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
+});
+const sora = Sora({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sora",
 });
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -51,7 +58,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en"
       data-theme="dark"
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${sora.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <body>
