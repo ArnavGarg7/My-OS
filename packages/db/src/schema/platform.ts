@@ -61,3 +61,22 @@ export const pushDevicesRelations = relations(pushDevices, ({ one }) => ({
 
 export type PushDeviceRow = typeof pushDevices.$inferSelect;
 export type NewPushDeviceRow = typeof pushDevices.$inferInsert;
+
+/**
+ * One-time tokens for native-app sign-in (Stage D). After a system-browser Google sign-in, the server
+ * mints a short-lived, single-use token and hands it to the app via a deep link; the app exchanges it
+ * (from inside the WebView) for a mobile-session cookie. Only the SHA-256 hash of the token is stored,
+ * never the token itself; a row is single-use (`usedAt`) and short-TTL (`expiresAt`). Not tied to a
+ * user FK — the app owner is single, and the token carries the authenticated email directly.
+ */
+export const mobileAuthTokens = pgTable("mobile_auth_tokens", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tokenHash: text("token_hash").notNull().unique(),
+  email: text("email").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type MobileAuthTokenRow = typeof mobileAuthTokens.$inferSelect;
+export type NewMobileAuthTokenRow = typeof mobileAuthTokens.$inferInsert;

@@ -1,5 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
+import { MOBILE_SESSION_COOKIE, verifyMobileSession } from "@/lib/auth/mobile-session";
 
 /**
  * Edge-safe Auth.js config (the part the middleware can import). No DB, no Node-only imports, and it
@@ -30,7 +31,9 @@ function isPublicPath(pathname: string): boolean {
     pathname.startsWith("/sign-up") ||
     pathname.startsWith("/showcase") ||
     pathname.startsWith("/api/health") ||
-    pathname.startsWith("/api/auth")
+    pathname.startsWith("/api/auth") ||
+    // Native-app auth bridge (Stage D): start/handoff/exchange run before a WebView session exists.
+    pathname.startsWith("/api/mobile/auth")
   );
 }
 
@@ -55,9 +58,16 @@ export const authConfig = {
       return Boolean(email && list.includes(email));
     },
     /** Route protection when `auth` is used as middleware. */
-    authorized({ auth, request }) {
+    async authorized({ auth, request }) {
       if (isPublicPath(request.nextUrl.pathname)) return true;
-      return Boolean(auth?.user);
+      if (auth?.user) return true;
+      // Native app (Stage D): honour a valid mobile-session cookie for an allowed owner. Verified with
+      // Web Crypto so it works in the edge middleware runtime (no node:crypto).
+      const email = await verifyMobileSession(
+        request.cookies.get(MOBILE_SESSION_COOKIE)?.value,
+        process.env.AUTH_SECRET ?? "",
+      );
+      return Boolean(email && ownerAllowlist().includes(email));
     },
   },
 } satisfies NextAuthConfig;

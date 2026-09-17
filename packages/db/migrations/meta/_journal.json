@@ -351,6 +351,13 @@
       "when": 1789652311832,
       "tag": "0049_slippery_felicia_hardy",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1789654637497,
+      "tag": "0050_fair_forge",
+      "breakpoints": true
     }
   ]
 }

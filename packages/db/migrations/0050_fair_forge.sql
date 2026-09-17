@@ -1,0 +1,9 @@
+CREATE TABLE "mobile_auth_tokens" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"token_hash" text NOT NULL,
+	"email" text NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"used_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "mobile_auth_tokens_token_hash_unique" UNIQUE("token_hash")
+);

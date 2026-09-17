@@ -1,6 +1,8 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { SignIn, SignUp } from "@clerk/nextjs";
 import { signIn } from "next-auth/react";
 import { Button, Card, Text } from "@myos/ui";
@@ -32,6 +34,11 @@ function DevAuthNotice({ verb }: { verb: string }) {
 }
 
 function GoogleSignIn() {
+  const params = useSearchParams();
+  // Honour a same-origin callbackUrl (the native app routes sign-in through /api/mobile/auth/handoff);
+  // default to /home. Auth.js already restricts the callback to the same origin.
+  const raw = params.get("callbackUrl");
+  const callbackUrl = raw && raw.startsWith("/") ? raw : "/home";
   return (
     <Card className="w-full max-w-sm p-6 text-center">
       <Text asChild variant="heading-s" className="mb-1">
@@ -40,7 +47,7 @@ function GoogleSignIn() {
       <Text asChild variant="body-s" className="text-fg-subtle mb-5">
         <p>Sign in with your Google account to continue.</p>
       </Text>
-      <Button className="w-full" onClick={() => void signIn("google", { callbackUrl: "/home" })}>
+      <Button className="w-full" onClick={() => void signIn("google", { callbackUrl })}>
         Continue with Google
       </Button>
     </Card>
@@ -49,13 +56,24 @@ function GoogleSignIn() {
 
 export function AuthSignIn() {
   if (clerkConfigured) return <SignIn />;
-  if (googleAuthConfigured) return <GoogleSignIn />;
+  // GoogleSignIn reads useSearchParams — wrap in Suspense so the page still prerenders.
+  if (googleAuthConfigured)
+    return (
+      <Suspense fallback={null}>
+        <GoogleSignIn />
+      </Suspense>
+    );
   return <DevAuthNotice verb="sign-in" />;
 }
 
 export function AuthSignUp() {
   if (clerkConfigured) return <SignUp />;
   // Google is invite-by-allowlist: there is no separate sign-up, the same button signs in.
-  if (googleAuthConfigured) return <GoogleSignIn />;
+  if (googleAuthConfigured)
+    return (
+      <Suspense fallback={null}>
+        <GoogleSignIn />
+      </Suspense>
+    );
   return <DevAuthNotice verb="sign-up" />;
 }
