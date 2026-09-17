@@ -163,8 +163,10 @@ export function MorningBriefing() {
   const morningDone = state.data?.morningCompleted ?? false;
 
   return (
-    <PageContainer width="prose">
-      <PageContent>
+    <PageContainer width="prose" className="relative overflow-hidden">
+      <div className="myos-aurora" aria-hidden />
+      <div className="myos-grid-tex" aria-hidden />
+      <PageContent className="myos-stagger relative z-[1]">
         <GreetingSection data={briefing.greeting} />
 
         <GetStartedCard />
