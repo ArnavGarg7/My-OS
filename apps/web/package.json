@@ -12,6 +12,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/browser": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/push-notifications": "^7.0.0",
+    "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0",
     "@clerk/nextjs": "^7.5.12",
     "@myos/ai": "workspace:*",
     "@myos/core": "workspace:*",

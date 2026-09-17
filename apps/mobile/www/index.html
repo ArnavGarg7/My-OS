@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>My OS</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #0c0d0e;
+        color: #e7e9ea;
+        font-family:
+          -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+      }
+      .wrap {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 24px;
+        text-align: center;
+      }
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: #ff7a1a;
+        box-shadow: 0 0 24px #ff7a1a66;
+      }
+      h1 {
+        font-size: 20px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+        margin: 4px 0 0;
+      }
+      p {
+        margin: 0;
+        color: #868d93;
+        font-size: 14px;
+        max-width: 28ch;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Cold-start fallback only. The app loads the deployed web app from `server.url` (see
+      capacitor.config.ts). This screen shows only if the server is unreachable at launch.
+    -->
+    <div class="wrap">
+      <span class="dot" aria-hidden="true"></span>
+      <h1>My OS</h1>
+      <p>Connecting to your operating system… check your connection and reopen the app.</p>
+    </div>
+  </body>
+</html>
