@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { SignIn, SignUp } from "@clerk/nextjs";
 import { signIn } from "next-auth/react";
 import { Button, Card, Text } from "@myos/ui";
+import { isNativeApp } from "@/lib/platform/native/capacitor";
+import { startNativeGoogleSignIn } from "@/lib/platform/native/native-auth";
 import { clerkConfigured, googleAuthConfigured } from "./config";
 
 /**
@@ -39,6 +41,17 @@ function GoogleSignIn() {
   // default to /home. Auth.js already restricts the callback to the same origin.
   const raw = params.get("callbackUrl");
   const callbackUrl = raw && raw.startsWith("/") ? raw : "/home";
+
+  // In the native Capacitor shell, Google blocks in-WebView OAuth — route sign-in through the system
+  // browser + deep-link handoff instead. On the web, use Auth.js directly.
+  const onClick = () => {
+    if (isNativeApp()) {
+      void startNativeGoogleSignIn();
+    } else {
+      void signIn("google", { callbackUrl });
+    }
+  };
+
   return (
     <Card className="w-full max-w-sm p-6 text-center">
       <Text asChild variant="heading-s" className="mb-1">
@@ -47,7 +60,7 @@ function GoogleSignIn() {
       <Text asChild variant="body-s" className="text-fg-subtle mb-5">
         <p>Sign in with your Google account to continue.</p>
       </Text>
-      <Button className="w-full" onClick={() => void signIn("google", { callbackUrl })}>
+      <Button className="w-full" onClick={onClick}>
         Continue with Google
       </Button>
     </Card>
