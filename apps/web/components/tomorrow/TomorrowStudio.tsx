@@ -125,7 +125,7 @@ export function TomorrowStudio() {
         <aside className="hidden w-56 shrink-0 md:block">
           <StudioSidebar step={t.step} onStep={t.goToStep} state={state} />
         </aside>
-        <div className="min-w-0 flex-1 overflow-y-auto">{body(t.step)}</div>
+        <div className="min-w-0 flex-1 overflow-y-auto pr-1 sm:pr-2">{body(t.step)}</div>
       </div>
       <div className="border-border flex items-center justify-between border-t pt-3">
         <Button variant="ghost" onClick={t.prev} disabled={!canPrev}>

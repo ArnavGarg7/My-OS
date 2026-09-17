@@ -21,7 +21,7 @@ export function HealthPage() {
 
   return (
     <PageContainer width="full" aurora>
-      <PageContent stagger className="gap-6">
+      <PageContent stagger className="flex flex-col gap-8 pb-10">
         <div className="flex flex-col gap-1">
           <Text variant="heading-l">Health</Text>
           <Text variant="body-s" tone="subtle">

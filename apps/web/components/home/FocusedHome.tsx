@@ -11,6 +11,7 @@ import {
   NextActionHero,
   NextActionHeroSkeleton,
 } from "@/components/command-center/command-center-panels";
+import { WeatherWidget } from "@/components/widgets/WeatherWidget";
 import { PageContainer, PageContent } from "@/components/framework";
 
 /**
@@ -50,7 +51,7 @@ export function FocusedHome() {
 
   return (
     <PageContainer width="content" aurora>
-      <PageContent stagger className="mx-auto w-full max-w-3xl space-y-6 py-2">
+      <PageContent stagger className="w-full space-y-6 py-2">
         <header className="space-y-2">
           <MonoLabel tone="subtle" bead>
             Home · {todayLabel()}
@@ -75,44 +76,56 @@ export function FocusedHome() {
           <GlanceChip tone="info" label="Scheduled" value={String(scheduled)} />
         </div>
 
-        {/* Right now — the single next action, shared with Command Center. */}
-        {now.isLoading ? (
-          <NextActionHeroSkeleton />
-        ) : now.data ? (
-          <NextActionHero data={now.data} />
-        ) : null}
+        {/* Main + rail: the recommendation and capture fill the width, weather rides the rail. */}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="flex flex-col gap-6">
+            {now.isLoading ? (
+              <NextActionHeroSkeleton />
+            ) : now.data ? (
+              <NextActionHero data={now.data} />
+            ) : null}
 
-        {/* Capture + jump-to-anything. */}
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Button
-            className="sm:w-auto"
-            leftIcon={<Plus size={15} aria-hidden />}
-            onClick={() => setQuickAddOpen(true)}
-          >
-            Capture
-          </Button>
-          <button
-            type="button"
-            onClick={() => setCommandOpen(true)}
-            className="border-border bg-elevated hover:border-border-strong hover:bg-overlay focus-visible:ring-ring group flex flex-1 items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 outline-none transition-colors focus-visible:ring-2"
-          >
-            <span className="flex min-w-0 items-center gap-2">
-              <Search size={15} aria-hidden className="text-fg-subtle group-hover:text-fg-muted" />
-              <Text variant="body-s" tone="muted">
-                Jump to anything…
-              </Text>
-            </span>
-            <span className="flex shrink-0 items-center gap-0.5">
-              <Kbd size="sm">⌘</Kbd>
-              <Kbd size="sm">K</Kbd>
-            </span>
-          </button>
+            {/* Capture + jump-to-anything. */}
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                className="sm:w-auto"
+                leftIcon={<Plus size={15} aria-hidden />}
+                onClick={() => setQuickAddOpen(true)}
+              >
+                Capture
+              </Button>
+              <button
+                type="button"
+                onClick={() => setCommandOpen(true)}
+                className="border-border bg-elevated hover:border-border-strong hover:bg-overlay focus-visible:ring-ring group flex flex-1 items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 outline-none transition-colors focus-visible:ring-2"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <Search
+                    size={15}
+                    aria-hidden
+                    className="text-fg-subtle group-hover:text-fg-muted"
+                  />
+                  <Text variant="body-s" tone="muted">
+                    Jump to anything…
+                  </Text>
+                </span>
+                <span className="flex shrink-0 items-center gap-0.5">
+                  <Kbd size="sm">⌘</Kbd>
+                  <Kbd size="sm">K</Kbd>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <aside className="flex flex-col gap-4">
+            <WeatherWidget />
+          </aside>
         </div>
 
         {/* Daily surfaces — a small, fixed set with hover-lift. */}
         <section className="space-y-2.5">
           <MonoLabel tone="subtle">Jump back in</MonoLabel>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
             {DAILY_SURFACES.map((href) => {
               const item = getNavItem(href);
               const Icon = item.icon;

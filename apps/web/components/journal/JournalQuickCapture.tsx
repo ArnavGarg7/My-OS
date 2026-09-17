@@ -31,7 +31,7 @@ export function JournalQuickCapture({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2">
         <Input
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -39,7 +39,7 @@ export function JournalQuickCapture({
           aria-label="Quick journal capture"
           onKeyDown={(e) => e.key === "Enter" && submit()}
         />
-        <Button disabled={!text.trim()} onClick={submit}>
+        <Button className="w-full" disabled={!text.trim()} onClick={submit}>
           <PenLine size={14} aria-hidden />
           Capture
         </Button>

@@ -60,14 +60,14 @@ export function AnalyticsPage() {
   return (
     <PageContainer width="full" className="p-0" aurora>
       <PageContent stagger className="gap-0 p-0">
-        <div className="border-border flex flex-col gap-3 border-b p-3">
+        <div className="border-border flex flex-col gap-3 border-b px-5 py-4">
           <div className="flex items-center gap-2">
             <BarChart3 size={16} aria-hidden className="text-fg-subtle" />
             <Text variant="heading-s">Analytics</Text>
             <span className="flex-1" />
             <AnalyticsFilters period={a.period} onPeriod={a.setPeriod} />
           </div>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {SECTIONS.map((s) => {
               const Icon = SECTION_ICON[s.key];
               return (
@@ -95,7 +95,7 @@ export function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-8">
           <div className="mx-auto max-w-3xl">{section}</div>
         </div>
       </PageContent>

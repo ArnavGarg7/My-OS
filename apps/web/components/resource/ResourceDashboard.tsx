@@ -33,9 +33,9 @@ export function ResourceDashboard() {
         title="Resources"
         description="Everything you own, maintain and keep in touch with."
       />
-      <PageContent stagger>
+      <PageContent stagger className="flex flex-col gap-6 pb-10">
         {portfolio ? (
-          <div className="border-border-subtle flex flex-col gap-3 rounded-md border p-3">
+          <div className="border-border-subtle flex flex-col gap-3 rounded-xl border p-4">
             <div className="flex flex-wrap items-baseline gap-3">
               <Text variant="display-m">{formatMoney(portfolio.netWorth)}</Text>
               <Text variant="caption" tone="subtle">
@@ -73,8 +73,8 @@ export function ResourceDashboard() {
           </div>
         ) : null}
 
-        <Tabs defaultValue="investments">
-          <TabsList>
+        <Tabs defaultValue="investments" className="flex flex-col gap-5">
+          <TabsList className="self-start">
             <TabsTrigger value="investments">Investments</TabsTrigger>
             <TabsTrigger value="assets">Assets</TabsTrigger>
             <TabsTrigger value="maintenance">Maintenance</TabsTrigger>

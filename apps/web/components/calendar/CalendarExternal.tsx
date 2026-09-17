@@ -14,6 +14,34 @@ const WRITE_REASON: Record<string, string> = {
   provider_error: "The calendar provider rejected the write.",
 };
 
+/** Human phrasing for the normalized calendar event kinds (never show the raw enum). */
+const KIND_LABEL: Record<string, string> = {
+  "calendar.meeting_created": "New event",
+  "calendar.meeting_cancelled": "Event cancelled",
+  "calendar.meeting_moved": "Rescheduled",
+};
+
+function kindLabel(kind: string): string {
+  return (
+    KIND_LABEL[kind] ??
+    kind
+      .replace(/^calendar\./, "")
+      .replace(/_/g, " ")
+      .replace(/^\w/, (c) => c.toUpperCase())
+  );
+}
+
+function whenLabel(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString([], {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 /**
  * EXTERNAL ↔ OS calendar bridge in the operating surface (Stage 4). Shows the
  * normalized calendar activity from connected calendar accounts (read-only,
@@ -66,6 +94,12 @@ export function CalendarExternal() {
         </div>
       ) : (
         <div className="flex flex-col gap-1.5">
+          {items.some((e) => e.sample) ? (
+            <Text variant="caption" tone="subtle">
+              Showing example events — this calendar is connected in sample mode. Add live
+              credentials on Connectors to see your real schedule.
+            </Text>
+          ) : null}
           {items.length === 0 ? (
             <Text variant="body-s" tone="subtle">
               No calendar activity synced yet. Run a sync on the Connectors page.
@@ -87,9 +121,14 @@ export function CalendarExternal() {
                     </Badge>
                   ) : null}
                 </div>
-                <MonoLabel tone="subtle" className="pl-5">
-                  {e.kind.replace("calendar.", "")}
-                </MonoLabel>
+                <div className="flex items-center gap-2 pl-5">
+                  <MonoLabel tone="subtle">{kindLabel(e.kind)}</MonoLabel>
+                  {whenLabel(e.occurredAt) ? (
+                    <Text variant="caption" tone="subtle">
+                      {whenLabel(e.occurredAt)}
+                    </Text>
+                  ) : null}
+                </div>
               </div>
             ))
           )}
