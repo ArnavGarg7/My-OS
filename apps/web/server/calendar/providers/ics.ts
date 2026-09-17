@@ -1,6 +1,8 @@
 import "server-only";
 import { importIcs, type CalendarEvent } from "@myos/core/calendar";
 
+import type { Database } from "@myos/db";
+
 /**
  * Provider adapter contract (Sprint 2.7). Each adapter fetches raw events and
  * normalizes them to the domain `CalendarEvent` shape. No provider-specific
@@ -8,7 +10,7 @@ import { importIcs, type CalendarEvent } from "@myos/core/calendar";
  */
 export interface ProviderAdapter {
   name: "google" | "outlook" | "apple" | "ics";
-  fetch(): Promise<CalendarEvent[]>;
+  fetch(db?: Database): Promise<CalendarEvent[]>;
 }
 
 /** Build a normalized sample event for the current day (adapter stand-in). */

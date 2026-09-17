@@ -51,30 +51,46 @@ async function fetchGoogleCalendar(
   token: string,
   checkpoint: string | null,
 ): Promise<RawPayload[]> {
+  const timeMin = new Date(Date.now() - 30 * 86_400_000).toISOString();
+  const timeMax = new Date(Date.now() + 180 * 86_400_000).toISOString();
   const params = new URLSearchParams({
     singleEvents: "true",
     orderBy: "updated",
     showDeleted: "true",
-    maxResults: "25",
+    maxResults: "250",
+    timeMin,
+    timeMax,
   });
   if (checkpoint) params.set("updatedMin", checkpoint);
-  else params.set("timeMin", new Date(Date.now() - 30 * 86_400_000).toISOString());
 
-  const res = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params.toString()}`,
-    { headers: { authorization: `Bearer ${token}` } },
-  );
-  if (!res.ok) return [];
-  const data = (await res.json()) as { items?: GoogleEvent[] };
-  return (data.items ?? []).flatMap((e) => {
-    if (!e.id || !e.updated) return [];
-    const cancelled = e.status === "cancelled";
-    const start = e.start?.dateTime ?? e.start?.date ?? null;
-    const end = e.end?.dateTime ?? e.end?.date ?? null;
-    const minutes =
-      start && end ? Math.max(0, Math.round((Date.parse(end) - Date.parse(start)) / 60_000)) : null;
-    return [
-      {
+  const out: RawPayload[] = [];
+  let pageToken: string | undefined;
+
+  do {
+    if (pageToken) params.set("pageToken", pageToken);
+    const res = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params.toString()}`,
+      { headers: { authorization: `Bearer ${token}` } },
+    ).catch(() => null);
+    if (!res || !res.ok) break;
+
+    const data = (await res.json().catch(() => null)) as {
+      items?: GoogleEvent[];
+      nextPageToken?: string;
+    } | null;
+    if (!data?.items) break;
+
+    for (const e of data.items) {
+      if (!e.id || !e.updated) continue;
+      const cancelled = e.status === "cancelled";
+      const start = e.start?.dateTime ?? e.start?.date ?? null;
+      const end = e.end?.dateTime ?? e.end?.date ?? null;
+      const minutes =
+        start && end
+          ? Math.max(0, Math.round((Date.parse(end) - Date.parse(start)) / 60_000))
+          : null;
+
+      out.push({
         type: cancelled ? "event.cancelled" : "event.created",
         externalId: e.id,
         at: e.updated,
@@ -83,9 +99,13 @@ async function fetchGoogleCalendar(
           ...(start ? { startsAt: start } : {}),
           ...(minutes !== null ? { minutes } : {}),
         },
-      } satisfies RawPayload,
-    ];
-  });
+      });
+    }
+
+    pageToken = data.nextPageToken;
+  } while (pageToken && out.length < 500);
+
+  return out;
 }
 
 interface GoogleEvent {

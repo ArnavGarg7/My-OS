@@ -7,10 +7,10 @@ import type { ProviderIdentity } from "./types";
  * current request's Auth.js session. Everything else goes through IdentityService via `provider.ts`.
  */
 
-/** The authenticated provider id for this request (Google `sub`, falling back to email), or null. */
+/** The authenticated provider id for this request (normalized email for cross-device stability, falling back to id), or null. */
 export async function getProviderUserId(): Promise<string | null> {
   const session = await auth();
-  return session?.user?.id ?? session?.user?.email ?? null;
+  return session?.user?.email?.toLowerCase() ?? session?.user?.id ?? null;
 }
 
 /** Read-only provider identity facts from the Google session. */

@@ -33,7 +33,7 @@ export async function runSync(db: Database, provider: CalendarProvider): Promise
   const calendarId = await repo.ensurePrimary(db);
 
   try {
-    const fetched = await adapter.fetch();
+    const fetched = await adapter.fetch(db);
     const existing = (await repo.listEvents(db, {})).map(eventRowToEvent);
     const byFingerprint = new Map(existing.map((e) => [fingerprint(e), e]));
 

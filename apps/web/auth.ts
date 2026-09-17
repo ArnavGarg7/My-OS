@@ -21,6 +21,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.googleRefreshToken = account.refresh_token;
         token.googleExpiresAt = account.expires_at;
         token.googleScope = account.scope;
+        if (account.providerAccountId) {
+          token.sub = account.providerAccountId;
+        }
       }
       return token;
     },

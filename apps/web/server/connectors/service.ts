@@ -253,6 +253,12 @@ export async function sync(
     // producing signals (and downstream predictions/automation) exactly as internal events do.
     await signalsService.run(db, tz, result.events, now).catch(() => {});
 
+    // When Google Calendar connector syncs, keep domain calendar_events in sync.
+    if (account.providerId === "google-calendar") {
+      const { runSync } = await import("../calendar/sync");
+      await runSync(db, "google").catch(() => {});
+    }
+
     // Real-event automation (Stage B): let enabled `connector`-triggered rules react to these events
     // (e.g. GitHub CI failure → task). No-op unless such a rule exists; guarded so it never breaks sync.
     await automationService
