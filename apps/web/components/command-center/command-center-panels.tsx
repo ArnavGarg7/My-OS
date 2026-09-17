@@ -74,12 +74,18 @@ export function NextActionHero({ data }: { data: NowData }) {
   );
 
   return (
-    <Card variant="hero" padding="lg" className="relative overflow-hidden">
-      <div
+    <Card
+      variant="hero"
+      padding="lg"
+      className="myos-edge relative overflow-hidden"
+      style={{ boxShadow: "var(--shadow-e2), var(--glow-kinetic)" }}
+    >
+      <span
         aria-hidden
-        className="from-accent via-accent-hover absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r to-transparent"
+        className="pointer-events-none absolute -right-16 -top-16 size-52 rounded-full"
+        style={{ background: "radial-gradient(closest-side, rgba(255,122,26,0.14), transparent)" }}
       />
-      <div className="flex flex-col gap-5">
+      <div className="relative flex flex-col gap-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">

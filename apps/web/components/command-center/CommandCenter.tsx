@@ -81,16 +81,13 @@ export function CommandCenter() {
       : "Here is where things stand right now. Everything below is live.");
 
   return (
-    <PageContainer width="content">
-      <PageContent className="relative">
-        {/* Ambient kinetic glow behind the hero region. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-8 left-1/4 -z-10 h-48 w-2/3 rounded-full opacity-70 blur-3xl"
-          style={{ background: "var(--glow-ambient)" }}
-        />
+    <PageContainer width="content" className="relative overflow-hidden">
+      {/* Ambient light — the amber accent as a real source (shared with Home). */}
+      <div className="myos-aurora" aria-hidden />
+      <div className="myos-grid-tex" aria-hidden />
 
-        <div className="flex flex-col gap-8 pb-16">
+      <PageContent className="relative z-[1]">
+        <div className="myos-stagger flex flex-col gap-8 pb-16">
           {/* Contextual header */}
           <header className="flex flex-col gap-3">
             <MonoLabel tone="subtle" bead suppressHydrationWarning>
