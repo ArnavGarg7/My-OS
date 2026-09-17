@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/auth";
+import { publicBaseUrl } from "@/server/connectors/oauth";
 
 /**
  * Native-app sign-in start (Stage D). The app opens this in the SYSTEM browser (Google blocks OAuth in
@@ -13,10 +14,11 @@ const HANDOFF = "/api/mobile/auth/handoff";
 
 export async function GET(req: NextRequest): Promise<Response> {
   const session = await auth().catch(() => null);
+  const base = publicBaseUrl(req);
   if (session?.user) {
-    return NextResponse.redirect(new URL(HANDOFF, req.url));
+    return NextResponse.redirect(new URL(HANDOFF, base));
   }
   return NextResponse.redirect(
-    new URL(`/sign-in?callbackUrl=${encodeURIComponent(HANDOFF)}`, req.url),
+    new URL(`/sign-in?callbackUrl=${encodeURIComponent(HANDOFF)}`, base),
   );
 }
