@@ -108,9 +108,9 @@ export function PredictionCenter() {
         title="Predictions"
         description="The Predictive Intelligence Engine — deterministic forecasts of what's likely to happen. The OS predicts; the AI only explains. Nothing here changes your plans."
       />
-      <PageContent stagger>
-        <Tabs defaultValue="feed">
-          <TabsList>
+      <PageContent stagger className="pb-10">
+        <Tabs defaultValue="feed" className="flex flex-col gap-6">
+          <TabsList className="self-start">
             <TabsTrigger value="feed">Forecasts</TabsTrigger>
             <TabsTrigger value="risks">Risks</TabsTrigger>
             <TabsTrigger value="opportunities">Opportunities</TabsTrigger>
@@ -197,11 +197,13 @@ function ForecastCard({ p }: { p: Prediction }) {
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="border-border bg-elevated rounded border px-4 py-2">
+    <div className="border-border bg-elevated flex min-w-28 flex-col gap-0.5 rounded-lg border px-4 py-2.5">
       <Text variant="body-s" className="text-fg-muted">
         {label}
       </Text>
-      <Text variant="heading-s">{value}</Text>
+      <Text variant="heading-s" className="tabular-nums">
+        {value}
+      </Text>
     </div>
   );
 }
@@ -223,15 +225,15 @@ function ForecastFeed() {
   if (q.isLoading) return <PageLoading />;
   const d = q.data;
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center gap-3">
         <Metric label="Forecasts" value={d?.counts.total ?? 0} />
         <Metric label="At risk" value={d?.counts.risks ?? 0} />
         <Metric label="Opportunities" value={d?.counts.opportunities ?? 0} />
         <Metric label="On track" value={d?.counts.onTrack ?? 0} />
       </div>
       {d && d.predictions.length > 0 ? (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {d.predictions.map((p) => (
             <ForecastCard key={p.id} p={p} />
           ))}
@@ -251,7 +253,7 @@ function RiskForecasts() {
   if (q.isLoading) return <PageLoading />;
   const risks = q.data?.risks ?? [];
   return risks.length > 0 ? (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       {risks.map((p) => (
         <ForecastCard key={p.id} p={p} />
       ))}
@@ -270,7 +272,7 @@ function OpportunityForecasts() {
   if (q.isLoading) return <PageLoading />;
   const opps = q.data?.opportunities ?? [];
   return opps.length > 0 ? (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       {opps.map((p) => (
         <ForecastCard key={p.id} p={p} />
       ))}

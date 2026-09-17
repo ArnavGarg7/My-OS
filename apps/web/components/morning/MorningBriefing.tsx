@@ -163,73 +163,77 @@ export function MorningBriefing() {
   const morningDone = state.data?.morningCompleted ?? false;
 
   return (
-    <PageContainer width="prose" aurora>
+    <PageContainer width="content" aurora>
       <PageContent stagger>
         <GreetingSection data={briefing.greeting} />
 
         <GetStartedCard />
 
-        {/* ── The essentials: what to do today, and how you're set up for it. ── */}
-        <MorningSection id="morning-energy" label="Energy Check">
-          <EnergySection
-            data={briefing.energy}
-            onSetEnergy={setEnergy}
-            pending={updateState.isPending}
-          />
-        </MorningSection>
+        {/* ── The essentials: what to do today, and how you're set up for it. ──
+            Two editorial columns on wide screens so the briefing fills the desk
+            instead of a lone centre column; each section stays whole. ── */}
+        <div className="lg:columns-2 lg:gap-x-10 [&>*]:break-inside-avoid">
+          <MorningSection id="morning-energy" label="Energy Check">
+            <EnergySection
+              data={briefing.energy}
+              onSetEnergy={setEnergy}
+              pending={updateState.isPending}
+            />
+          </MorningSection>
 
-        <HealthMorningSlot />
+          <HealthMorningSlot />
 
-        <MorningSection label="Today's Mission">
-          <MissionSection data={briefing.mission} />
-        </MorningSection>
+          <MorningSection label="Today's Mission">
+            <MissionSection data={briefing.mission} />
+          </MorningSection>
 
-        {/* Adaptive planning (Stage 5) — renders only when the day is genuinely
+          {/* Adaptive planning (Stage 5) — renders only when the day is genuinely
             overloaded, grounded in real capacity + history. */}
-        <AdaptivePlanCard />
+          <AdaptivePlanCard />
 
-        {/* Education (timetable-driven): today's classes, surfacing targets, and near deadlines.
+          {/* Education (timetable-driven): today's classes, surfacing targets, and near deadlines.
             Renders nothing when there's no college/internship data. */}
-        <EducationTodayPanel />
+          <EducationTodayPanel />
 
-        {/* Nutrition (macros vs goal + water); renders only once something is logged today. */}
-        <NutritionTodayPanel />
+          {/* Nutrition (macros vs goal + water); renders only once something is logged today. */}
+          <NutritionTodayPanel />
 
-        <MorningSection label="Next Action">
-          <NextActionSection
-            data={briefing.nextAction}
-            actionLabel={topTask ? `Focus on “${topTask.title}”` : "Start a focus session"}
-            onAct={startNextAction}
-          />
-        </MorningSection>
+          <MorningSection label="Next Action">
+            <NextActionSection
+              data={briefing.nextAction}
+              actionLabel={topTask ? `Focus on “${topTask.title}”` : "Start a focus session"}
+              onAct={startNextAction}
+            />
+          </MorningSection>
 
-        <MorningSection id="morning-recommendation" label="Today's Decision">
-          <DecisionCard
-            decision={decisions.current}
-            pending={decisions.pending}
-            onAccept={() => decisions.current && decisions.accept(decisions.current.id)}
-            onDismiss={() => decisions.current && decisions.dismiss(decisions.current.id)}
-            onDefer={(opt) => decisions.current && decisions.defer(decisions.current.id, opt)}
-            onComplete={() => decisions.current && decisions.complete(decisions.current.id)}
-            onWhy={() => setExplainId(decisions.current?.id ?? null)}
-          />
-        </MorningSection>
+          <MorningSection id="morning-recommendation" label="Today's Decision">
+            <DecisionCard
+              decision={decisions.current}
+              pending={decisions.pending}
+              onAccept={() => decisions.current && decisions.accept(decisions.current.id)}
+              onDismiss={() => decisions.current && decisions.dismiss(decisions.current.id)}
+              onDefer={(opt) => decisions.current && decisions.defer(decisions.current.id, opt)}
+              onComplete={() => decisions.current && decisions.complete(decisions.current.id)}
+              onWhy={() => setExplainId(decisions.current?.id ?? null)}
+            />
+          </MorningSection>
 
-        <MorningSection id="morning-plan" label="Today's Plan">
-          <MorningPlanSection />
-        </MorningSection>
+          <MorningSection id="morning-plan" label="Today's Plan">
+            <MorningPlanSection />
+          </MorningSection>
 
-        <MorningSection id="morning-meetings" label="Today's Meetings">
-          <MorningCalendarSection />
-        </MorningSection>
+          <MorningSection id="morning-meetings" label="Today's Meetings">
+            <MorningCalendarSection />
+          </MorningSection>
 
-        <MorningSection label="Calendar">
-          <CalendarSection data={briefing.calendar} />
-        </MorningSection>
+          <MorningSection label="Calendar">
+            <CalendarSection data={briefing.calendar} />
+          </MorningSection>
 
-        <MorningSection label="Focus Score">
-          <FocusSection data={briefing.focus} />
-        </MorningSection>
+          <MorningSection label="Focus Score">
+            <FocusSection data={briefing.focus} />
+          </MorningSection>
+        </div>
 
         {/* ── Everything else: collapsed + unmounted until opened (each roll-up
              fetches its own module summary, so mounting them all would slow the

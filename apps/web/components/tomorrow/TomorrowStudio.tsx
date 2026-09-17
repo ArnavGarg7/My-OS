@@ -122,7 +122,7 @@ export function TomorrowStudio() {
         targetDate={t.plan?.targetDate ?? null}
       />
       <div className="flex min-h-0 flex-1 gap-6">
-        <aside className="hidden w-56 shrink-0 md:block">
+        <aside className="hidden w-56 shrink-0 overflow-y-auto md:block">
           <StudioSidebar step={t.step} onStep={t.goToStep} state={state} />
         </aside>
         <div className="min-w-0 flex-1 overflow-y-auto pr-1 sm:pr-2">{body(t.step)}</div>
