@@ -145,6 +145,17 @@ export const serverEnvSchema = z.object({
   MYOS_VAPID_SUBJECT: z.string().optional(),
   NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY: z.string().optional(),
 
+  // Firebase Cloud Messaging (Stage D — native Android push). The server originates the
+  // notification and hands it to FCM HTTP v1, which delivers it to the device's Play Services
+  // even when the app is closed. These three fields come straight from a Firebase service-account
+  // JSON (project_id / client_email / private_key); nothing else about the stack moves to Firebase.
+  // When any is absent the server-side sender is a guarded no-op — background push simply doesn't fire.
+  MYOS_FCM_PROJECT_ID: z.string().optional(),
+  MYOS_FCM_CLIENT_EMAIL: z.string().optional(),
+  // PEM private key. In a single-line env value the newlines are usually escaped as "\n" — the sender
+  // un-escapes them before signing.
+  MYOS_FCM_PRIVATE_KEY: z.string().optional(),
+
   // Backups (optional)
   MYOS_BACKUP_S3_ENDPOINT: z.string().optional(),
   MYOS_BACKUP_S3_BUCKET: z.string().optional(),
@@ -267,4 +278,11 @@ export function isPushConfigured(
   env: Pick<ServerEnv, "MYOS_VAPID_PRIVATE_KEY" | "NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY">,
 ): boolean {
   return Boolean(env.MYOS_VAPID_PRIVATE_KEY) && Boolean(env.NEXT_PUBLIC_MYOS_VAPID_PUBLIC_KEY);
+}
+
+/** Feature flag: is FCM (native Android push) configured? (Stage D) */
+export function isFcmConfigured(
+  env: Pick<ServerEnv, "MYOS_FCM_PROJECT_ID" | "MYOS_FCM_CLIENT_EMAIL" | "MYOS_FCM_PRIVATE_KEY">,
+): boolean {
+  return Boolean(env.MYOS_FCM_PROJECT_ID && env.MYOS_FCM_CLIENT_EMAIL && env.MYOS_FCM_PRIVATE_KEY);
 }

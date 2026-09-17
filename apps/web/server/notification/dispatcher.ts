@@ -8,6 +8,7 @@ import {
 } from "@myos/core/notification";
 import type { Database } from "@myos/db";
 import * as repo from "./repository";
+import { sendPushForNotification } from "./push-fcm";
 
 /**
  * Notification dispatcher (Sprint 3.3). Decides delivery channels via the PURE core
@@ -42,6 +43,14 @@ export async function dispatch(
     status: "delivered",
     note: decision.channels.join(","),
   });
+
+  // Native push (Stage D): when the delivery includes the `push` channel, hand it to FCM so it
+  // reaches the device even with the app closed. Fire-and-forget + guarded — a push failure (or no
+  // FCM config) never affects the in-app delivery that already succeeded. This is the ONE seam every
+  // delivery path (immediate + scheduled/worker) flows through, so background pushes ride it too.
+  if (decision.channels.includes("push")) {
+    void sendPushForNotification(db, saved).catch(() => {});
+  }
 
   return {
     notification: saved,
