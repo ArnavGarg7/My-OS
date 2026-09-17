@@ -1,0 +1,107 @@
+/**
+ * Premium motion + light effects (V2 aesthetic pass). Reusable, token-driven
+ * class helpers that let any surface pick up the Kinetic Obsidian depth without
+ * re-deriving the values: an ambient amber aurora, a faint grid texture, an
+ * expressive staggered entrance, an accent hairline edge and an interactive
+ * hover-lift. Reduced-motion is neutralized globally by base.css.
+ */
+
+/* ── Ambient amber aurora behind hero surfaces ─────────────────────────────── */
+@keyframes myos-aurora-drift {
+  from {
+    transform: translate3d(-2%, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, 2%, 0) scale(1.08);
+  }
+}
+.myos-aurora {
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 62vh;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 60% at 26% 0%, rgba(255, 122, 26, 0.16), transparent 66%),
+    radial-gradient(40% 52% at 82% 6%, rgba(56, 189, 248, 0.07), transparent 62%);
+  filter: blur(6px);
+  animation: myos-aurora-drift 16s ease-in-out infinite alternate;
+}
+.myos-grid-tex {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.3;
+  background-image:
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(120% 78% at 50% -12%, #000 12%, transparent 60%);
+  mask-image: radial-gradient(120% 78% at 50% -12%, #000 12%, transparent 60%);
+}
+
+/* ── Expressive staggered entrance for a container's direct children ───────── */
+@keyframes myos-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.myos-stagger > * {
+  animation: myos-rise 0.62s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.myos-stagger > *:nth-child(1) {
+  animation-delay: 0.02s;
+}
+.myos-stagger > *:nth-child(2) {
+  animation-delay: 0.09s;
+}
+.myos-stagger > *:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.myos-stagger > *:nth-child(4) {
+  animation-delay: 0.23s;
+}
+.myos-stagger > *:nth-child(5) {
+  animation-delay: 0.3s;
+}
+.myos-stagger > *:nth-child(6) {
+  animation-delay: 0.37s;
+}
+
+/* ── Accent gradient hairline along a surface's top edge ───────────────────── */
+.myos-edge {
+  position: relative;
+}
+.myos-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.85;
+}
+
+/* ── Interactive lift + warm glow for clickable cards/tiles ────────────────── */
+.myos-lift {
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+.myos-lift:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-border);
+  box-shadow:
+    var(--shadow-e2),
+    0 0 0 1px rgba(255, 122, 26, 0.18);
+}
+.myos-lift:active {
+  transform: translateY(-1px);
+}

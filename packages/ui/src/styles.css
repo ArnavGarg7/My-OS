@@ -12,6 +12,7 @@
 @import "./styles/tokens.css";
 @import "./styles/theme.css";
 @import "./styles/base.css";
+@import "./styles/effects.css";
 
 /* Scan the component library so its utility classes are never purged. */
 @source "./**/*.{ts,tsx}";
