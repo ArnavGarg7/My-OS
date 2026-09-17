@@ -30,13 +30,8 @@ export function ChiefOfStaff() {
   const provider = now.data?.provider.provider ?? "local";
 
   return (
-    <PageContainer width="content">
-      <PageContent className="relative">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-8 left-1/4 -z-10 h-48 w-2/3 rounded-full opacity-60 blur-3xl"
-          style={{ background: "var(--glow-ambient)" }}
-        />
+    <PageContainer width="content" aurora>
+      <PageContent stagger>
         <div className="flex flex-col gap-8 pb-16">
           <ChiefFrame morning={morning.data?.morning ?? null} provider={provider} />
 

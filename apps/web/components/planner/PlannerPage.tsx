@@ -38,8 +38,8 @@ export function PlannerPage() {
   if (planner.isLoading) return <PageLoading label="Loading your plan…" />;
 
   return (
-    <PageContainer width="full" className="p-0">
-      <PageContent className="gap-0 p-0">
+    <PageContainer width="full" className="p-0" aurora>
+      <PageContent stagger className="gap-0 p-0">
         <PlannerToolbar planner={planner} />
         <div className="border-border flex items-center justify-between gap-2 border-b px-4 py-2">
           <PlannerFilters visible={visible} onToggle={toggleType} />

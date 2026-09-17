@@ -51,7 +51,7 @@ export function KnowledgePage() {
   }
 
   return (
-    <PageContainer>
+    <PageContainer aurora>
       <PageHeader
         title="Knowledge"
         description="Your second brain — what you know, what you're learning, what to remember."

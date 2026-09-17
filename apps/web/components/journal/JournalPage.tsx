@@ -49,8 +49,8 @@ export function JournalPage() {
     );
 
   return (
-    <PageContainer width="full" className="p-0">
-      <PageContent className="gap-0 p-0">
+    <PageContainer width="full" className="p-0" aurora>
+      <PageContent stagger className="gap-0 p-0">
         <div className="border-border flex flex-wrap items-center gap-2 border-b p-3">
           <Button
             size="sm"

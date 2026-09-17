@@ -49,8 +49,8 @@ export function FinancePage() {
   const summary = finance.summary;
 
   return (
-    <PageContainer width="full">
-      <PageContent>
+    <PageContainer width="full" aurora>
+      <PageContent stagger>
         <div className="flex flex-wrap items-center justify-end gap-2">
           <AccountManagerDialog controller={finance} />
           <CategoryManagerDialog controller={finance} />

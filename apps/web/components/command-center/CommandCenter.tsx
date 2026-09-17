@@ -81,12 +81,8 @@ export function CommandCenter() {
       : "Here is where things stand right now. Everything below is live.");
 
   return (
-    <PageContainer width="content" className="relative overflow-hidden">
-      {/* Ambient light — the amber accent as a real source (shared with Home). */}
-      <div className="myos-aurora" aria-hidden />
-      <div className="myos-grid-tex" aria-hidden />
-
-      <PageContent className="relative z-[1]">
+    <PageContainer width="content" aurora>
+      <PageContent>
         <div className="myos-stagger flex flex-col gap-8 pb-16">
           {/* Contextual header */}
           <header className="flex flex-col gap-3">

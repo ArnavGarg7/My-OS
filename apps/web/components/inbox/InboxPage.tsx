@@ -30,8 +30,8 @@ export function InboxPage() {
         : "Your inbox is clear. Capture anything to get started.";
 
   return (
-    <PageContainer width="full" className="p-0">
-      <PageContent className="gap-0 p-0">
+    <PageContainer width="full" className="p-0" aurora>
+      <PageContent stagger className="gap-0 p-0">
         <InboxToolbar inbox={inbox} />
         <InboxList
           items={inbox.view}

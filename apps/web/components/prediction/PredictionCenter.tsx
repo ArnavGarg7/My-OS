@@ -103,12 +103,12 @@ function ConfidenceBadge({ level, score }: { level: string; score: number }) {
 
 export function PredictionCenter() {
   return (
-    <PageContainer>
+    <PageContainer aurora>
       <PageHeader
         title="Predictions"
         description="The Predictive Intelligence Engine — deterministic forecasts of what's likely to happen. The OS predicts; the AI only explains. Nothing here changes your plans."
       />
-      <PageContent>
+      <PageContent stagger>
         <Tabs defaultValue="feed">
           <TabsList>
             <TabsTrigger value="feed">Forecasts</TabsTrigger>

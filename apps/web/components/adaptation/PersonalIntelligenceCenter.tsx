@@ -62,12 +62,12 @@ function ConfidenceBadge({ level, caption }: { level: string; caption?: string }
 
 export function PersonalIntelligenceCenter() {
   return (
-    <PageContainer>
+    <PageContainer aurora>
       <PageHeader
         title="Personal Intelligence"
         description="What the OS has learned about you, from your own behaviour and feedback — deterministic, evidence-backed and fully under your control. The system adapts; it never guesses, and the AI never learns on its own."
       />
-      <PageContent>
+      <PageContent stagger>
         <Tabs defaultValue="profile">
           <TabsList>
             <TabsTrigger value="profile">Profile</TabsTrigger>

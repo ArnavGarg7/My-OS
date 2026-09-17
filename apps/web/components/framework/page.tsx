@@ -12,20 +12,36 @@ export interface PageContainerProps {
   className?: string;
   /** content = 1200px · prose = 45rem · full = fluid. */
   width?: "content" | "prose" | "full";
+  /** Render the ambient amber aurora + grid-texture backdrop (V2 aesthetic pass). */
+  aurora?: boolean;
 }
 
 /** Outer vertical page frame with the standard gutters + max width. */
-export function PageContainer({ children, className, width = "content" }: PageContainerProps) {
+export function PageContainer({
+  children,
+  className,
+  width = "content",
+  aurora = false,
+}: PageContainerProps) {
   return (
     <div
       className={cn(
         "mx-auto flex h-full min-h-0 flex-col gap-4 px-4 py-6 sm:px-6",
         width === "content" && "max-w-[var(--container-content)]",
         width === "prose" && "max-w-[var(--container-prose)]",
+        aurora && "relative overflow-hidden",
         className,
       )}
     >
-      {children}
+      {aurora ? (
+        <>
+          <div className="myos-aurora" aria-hidden />
+          <div className="myos-grid-tex" aria-hidden />
+          <div className="relative z-[1] flex min-h-0 w-full flex-1 flex-col gap-4">{children}</div>
+        </>
+      ) : (
+        children
+      )}
     </div>
   );
 }
@@ -58,13 +74,25 @@ export function PageContent({
   children,
   className,
   scroll = true,
+  stagger = false,
 }: {
   children: ReactNode;
   className?: string;
   scroll?: boolean;
+  /** Give direct children the expressive staggered entrance (V2 aesthetic pass). */
+  stagger?: boolean;
 }) {
   return (
-    <div className={cn("min-h-0 flex-1", scroll && "overflow-y-auto", className)}>{children}</div>
+    <div
+      className={cn(
+        "min-h-0 flex-1",
+        scroll && "overflow-y-auto",
+        stagger && "myos-stagger relative z-[1]",
+        className,
+      )}
+    >
+      {children}
+    </div>
   );
 }
 

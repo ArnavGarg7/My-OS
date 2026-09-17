@@ -78,12 +78,12 @@ const CATEGORY_LABEL: Record<string, string> = {
 export function ConnectorCenter() {
   useOAuthResult();
   return (
-    <PageContainer>
+    <PageContainer aurora>
       <PageHeader
         title="Connectors"
         description="External services become normalized event sources. Connectors synchronize and normalize — the Event Engine decides what matters. Credentials are encrypted and never reachable by the AI. Read-first."
       />
-      <PageContent>
+      <PageContent stagger>
         <Tabs defaultValue="services">
           <TabsList>
             <TabsTrigger value="services">Services</TabsTrigger>

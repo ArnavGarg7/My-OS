@@ -106,8 +106,8 @@ export function ProjectsPage() {
     });
 
   return (
-    <PageContainer width="full" className="p-0">
-      <PageContent className="gap-0 p-0">
+    <PageContainer width="full" className="p-0" aurora>
+      <PageContent stagger className="gap-0 p-0">
         <ProjectToolbar
           view={view}
           onView={setView}

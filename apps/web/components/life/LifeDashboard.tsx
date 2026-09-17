@@ -40,7 +40,7 @@ export function LifeDashboard() {
   const r = life.readiness;
 
   return (
-    <PageContainer>
+    <PageContainer aurora>
       <PageHeader
         title="Life"
         description="Your personal life OS — habits, routines, health, and who you're becoming."

@@ -26,7 +26,7 @@ export function AutomationPage() {
     rule.status === "enabled" ? a.disable(rule.id) : a.enable(rule.id);
 
   return (
-    <PageContainer>
+    <PageContainer aurora>
       <PageHeader title="Automation" description="Deterministic rules that run your OS for you." />
 
       <Tabs defaultValue="rules">

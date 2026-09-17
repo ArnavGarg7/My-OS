@@ -58,8 +58,8 @@ export function AnalyticsPage() {
   );
 
   return (
-    <PageContainer width="full" className="p-0">
-      <PageContent className="gap-0 p-0">
+    <PageContainer width="full" className="p-0" aurora>
+      <PageContent stagger className="gap-0 p-0">
         <div className="border-border flex flex-col gap-3 border-b p-3">
           <div className="flex items-center gap-2">
             <BarChart3 size={16} aria-hidden className="text-fg-subtle" />

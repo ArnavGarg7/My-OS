@@ -28,12 +28,12 @@ export function ResourceDashboard() {
   const portfolio = r.portfolio;
 
   return (
-    <PageContainer>
+    <PageContainer aurora>
       <PageHeader
         title="Resources"
         description="Everything you own, maintain and keep in touch with."
       />
-      <PageContent>
+      <PageContent stagger>
         {portfolio ? (
           <div className="border-border-subtle flex flex-col gap-3 rounded-md border p-3">
             <div className="flex flex-wrap items-baseline gap-3">

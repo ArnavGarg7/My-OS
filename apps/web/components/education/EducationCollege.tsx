@@ -77,8 +77,8 @@ export function EducationCollege() {
   const courseById = new Map(courses.map((c) => [c.id, c]));
 
   return (
-    <PageContainer width="content">
-      <PageContent className="space-y-8 py-2">
+    <PageContainer width="content" aurora>
+      <PageContent stagger className="space-y-8 py-2">
         <header className="space-y-1">
           <MonoLabel tone="subtle">College</MonoLabel>
           <Text asChild variant="heading-l" className="tracking-tight">

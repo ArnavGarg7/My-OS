@@ -166,8 +166,8 @@ export function CalendarPage() {
     open(() => <CalendarExportDialog />, { title: "Export calendar", size: "md" });
 
   return (
-    <PageContainer width="full" className="p-0">
-      <PageContent className="gap-0 p-0">
+    <PageContainer width="full" className="p-0" aurora>
+      <PageContent stagger className="gap-0 p-0">
         <CalendarToolbar cal={cal} onNew={onNew} onImport={onImport} onExport={onExport} />
         <div className="flex min-h-0 flex-1">
           <div className="min-w-0 flex-1 overflow-y-auto">

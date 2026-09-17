@@ -49,12 +49,8 @@ export function FocusedHome() {
   const scheduled = counts.data?.scheduled ?? 0;
 
   return (
-    <PageContainer width="content" className="relative overflow-hidden">
-      {/* Ambient light — the amber accent as a real source. */}
-      <div className="myos-aurora" aria-hidden />
-      <div className="myos-grid-tex" aria-hidden />
-
-      <PageContent className="myos-stagger relative z-[1] mx-auto w-full max-w-3xl space-y-6 py-2">
+    <PageContainer width="content" aurora>
+      <PageContent stagger className="mx-auto w-full max-w-3xl space-y-6 py-2">
         <header className="space-y-2">
           <MonoLabel tone="subtle" bead>
             Home · {todayLabel()}

@@ -27,7 +27,7 @@ export function FocusPage() {
   const active = Boolean(focus.active);
 
   return (
-    <PageContainer>
+    <PageContainer aurora>
       <PageHeader
         eyebrow={
           <MonoLabel tone={active ? "accent" : "subtle"} bead>

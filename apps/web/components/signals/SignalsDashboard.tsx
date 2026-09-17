@@ -62,12 +62,12 @@ const cap = (s: string) => {
 
 export function SignalsDashboard() {
   return (
-    <PageContainer>
+    <PageContainer aurora>
       <PageHeader
         title="Signals"
         description="The Event Intelligence Engine — meaningful changes become ranked, explainable signals. The OS is paying attention; it still never acts on its own."
       />
-      <PageContent>
+      <PageContent stagger>
         <Tabs defaultValue="feed">
           <TabsList>
             <TabsTrigger value="feed">Feed</TabsTrigger>
