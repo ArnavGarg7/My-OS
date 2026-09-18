@@ -96,6 +96,17 @@ export function NativeProvider({ children }: { children: ReactNode }) {
           // leave pushRegistered false; a later launch retries
         });
         await PushNotifications.addListener(
+          "pushNotificationReceived",
+          (_notification: {
+            title?: string;
+            body?: string;
+            id?: string;
+            data?: Record<string, unknown>;
+          }) => {
+            // Foreground notification received; Capacitor presentationOptions display heads-up alert.
+          },
+        );
+        await PushNotifications.addListener(
           "pushNotificationActionPerformed",
           (action: { notification: { data?: Record<string, unknown> } }) => {
             const href = action.notification.data?.href;
@@ -107,7 +118,19 @@ export function NativeProvider({ children }: { children: ReactNode }) {
         if (receive === "prompt" || receive === "prompt-with-rationale") {
           receive = (await PushNotifications.requestPermissions()).receive;
         }
-        if (receive === "granted") await PushNotifications.register();
+        if (receive === "granted") {
+          await PushNotifications.createChannel({
+            id: "default",
+            name: "General Notifications",
+            description: "My OS notifications and reminders",
+            importance: 5,
+            visibility: 1,
+            vibration: true,
+          }).catch(() => {});
+          await PushNotifications.register();
+        } else {
+          pushSetUp.current = false;
+        }
       } catch {
         pushSetUp.current = false; // allow a retry on the next authenticated render
       }
