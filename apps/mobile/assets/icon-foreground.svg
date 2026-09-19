@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- My OS Core Emblem (mark only), filling the layer — the adaptive icon applies its own 16.7%
+       safe-zone inset, so the source must NOT be pre-padded or the mark ends up tiny. -->
+  <g transform="translate(-21,-21) scale(1.42)">
+    <circle cx="50" cy="50" r="28" stroke="#ff7a1a" stroke-width="4" stroke-linecap="round" stroke-dasharray="140 35" />
+    <circle cx="50" cy="50" r="14" fill="#ff7a1a" />
+    <circle cx="50" cy="22" r="4" fill="#ffffff" />
+    <circle cx="78" cy="50" r="3" fill="#ffffff" opacity="0.6" />
+  </g>
+</svg>
