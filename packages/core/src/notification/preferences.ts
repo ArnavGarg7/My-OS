@@ -10,11 +10,20 @@ import type { CategoryPreference, NotificationPreferences } from "./types";
 export function defaultCategoryPreference(type: NotificationType): CategoryPreference {
   // System + critical-ish categories default louder; informational default quieter.
   const loud = type === "system" || type === "finance" || type === "calendar";
+  // Native push (mobile) defaults on for the categories you'd want to know about while away from the
+  // app — time-sensitive prompts and money/calendar — but stays off for quieter informational ones
+  // (still user-toggleable per category).
+  const pushable =
+    type === "reminder" ||
+    type === "alert" ||
+    type === "warning" ||
+    type === "calendar" ||
+    type === "finance";
   return {
     type,
     enabled: true,
     desktop: loud,
-    push: type === "calendar" || type === "finance",
+    push: pushable,
     sound: type === "calendar",
     banner: true,
     persistent: type === "system",

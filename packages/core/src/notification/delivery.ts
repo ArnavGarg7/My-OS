@@ -18,7 +18,9 @@ export function decideDelivery(
   if (notification.priority === "critical") {
     return {
       deliver: true,
-      channels: dedupeChannels(["persistent", "banner", "desktop", "sound"]),
+      // Critical always reaches every surface, including native push — it must land on the phone even
+      // when the app is closed.
+      channels: dedupeChannels(["persistent", "banner", "desktop", "push", "sound"]),
       escalation,
       reason: "Critical notifications always deliver.",
     };
