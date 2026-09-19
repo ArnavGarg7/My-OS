@@ -42,7 +42,10 @@ export function TopBar() {
 
   return (
     <header
-      className="animate-fade-in border-border bg-base/80 flex h-12 shrink-0 items-center gap-3 border-b px-3 backdrop-blur-md [animation-fill-mode:both] sm:px-4"
+      // pt-[env(safe-area-inset-top)] clears the device status bar in the native shell / notched PWAs
+      // (edge-to-edge draws the WebView under the status bar); it is 0 on desktop, so a no-op there.
+      // Matches the bottom nav's safe-area handling. min-h keeps the bar its normal height plus the inset.
+      className="animate-fade-in border-border bg-base/80 flex min-h-12 shrink-0 items-center gap-3 border-b px-3 pt-[env(safe-area-inset-top)] backdrop-blur-md [animation-fill-mode:both] sm:px-4"
       style={{ animationDelay: "60ms" }}
     >
       {/* Left: mobile menu + breadcrumb/title */}
