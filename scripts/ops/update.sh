@@ -12,6 +12,7 @@ set -euo pipefail
 
 COMPOSE_FILE="${COMPOSE_FILE:-infra/docker-compose.yml}"
 HEALTH_URL="${HEALTH_URL:-http://localhost:8080/api/health}"
+ENV_FILE="${ENV_FILE:-.env}"
 PROFILE_ARGS=()
 [ -n "${PROFILE:-}" ] && PROFILE_ARGS=(--profile "$PROFILE")
 
@@ -24,11 +25,11 @@ echo "[2/6] backup database (safety net before any migration)"
 "$(dirname "$0")/backup.sh"
 
 echo "[3/6] build updated images"
-docker compose -f "$COMPOSE_FILE" "${PROFILE_ARGS[@]}" build
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "${PROFILE_ARGS[@]}" build
 
 echo "[4/6] apply migrations (one-shot migrate service) + start services"
 # `up -d` runs the migrate service to completion first (web/worker depend on it), then (re)starts all.
-docker compose -f "$COMPOSE_FILE" "${PROFILE_ARGS[@]}" up -d
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "${PROFILE_ARGS[@]}" up -d
 
 echo "[5/6] wait for health"
 ok=0
