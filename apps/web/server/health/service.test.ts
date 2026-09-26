@@ -20,6 +20,7 @@ const h = vi.hoisted(() => ({
   insertWorkout: vi.fn(),
   updateWorkout: vi.fn(),
   listSleep: vi.fn(),
+  listSleepForDate: vi.fn(),
   insertSleep: vi.fn(),
   listHydration: vi.fn(),
   insertHydration: vi.fn(),
