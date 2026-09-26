@@ -11,6 +11,7 @@ $ErrorActionPreference = "Stop"
 
 $ComposeFile = if ($env:COMPOSE_FILE) { $env:COMPOSE_FILE } else { "infra\docker-compose.yml" }
 $HealthUrl   = if ($env:HEALTH_URL)   { $env:HEALTH_URL }   else { "http://localhost:8080/api/health" }
+$EnvFile     = if ($env:ENV_FILE)     { $env:ENV_FILE }     else { ".env" }
 $ProfileArgs = @()
 if ($env:PROFILE) { $ProfileArgs = @("--profile", $env:PROFILE) }
 
@@ -24,11 +25,11 @@ Write-Host "[2/6] backup database (safety net before any migration)"
 & "$PSScriptRoot\backup.ps1"
 
 Write-Host "[3/6] build updated images"
-docker compose -f $ComposeFile @ProfileArgs build
+docker compose --env-file $EnvFile -f $ComposeFile @ProfileArgs build
 if ($LASTEXITCODE -ne 0) { throw "build failed" }
 
 Write-Host "[4/6] apply migrations + start services"
-docker compose -f $ComposeFile @ProfileArgs up -d
+docker compose --env-file $EnvFile -f $ComposeFile @ProfileArgs up -d
 if ($LASTEXITCODE -ne 0) { throw "compose up failed" }
 
 Write-Host "[5/6] wait for health"
