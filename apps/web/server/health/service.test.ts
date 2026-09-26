@@ -201,8 +201,8 @@ describe("reads", () => {
   });
 
   it("lists sleep sessions", async () => {
-    h.listSleep.mockResolvedValue([sleepRow()]);
-    expect((await service.sleep(db)).length).toBe(1);
+    h.listSleepForDate.mockResolvedValue([sleepRow()]);
+    expect((await service.sleep(db, TZ, DATE)).length).toBe(1);
   });
 
   it("lists workouts for a date", async () => {
