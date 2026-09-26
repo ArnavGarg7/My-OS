@@ -30,7 +30,9 @@ export const healthRouter = router({
     .input(rangeSchema)
     .query(({ ctx, input }) => service.daily(ctx.db, tz(ctx), input.date)),
 
-  sleep: protectedProcedure.query(({ ctx }) => service.sleep(ctx.db)),
+  sleep: protectedProcedure
+    .input(rangeSchema)
+    .query(({ ctx, input }) => service.sleep(ctx.db, tz(ctx), input.date)),
 
   workouts: protectedProcedure
     .input(rangeSchema)

@@ -58,8 +58,8 @@ export async function daily(db: Database, tz: string, date?: string): Promise<He
   return row ? dailyRowToDaily(row) : null;
 }
 
-export async function sleep(db: Database): Promise<SleepSession[]> {
-  return (await repo.listSleep(db, 30)).map(sleepRowToSleep);
+export async function sleep(db: Database, tz: string, date?: string): Promise<SleepSession[]> {
+  return (await repo.listSleepForDate(db, dateFor(tz, date), tz)).map(sleepRowToSleep);
 }
 
 export async function workoutList(db: Database, tz: string, date?: string): Promise<Workout[]> {

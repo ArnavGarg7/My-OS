@@ -128,6 +128,19 @@ export function listSleep(db: Database, limit = 30): Promise<SleepSessionRow[]> 
   return db.select().from(sleepSessions).orderBy(desc(sleepSessions.wakeTime)).limit(limit);
 }
 
+export function listSleepForDate(
+  db: Database,
+  date: string,
+  tz = "UTC",
+): Promise<SleepSessionRow[]> {
+  const { from, to } = dayBounds(date, tz);
+  return db
+    .select()
+    .from(sleepSessions)
+    .where(and(gte(sleepSessions.wakeTime, from), lte(sleepSessions.wakeTime, to)))
+    .orderBy(desc(sleepSessions.wakeTime));
+}
+
 export async function insertSleep(
   db: Database,
   values: { bedTime: Date; wakeTime: Date; durationMinutes: number; quality: number },

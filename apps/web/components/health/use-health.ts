@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { parseLog } from "@myos/core/health";
 import type { EnergyLevel, Mood, WorkoutType } from "@myos/core/health";
 import { useToaster } from "@/lib/framework";
@@ -11,6 +12,9 @@ import { useOptionalAnalytics } from "@/lib/analytics";
  * Client health controller (Sprint 2.9). Reads today's summary + logs and
  * exposes the manual log mutations. Every successful log emits Timeline +
  * Analytics events through the Sprint 2.8.5 seams.
+ *
+ * Supports date navigation: selectedDate defaults to today; changing it
+ * re-fetches all queries for that calendar day (read-only for past dates).
  */
 export function useHealthController() {
   const utils = trpc.useUtils();
@@ -18,12 +22,15 @@ export function useHealthController() {
   const timeline = useOptionalTimeline();
   const analytics = useOptionalAnalytics();
 
-  const summary = trpc.health.summary.useQuery({});
-  const hydration = trpc.health.hydration.useQuery({});
-  const nutrition = trpc.health.nutrition.useQuery({});
-  const workouts = trpc.health.workouts.useQuery({});
+  const today = new Date().toISOString().slice(0, 10);
+  const [selectedDate, setSelectedDate] = useState(today);
+
+  const summary = trpc.health.summary.useQuery({ date: selectedDate });
+  const hydration = trpc.health.hydration.useQuery({ date: selectedDate });
+  const nutrition = trpc.health.nutrition.useQuery({ date: selectedDate });
+  const workouts = trpc.health.workouts.useQuery({ date: selectedDate });
   const body = trpc.health.body.useQuery();
-  const sleep = trpc.health.sleep.useQuery();
+  const sleep = trpc.health.sleep.useQuery({ date: selectedDate });
 
   const refresh = () => {
     utils.health.summary.invalidate();
@@ -91,6 +98,8 @@ export function useHealthController() {
   const moodM = trpc.health.updateMood.useMutation({ onSuccess: refresh });
 
   return {
+    selectedDate,
+    setSelectedDate,
     summary: summary.data ?? null,
     isLoading: summary.isLoading,
     hydration: hydration.data ?? [],
