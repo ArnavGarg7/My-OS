@@ -26,14 +26,14 @@ export function HealthPage() {
   return (
     <PageContainer width="full" aurora>
       <PageContent stagger className="flex flex-col gap-8 pb-10">
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <Text variant="heading-l">Health</Text>
-            <Text variant="body-s" tone="subtle">
-              Deterministic wellness — sleep, recovery, readiness, nutrition and hydration.
-            </Text>
-          </div>
-          <HealthDateNav date={controller.selectedDate} onChange={controller.setSelectedDate} />
+        {/* Date nav always at the very top — tells you exactly whose day you're viewing */}
+        <HealthDateNav date={controller.selectedDate} onChange={controller.setSelectedDate} />
+
+        <div className="flex flex-col gap-1">
+          <Text variant="heading-l">Health</Text>
+          <Text variant="body-s" tone="subtle">
+            Deterministic wellness — sleep, recovery, readiness, nutrition and hydration.
+          </Text>
         </div>
 
         {isToday && (

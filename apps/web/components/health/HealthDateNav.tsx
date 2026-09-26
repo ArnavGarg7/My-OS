@@ -1,11 +1,12 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button, Text } from "@myos/ui";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { Button } from "@myos/ui";
 
 /**
- * HealthDateNav: navigate between days to view historical health data.
- * Shows the selected date and prev/next arrows. Future dates are disabled.
+ * HealthDateNav: prominent full-width date banner at the top of the Health page.
+ * Shows exactly which day the data belongs to. Prev/next arrows navigate days;
+ * clicking the date label jumps back to today. Future dates are disabled.
  */
 export function HealthDateNav({
   date,
@@ -26,24 +27,44 @@ export function HealthDateNav({
   const label = isToday
     ? "Today"
     : new Date(`${date}T12:00:00Z`).toLocaleDateString(undefined, {
-        weekday: "short",
-        month: "short",
+        weekday: "long",
+        month: "long",
         day: "numeric",
+        year: "numeric",
       });
 
   return (
-    <div className="flex items-center gap-2">
+    <div
+      className={[
+        "flex w-full items-center justify-between rounded-lg px-3 py-2",
+        isToday
+          ? "border border-[hsl(var(--border))] bg-[hsl(var(--surface-2))]"
+          : "border border-[hsl(var(--accent)/0.4)] bg-[hsl(var(--accent)/0.12)]",
+      ].join(" ")}
+    >
       <Button variant="ghost" size="sm" onClick={() => shift(-1)} aria-label="Previous day">
         <ChevronLeft size={16} />
       </Button>
+
       <button
-        className="min-w-[120px] text-center"
-        onClick={() => onChange(today)}
-        title="Go to today"
-        aria-label={isToday ? "Today" : `Viewing ${date}, click to go to today`}
+        className="flex flex-1 items-center justify-center gap-2"
+        onClick={() => !isToday && onChange(today)}
+        title={isToday ? "Viewing today" : "Click to go back to today"}
+        aria-label={isToday ? "Today" : `Viewing ${date} — click to go to today`}
+        style={{ cursor: isToday ? "default" : "pointer" }}
       >
-        <Text variant="heading-s">{label}</Text>
+        <CalendarDays size={14} className={isToday ? "opacity-40" : "text-[hsl(var(--accent))]"} />
+        <span
+          className={[
+            "text-sm font-semibold tracking-tight",
+            isToday ? "opacity-70" : "text-[hsl(var(--accent))]",
+          ].join(" ")}
+        >
+          {label}
+        </span>
+        {!isToday && <span className="ml-1 text-xs opacity-50">(tap to go to today)</span>}
       </button>
+
       <Button
         variant="ghost"
         size="sm"

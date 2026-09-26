@@ -44,8 +44,7 @@ export async function loadInput(
     ]);
 
   const sleepHistory = sleepRows.map(sleepRowToSleep);
-  const latestSleep =
-    sleepHistory.find((s) => s.wakeTime.slice(0, 10) === date) ?? sleepHistory[0] ?? null;
+  const latestSleep = sleepHistory.find((s) => s.wakeTime.slice(0, 10) === date) ?? null;
 
   return {
     date,
